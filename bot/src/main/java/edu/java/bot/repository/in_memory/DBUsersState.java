@@ -1,4 +1,4 @@
-package edu.java.bot.repository;
+package edu.java.bot.repository.in_memory;
 
 import edu.java.bot.model.UserState;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UsersState {
+public class DBUsersState {
 
-    private UsersState() {
+    private DBUsersState() {
         db = new HashMap<>();
     }
 
@@ -35,8 +35,8 @@ public class UsersState {
 
     public static void setUserState(Long chatId, UserState newState) {
         if (isUserRegistered(chatId)) {
-            UsersState.deleteUser(chatId);
-            UsersState.db.put(chatId, newState);
+            DBUsersState.deleteUser(chatId);
+            DBUsersState.db.put(chatId, newState);
         }
     }
 

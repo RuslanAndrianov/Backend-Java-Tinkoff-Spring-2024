@@ -1,4 +1,4 @@
-package edu.java.bot.repository;
+package edu.java.bot.repository.in_memory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,9 +7,9 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DatabaseUsers {
+public class DBUsers {
 
-    private DatabaseUsers() {
+    private DBUsers() {
         db = new HashMap<>();
     }
 
