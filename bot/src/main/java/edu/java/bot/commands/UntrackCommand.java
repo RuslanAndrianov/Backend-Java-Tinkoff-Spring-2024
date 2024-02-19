@@ -13,6 +13,7 @@ public class UntrackCommand implements Command {
     public static final String DESCRIPTION = "прекратить отслеживание ссылки";
     public static final String NON_TRACKING = "Ссылка уже отслеживается!";
     public static final String SUCCESS = "Ссылка удалена!";
+
     @Override
     public String name() {
         return NAME;
