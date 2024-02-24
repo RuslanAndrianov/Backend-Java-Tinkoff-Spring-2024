@@ -4,6 +4,8 @@ import edu.java.bot.model.UserState;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
+import static edu.java.bot.model.UserState.REGISTERED;
+import static edu.java.bot.model.UserState.UNREGISTERED;
 
 @Component
 public class DBUsersState {
@@ -15,7 +17,7 @@ public class DBUsersState {
     public static Map<Long, UserState> db;
 
     public static void addUser(Long chatId) {
-        db.put(chatId, UserState.REGISTERED);
+        db.put(chatId, REGISTERED);
     }
 
     public static void deleteUser(Long chatId) {
@@ -30,13 +32,13 @@ public class DBUsersState {
         if (isUserRegistered(chatId)) {
             return db.get(chatId);
         }
-        return UserState.UNREGISTRED;
+        return UNREGISTERED;
     }
 
     public static void setUserState(Long chatId, UserState newState) {
         if (isUserRegistered(chatId)) {
-            DBUsersState.deleteUser(chatId);
-            DBUsersState.db.put(chatId, newState);
+            deleteUser(chatId);
+            db.put(chatId, newState);
         }
     }
 

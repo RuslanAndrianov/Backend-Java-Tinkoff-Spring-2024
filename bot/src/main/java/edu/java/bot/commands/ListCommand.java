@@ -2,10 +2,13 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.DBUsers;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.stereotype.Component;
+import static edu.java.bot.repository.in_memory.DBUsersLinks.getUserLinks;
+import static edu.java.bot.repository.in_memory.DBUsersLinks.isUserRegistered;
 
+@Component
 public class ListCommand implements Command {
 
     public static final String NAME = "/list";
@@ -27,11 +30,11 @@ public class ListCommand implements Command {
     public SendMessage handle(Update update) {
 
         long chatId = update.message().chat().id();
-        if (!DBUsers.isUserRegistered(chatId)) {
+        if (!isUserRegistered(chatId)) {
             return new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER);
         }
 
-        List<String> userLinks = DBUsers.getUserLinks(chatId);
+        List<String> userLinks = getUserLinks(chatId);
         if (userLinks.isEmpty()) {
             return new SendMessage(chatId, EMPTY_LIST);
         }

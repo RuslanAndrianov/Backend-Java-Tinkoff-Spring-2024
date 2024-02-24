@@ -6,10 +6,12 @@ import com.pengrad.telegrambot.model.Update;
 import edu.java.bot.commands.Command;
 import edu.java.bot.commands.TrackCommand;
 import edu.java.bot.commands.UntrackCommand;
-import edu.java.bot.configuration.CommandsConfig;
-import edu.java.bot.model.UserState;
-import edu.java.bot.repository.in_memory.DBUsersState;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import static edu.java.bot.configuration.CommandsConfig.COMMANDS;
+import static edu.java.bot.model.UserState.TRACK;
+import static edu.java.bot.model.UserState.UNTRACKED;
+import static edu.java.bot.repository.in_memory.DBUsersState.getUserState;
 
 @Component
 public class MessageHandler {
@@ -27,20 +29,19 @@ public class MessageHandler {
         };
     }
 
-    private void messageHandler(Update update) {
+    private void messageHandler(@NotNull Update update) {
         long chatId = update.message().chat().id();
         String text = update.message().text();
 
-        if (DBUsersState.getUserState(chatId) == UserState.TRACK) {
+        if (getUserState(chatId) == TRACK) {
             telegramBot.execute(TrackCommand.trackURL(update));
         }
 
-        if (DBUsersState.getUserState(chatId) == UserState.UNTRACK) {
+        if (getUserState(chatId) == UNTRACKED) {
             telegramBot.execute(UntrackCommand.untrackURL(update));
         }
 
-        for (int i = 0; i < CommandsConfig.COMMANDS.size(); i++) {
-            Command command = CommandsConfig.COMMANDS.get(i);
+        for (Command command : COMMANDS) {
             if (text.equals(command.name())) {
                 telegramBot.execute(command.handle(update));
             }

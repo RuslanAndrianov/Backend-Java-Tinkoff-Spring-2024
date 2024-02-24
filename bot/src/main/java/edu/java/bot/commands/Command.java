@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 
 public interface Command {
 
-    String ANSWER_TO_UNREGISTERED_USER = "Сначала зарегистрируйтесь с помощью команды /start";
+    String ANSWER_TO_UNREGISTERED_USER = "Ошибка! Сначала зарегистрируйтесь с помощью команды /start";
     String INPUT_URL = "Введите URL:";
     String INVALID_URL = "Ошибка при вводе URL! Используйте команду заново!";
 
