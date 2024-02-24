@@ -46,14 +46,15 @@ public class UntrackCommand implements Command {
 
         setUserState(chatId, UserState.REGISTERED);
 
+        if (!isValidURL(text)) {
+            return new SendMessage(chatId, INVALID_URL);
+        }
+
         if (!isUserHasLink(chatId, text)) {
             return new SendMessage(chatId, NON_TRACKING);
         }
 
-        if (isValidURL(text)) {
-            deleteLink(chatId, text);
-            return new SendMessage(chatId, SUCCESS);
-        }
-        return new SendMessage(chatId, INVALID_URL);
+        deleteLink(chatId, text);
+        return new SendMessage(chatId, SUCCESS);
     }
 }
