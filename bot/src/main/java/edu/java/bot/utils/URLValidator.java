@@ -14,6 +14,7 @@ public class URLValidator {
             URL url = new URL(text);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
+            System.out.println(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 return true;
             }
