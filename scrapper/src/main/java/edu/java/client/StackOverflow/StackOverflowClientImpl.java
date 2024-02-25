@@ -24,10 +24,16 @@ public class StackOverflowClientImpl implements StackOverflowClient {
     }
 
     @Override
-    public QuestionResponse fetchQuestion(long questionId, String order, String sort) {
+    public QuestionResponse fetchQuestion(Long questionId) {
         return this.webClient
             .get()
-            .uri("questions/${questionId}?order=${order}&sort=${sort}&site=stackoverflow", questionId, order, sort)
+            .uri(uriBuilder -> uriBuilder
+                .path("/questions/" + questionId)
+                .queryParam("pagesize", 1)
+                .queryParam("order", "desc")
+                .queryParam("sort", "activity")
+                .queryParam("site", "stackoverflow")
+                .build())
             .retrieve()
             .bodyToMono(QuestionResponse.class)
             .block();
