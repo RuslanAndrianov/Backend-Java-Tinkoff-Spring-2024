@@ -16,6 +16,6 @@ logging:
 
 api:
   github:
-    baseUrl: https://api.github.com/
+    defaultUrl: https://api.github.com/
   stackoverflow:
-    baseUrl: https://api.stackexchange.com/2.3/
+    defaultUrl: https://api.stackexchange.com/2.3/
