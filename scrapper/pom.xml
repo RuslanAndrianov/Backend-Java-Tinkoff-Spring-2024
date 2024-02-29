@@ -124,6 +124,12 @@
             <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Docs -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
