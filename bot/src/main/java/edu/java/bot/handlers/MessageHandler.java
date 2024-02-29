@@ -9,8 +9,8 @@ import edu.java.bot.commands.UntrackCommand;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import static edu.java.bot.configuration.CommandsConfig.COMMANDS;
-import static edu.java.bot.model.UserState.TRACK;
-import static edu.java.bot.model.UserState.UNTRACKED;
+import static edu.java.bot.repository.in_memory.UserState.TRACK;
+import static edu.java.bot.repository.in_memory.UserState.UNTRACKED;
 import static edu.java.bot.repository.in_memory.DBUsersState.getUserState;
 
 @Component
