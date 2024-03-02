@@ -51,7 +51,6 @@
     <modules>
         <module>bot</module>
         <module>scrapper</module>
-        <module>shared_dto</module>
     </modules>
 
     <dependencyManagement>

@@ -1,10 +1,10 @@
 package edu.java.bot.http_client;
 
-import edu.java.model.request.AddLinkRequest;
-import edu.java.model.request.RemoveLinkRequest;
-import edu.java.model.response.APIErrorResponse;
-import edu.java.model.response.LinkResponse;
-import edu.java.model.response.ListLinksResponse;
+import edu.java.bot.model.request.AddLinkRequest;
+import edu.java.bot.model.request.RemoveLinkRequest;
+import edu.java.bot.model.response.APIErrorResponse;
+import edu.java.bot.model.response.LinkResponse;
+import edu.java.bot.model.response.ListLinksResponse;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
