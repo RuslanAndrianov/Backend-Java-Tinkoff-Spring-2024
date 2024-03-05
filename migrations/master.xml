@@ -9,5 +9,8 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-<!--    <include file="01-foo.sql"/>-->
+    <include file="create_chat_state.sql"/>
+    <include file="create_table_chats.sql"/>
+    <include file="create_table_links.sql"/>
+    <include file="create_table_chats_to_links.sql"/>
 </databaseChangeLog>
