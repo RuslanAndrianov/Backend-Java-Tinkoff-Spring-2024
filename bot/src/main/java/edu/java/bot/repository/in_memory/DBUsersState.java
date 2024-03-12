@@ -1,11 +1,10 @@
 package edu.java.bot.repository.in_memory;
 
-import edu.java.bot.model.UserState;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.model.UserState.REGISTERED;
-import static edu.java.bot.model.UserState.UNREGISTERED;
+import static edu.java.bot.repository.in_memory.UserState.REGISTERED;
+import static edu.java.bot.repository.in_memory.UserState.UNREGISTERED;
 
 @Component
 public class DBUsersState {

@@ -3,8 +3,9 @@ package edu.java.bot.utils;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("RegexpSinglelineJava")
+@Slf4j
 public class URLValidator {
 
     private URLValidator() {}
@@ -14,12 +15,11 @@ public class URLValidator {
             URL url = new URL(text);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
-            System.out.println(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 return true;
             }
         } catch (IOException e) {
-            System.out.println(e);
+            log.info(String.valueOf(e));
         }
         return false;
     }
