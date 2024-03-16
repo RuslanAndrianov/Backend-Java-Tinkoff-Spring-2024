@@ -1,4 +1,4 @@
-package edu.java.client.StackOverflow;
+package edu.java.clients.StackOverflow;
 
 public interface StackOverflowClient {
 

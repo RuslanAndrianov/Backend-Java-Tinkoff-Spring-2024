@@ -3,7 +3,7 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.configuration.CommandsConfig.COMMANDS;
+import static edu.java.bot.configs.CommandsConfig.COMMANDS;
 
 @Component
 public class HelpCommand implements Command {

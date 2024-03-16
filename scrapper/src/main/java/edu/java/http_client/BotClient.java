@@ -1,8 +1,8 @@
 package edu.java.http_client;
 
-import edu.java.model.request.LinkUpdate;
-import edu.java.model.response.APIErrorResponse;
 import java.util.Optional;
+import edu.shared_dto.request_dto.LinkUpdate;
+import edu.shared_dto.response_dto.APIErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.BodyInserters;

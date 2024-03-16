@@ -1,4 +1,4 @@
-package edu.java.client.GitHub;
+package edu.java.clients.GitHub;
 
 public interface GitHubClient {
 

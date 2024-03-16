@@ -1,4 +1,4 @@
-package edu.java.client.GitHub;
+package edu.java.clients.GitHub;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;

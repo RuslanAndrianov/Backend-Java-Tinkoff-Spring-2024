@@ -1,4 +1,4 @@
-package edu.java.client.StackOverflow;
+package edu.java.clients.StackOverflow;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
