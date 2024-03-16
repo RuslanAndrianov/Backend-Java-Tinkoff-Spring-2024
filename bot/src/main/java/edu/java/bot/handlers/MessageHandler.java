@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import static edu.java.bot.configuration.CommandsConfig.COMMANDS;
 import static edu.java.bot.repository.in_memory.DBUsersState.getUserState;
-import static edu.java.bot.repository.in_memory.UserState.TRACK;
-import static edu.java.bot.repository.in_memory.UserState.UNTRACKED;
+import static edu.shared_dto.ChatState.TRACK;
+import static edu.shared_dto.ChatState.UNTRACKED;
 
 @Component
 public class MessageHandler {

@@ -14,17 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static edu.java.bot.commands.TrackCommand.trackURL;
 import static edu.java.bot.commands.UntrackCommand.untrackURL;
-import static edu.java.bot.repository.in_memory.UserState.REGISTERED;
-import static edu.java.bot.repository.in_memory.UserState.TRACK;
-import static edu.java.bot.repository.in_memory.UserState.UNREGISTERED;
-import static edu.java.bot.repository.in_memory.UserState.UNTRACKED;
 import static edu.java.bot.repository.in_memory.DBUsersState.getUserState;
+import static edu.shared_dto.ChatState.REGISTERED;
+import static edu.shared_dto.ChatState.TRACK;
+import static edu.shared_dto.ChatState.UNREGISTERED;
+import static edu.shared_dto.ChatState.UNTRACKED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = BotApplication.class)
-public class UserStateChangeTest {
+public class ChatStateChangeTest {
 
     @Autowired
     HelpCommand helpCommand;

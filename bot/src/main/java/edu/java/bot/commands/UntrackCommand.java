@@ -2,7 +2,7 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.UserState;
+import edu.shared_dto.ChatState;
 import org.springframework.stereotype.Component;
 import static edu.java.bot.repository.in_memory.DBUsersLinks.deleteLink;
 import static edu.java.bot.repository.in_memory.DBUsersLinks.isUserHasLink;
@@ -36,7 +36,7 @@ public class UntrackCommand implements Command {
         if (!isUserRegistered(chatId)) {
             return new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER);
         }
-        setUserState(chatId, UserState.UNTRACKED);
+        setUserState(chatId, ChatState.UNTRACKED);
         return new SendMessage(chatId, INPUT_URL);
     }
 
@@ -44,7 +44,7 @@ public class UntrackCommand implements Command {
         long chatId = update.message().chat().id();
         String text = update.message().text();
 
-        setUserState(chatId, UserState.REGISTERED);
+        setUserState(chatId, ChatState.REGISTERED);
 
         if (!isValidURL(text)) {
             return new SendMessage(chatId, INVALID_URL);

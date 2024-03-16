@@ -29,7 +29,7 @@ public class BotController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> updateLink(@RequestBody LinkUpdate request) {
-        log.info("Запрос:" + request);
+        log.info("Запрос: " + request);
         return ResponseEntity.ok().build();
     }
 }

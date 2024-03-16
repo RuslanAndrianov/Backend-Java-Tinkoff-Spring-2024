@@ -12,7 +12,6 @@ public class ChatsRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public ChatsRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

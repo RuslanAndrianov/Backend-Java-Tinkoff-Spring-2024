@@ -12,7 +12,6 @@ public class ChatsToLinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public ChatsToLinksRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

@@ -3,20 +3,17 @@ package edu.java.domain.repository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import edu.java.domain.dto.Link;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class LinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public LinksRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public void add(@NotNull Link link) {
         String sql = "INSERT INTO links (link_id, url, last_updated) VALUES (?, ?)";
