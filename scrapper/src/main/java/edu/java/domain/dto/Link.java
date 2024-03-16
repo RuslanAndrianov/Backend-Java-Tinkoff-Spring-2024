@@ -6,6 +6,6 @@ import java.time.OffsetDateTime;
 public record Link(
     long linkId,
     URL url,
-    int lastUpdated
+    OffsetDateTime lastUpdated
 ) {
 }
