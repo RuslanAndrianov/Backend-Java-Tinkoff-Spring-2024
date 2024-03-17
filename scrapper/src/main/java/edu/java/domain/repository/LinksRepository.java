@@ -29,6 +29,18 @@ public class LinksRepository {
     }
 
     @Transactional
+    public Link findLinkById(long linkId) {
+        String sql = "SELECT link_id, url, last_updated FROM links WHERE link_id = ?";
+        return jdbcTemplate.queryForObject(sql, linksRowMapper, linkId);
+    }
+
+    @Transactional
+    public Link findLinkByURL(String url) {
+        String sql = "SELECT link_id, url, last_updated FROM links WHERE url = ?";
+        return jdbcTemplate.queryForObject(sql, linksRowMapper, url);
+    }
+
+    @Transactional
     public List<Link> findAllLinks() {
         String sql = "SELECT * FROM links";
         return jdbcTemplate.query(sql, linksRowMapper);

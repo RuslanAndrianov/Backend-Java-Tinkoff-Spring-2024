@@ -84,6 +84,42 @@ public class LinksRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
+    void findLinkByIdTest() {
+        long link_id99 = 99L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+
+        Link link99 = new Link(link_id99, url, OffsetDateTime.now());
+
+        linksRepository.add(link99);
+
+        Link foundLink = linksRepository.findLinkById(link_id99);
+        assertEquals(foundLink.linkId(), link99.linkId());
+        assertEquals(foundLink.url(), link99.url());
+
+        linksRepository.remove(link99);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findLinkByURLTest() {
+        long link_id999 = 999L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+
+        Link link999 = new Link(link_id999, url, OffsetDateTime.now());
+
+        linksRepository.add(link999);
+
+        Link foundLink = linksRepository.findLinkByURL(url);
+        assertEquals(foundLink.linkId(), link999.linkId());
+        assertEquals(foundLink.url(), link999.url());
+
+        linksRepository.remove(link999);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
     void findAllLinksTest() {
         String url3 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url4 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";

@@ -29,6 +29,12 @@ public class ChatsRepository {
     }
 
     @Transactional
+    public Chat findChat(long chatId) {
+        String sql = "SELECT chat_id, chat_state FROM chats WHERE chat_id = ?";
+        return jdbcTemplate.queryForObject(sql, chatsRowMapper, chatId);
+    }
+
+    @Transactional
     public List<Chat> findAllChats() {
         String sql = "SELECT chat_id, chat_state FROM chats";
         return jdbcTemplate.query(sql, chatsRowMapper);

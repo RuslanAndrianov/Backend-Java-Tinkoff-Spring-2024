@@ -69,7 +69,23 @@ public class ChatsRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() {
+    void findChatTest() {
+        long chat_id99 = 99L;
+
+        Chat chat99 = new Chat(chat_id99, REGISTERED.toString());
+
+        chatsRepository.add(chat99);
+
+        Chat foundChat = chatsRepository.findChat(chat_id99);
+        assertEquals(foundChat, chat99);
+
+        chatsRepository.remove(chat99);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findAllChatsTest() {
         long chat_id3 = 3L;
         long chat_id4 = 4L;
         long chat_id5 = 5L;
