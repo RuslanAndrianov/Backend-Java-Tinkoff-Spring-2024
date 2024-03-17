@@ -24,7 +24,7 @@ public class LinksRepository {
 
     @Transactional
     public void remove(@NotNull Link link) {
-        String sql = "DELETE FROM links WHERE id = ?";
+        String sql = "DELETE FROM links WHERE link_id = ?";
         jdbcTemplate.update(sql, link.linkId());
     }
 

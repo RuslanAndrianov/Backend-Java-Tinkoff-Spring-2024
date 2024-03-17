@@ -5,6 +5,8 @@ app:
     force-check-delay: 10000  # Задержка в миллисекундах
 
 spring:
+  liquibase:
+    enabled: false
   application:
     name: scrapper
   autoconfigure:

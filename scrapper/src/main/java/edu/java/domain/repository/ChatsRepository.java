@@ -18,19 +18,19 @@ public class ChatsRepository {
 
     @Transactional
     public void add(@NotNull Chat chat) {
-        String sql = "INSERT INTO chats (chat_id, state) VALUES (?, ?)";
+        String sql = "INSERT INTO chats (chat_id, chat_state) VALUES (?, ?)";
         jdbcTemplate.update(sql, chat.chatId(), chat.chatState());
     }
 
     @Transactional
     public void remove(@NotNull Chat chat) {
-        String sql = "DELETE FROM chats WHERE id = ?";
+        String sql = "DELETE FROM chats WHERE chat_id = ?";
         jdbcTemplate.update(sql, chat.chatId());
     }
 
     @Transactional
     public List<Chat> findAllChats() {
-        String sql = "SELECT * FROM chats";
+        String sql = "SELECT chat_id, chat_state FROM chats";
         return jdbcTemplate.query(sql, chatsRowMapper);
     }
 }

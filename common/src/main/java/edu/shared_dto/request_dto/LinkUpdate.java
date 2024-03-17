@@ -1,9 +1,9 @@
 package edu.shared_dto.request_dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public record LinkUpdate(
     @NotNull Long id,

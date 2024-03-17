@@ -11,8 +11,8 @@ public class MigrationsTest extends IntegrationTest {
     @Test
     public void testScenario() {
 
-        long expectedChatId = 10L;
-        long expectedLinkId = 20L;
+        long expectedChatId = 100L;
+        long expectedLinkId = 200L;
         String expectedUrl = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
@@ -57,5 +57,11 @@ public class MigrationsTest extends IntegrationTest {
         assertThat(actualChatId).isEqualTo(expectedChatId);
         assertThat(actualUrl).isEqualTo(expectedUrl);
         assertThat(actualLinkId).isEqualTo(expectedLinkId);
+
+        jdbcTemplate.update("DELETE FROM chats");
+
+        jdbcTemplate.update("DELETE FROM links");
+
+        jdbcTemplate.update("DELETE FROM chats_to_links");
     }
 }

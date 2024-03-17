@@ -9,7 +9,6 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <include file="scripts/create_chat_state.sql"/>
     <include file="scripts/create_table_chats.sql"/>
     <include file="scripts/create_table_links.sql"/>
     <include file="scripts/create_table_chats_to_links.sql"/>

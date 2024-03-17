@@ -1,8 +1,8 @@
 package edu.java.bot.repository.in_memory;
 
+import edu.shared_dto.ChatState;
 import java.util.HashMap;
 import java.util.Map;
-import edu.shared_dto.ChatState;
 import org.springframework.stereotype.Component;
 import static edu.shared_dto.ChatState.REGISTERED;
 import static edu.shared_dto.ChatState.UNREGISTERED;
