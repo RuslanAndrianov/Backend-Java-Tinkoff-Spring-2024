@@ -8,11 +8,14 @@ import edu.java.domain.repository.LinksRepository;
 import edu.java.services.LinkService;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
+@Service
+@Slf4j
 public class JdbcLinkService implements LinkService {
 
     private final LinksRepository linksRepository;
@@ -20,27 +23,39 @@ public class JdbcLinkService implements LinkService {
     private final ChatsToLinksRepository chatsToLinksRepository;
 
     @Override
-    public void add(long tgChatId, String url) {
-        Chat chat = chatsRepository.findChat(tgChatId);
-        long linkId = linksRepository.findAllLinks().size() + 1;
-        Link link = new Link(linkId, url, OffsetDateTime.now());
+    public boolean addLinkToChatByUrl(long tgChatId, String url) {
+        Chat chat = chatsRepository.getChatById(tgChatId);
+        Link link = linksRepository.getLinkByURL(url);
+        boolean result1 = false;
+        boolean result2;
 
-        linksRepository.add(link);
-        chatsToLinksRepository.addLink(chat, link);
+        if (link == null) {
+            List<Link> links = linksRepository.getAllLinks();
+            long linkId = links.isEmpty() ? 1 : links.getLast().linkId() + 1;
+            link = new Link(linkId, url, OffsetDateTime.now());
+            result1 = linksRepository.addLink(link);
+        }
+
+        result2 = chatsToLinksRepository.addLinkToChat(chat, link);
+
+        return result1 || result2;
     }
 
     @Override
-    public void remove(long tgChatId, String url) {
-        Chat chat = chatsRepository.findChat(tgChatId);
-        Link link = linksRepository.findLinkByURL(url);
-
-        chatsToLinksRepository.removeLink(chat, link);
-        linksRepository.remove(link);
+    public boolean deleteLinkFromChatByUrl(long tgChatId, String url) {
+        Chat chat = chatsRepository.getChatById(tgChatId);
+        Link link = linksRepository.getLinkByURL(url);
+        return chatsToLinksRepository.deleteLinkFromChat(chat, link);
     }
 
     @Override
-    public Collection<Link> listAll(long tgChatId) {
-        Chat chat = chatsRepository.findChat(tgChatId);
-        return chatsToLinksRepository.findAllLinksByChat(chat);
+    public Link findLinkByUrl(String url) {
+        return linksRepository.getLinkByURL(url);
+    }
+
+    @Override
+    public Collection<Link> findAllLinksByChat(long tgChatId) {
+        Chat chat = chatsRepository.getChatById(tgChatId);
+        return chatsToLinksRepository.getAllLinksByChat(chat);
     }
 }

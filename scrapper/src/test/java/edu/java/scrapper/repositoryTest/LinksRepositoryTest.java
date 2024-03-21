@@ -54,14 +54,14 @@ public class LinksRepositoryTest extends IntegrationTest {
 
         Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
 
-        linksRepository.add(link1);
-        List<Link> links = linksRepository.findAllLinks();
+        linksRepository.addLink(link1);
+        List<Link> links = linksRepository.getAllLinks();
 
         assertEquals(links.size(), 1);
         assertEquals(links.getFirst().linkId(), link_id1);
         assertEquals(links.getFirst().url(), url1);
 
-        linksRepository.remove(link1);
+        linksRepository.deleteLink(link1);
     }
 
     @Test
@@ -74,9 +74,9 @@ public class LinksRepositoryTest extends IntegrationTest {
 
         Link link2  = new Link(link_id12, url2, OffsetDateTime.now());
 
-        linksRepository.add(link2);
-        linksRepository.remove(link2);
-        List<Link> links = linksRepository.findAllLinks();
+        linksRepository.addLink(link2);
+        linksRepository.deleteLink(link2);
+        List<Link> links = linksRepository.getAllLinks();
 
         assertEquals(links.size(), 0);
     }
@@ -90,13 +90,13 @@ public class LinksRepositoryTest extends IntegrationTest {
 
         Link link99 = new Link(link_id99, url, OffsetDateTime.now());
 
-        linksRepository.add(link99);
+        linksRepository.addLink(link99);
 
-        Link foundLink = linksRepository.findLinkById(link_id99);
+        Link foundLink = linksRepository.getLinkById(link_id99);
         assertEquals(foundLink.linkId(), link99.linkId());
         assertEquals(foundLink.url(), link99.url());
 
-        linksRepository.remove(link99);
+        linksRepository.deleteLink(link99);
     }
 
     @Test
@@ -108,13 +108,13 @@ public class LinksRepositoryTest extends IntegrationTest {
 
         Link link999 = new Link(link_id999, url, OffsetDateTime.now());
 
-        linksRepository.add(link999);
+        linksRepository.addLink(link999);
 
-        Link foundLink = linksRepository.findLinkByURL(url);
+        Link foundLink = linksRepository.getLinkByURL(url);
         assertEquals(foundLink.linkId(), link999.linkId());
         assertEquals(foundLink.url(), link999.url());
 
-        linksRepository.remove(link999);
+        linksRepository.deleteLink(link999);
     }
 
     @Test
@@ -133,16 +133,16 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link4 = new Link(link_id4, url4, OffsetDateTime.now());
         Link link5 = new Link(link_id5, url5, OffsetDateTime.now());
 
-        linksRepository.add(link3);
-        linksRepository.add(link4);
-        linksRepository.add(link5);
+        linksRepository.addLink(link3);
+        linksRepository.addLink(link4);
+        linksRepository.addLink(link5);
 
-        List<Link> links = linksRepository.findAllLinks();
+        List<Link> links = linksRepository.getAllLinks();
         assertEquals(links.size(), 3);
 
-        linksRepository.remove(link3);
-        linksRepository.remove(link4);
-        linksRepository.remove(link5);
+        linksRepository.deleteLink(link3);
+        linksRepository.deleteLink(link4);
+        linksRepository.deleteLink(link5);
     }
 
     @Test
@@ -156,15 +156,15 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link6 = new Link(link_id6, url6, OffsetDateTime.now());
         boolean isError = false;
 
-        linksRepository.add(link6);
+        linksRepository.addLink(link6);
         try {
-            linksRepository.add(link6);
+            linksRepository.addLink(link6);
         } catch (DuplicateKeyException e) {
             isError = true;
         }
 
         assertTrue(isError);
 
-        linksRepository.remove(link6);
+        linksRepository.deleteLink(link6);
     }
 }

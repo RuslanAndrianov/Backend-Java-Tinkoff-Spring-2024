@@ -42,14 +42,14 @@ public class ChatsRepositoryTest extends IntegrationTest {
         long chat_id1 = 1L;
         Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
 
-        chatsRepository.add(chat1);
-        List<Chat> chats = chatsRepository.findAllChats();
+        chatsRepository.addChat(chat1);
+        List<Chat> chats = chatsRepository.getAllChats();
 
         assertEquals(chats.size(), 1);
         assertEquals(chats.getFirst().chatId(), chat_id1);
         assertEquals(chats.getFirst().chatState(), REGISTERED.toString());
 
-        chatsRepository.remove(chat1);
+        chatsRepository.deleteChat(chat1);
     }
 
     @Test
@@ -59,9 +59,9 @@ public class ChatsRepositoryTest extends IntegrationTest {
         long chat_id2 = 2L;
         Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
 
-        chatsRepository.add(chat2);
-        chatsRepository.remove(chat2);
-        List<Chat> chats = chatsRepository.findAllChats();
+        chatsRepository.addChat(chat2);
+        chatsRepository.deleteChat(chat2);
+        List<Chat> chats = chatsRepository.getAllChats();
 
         assertEquals(chats.size(), 0);
     }
@@ -74,12 +74,12 @@ public class ChatsRepositoryTest extends IntegrationTest {
 
         Chat chat99 = new Chat(chat_id99, REGISTERED.toString());
 
-        chatsRepository.add(chat99);
+        chatsRepository.addChat(chat99);
 
-        Chat foundChat = chatsRepository.findChat(chat_id99);
+        Chat foundChat = chatsRepository.getChatById(chat_id99);
         assertEquals(foundChat, chat99);
 
-        chatsRepository.remove(chat99);
+        chatsRepository.deleteChat(chat99);
     }
 
     @Test
@@ -94,16 +94,16 @@ public class ChatsRepositoryTest extends IntegrationTest {
         Chat chat4 = new Chat(chat_id4, REGISTERED.toString());
         Chat chat5 = new Chat(chat_id5, REGISTERED.toString());
 
-        chatsRepository.add(chat3);
-        chatsRepository.add(chat4);
-        chatsRepository.add(chat5);
+        chatsRepository.addChat(chat3);
+        chatsRepository.addChat(chat4);
+        chatsRepository.addChat(chat5);
 
-        List<Chat> chats = chatsRepository.findAllChats();
+        List<Chat> chats = chatsRepository.getAllChats();
         assertEquals(chats.size(), 3);
 
-        chatsRepository.remove(chat3);
-        chatsRepository.remove(chat4);
-        chatsRepository.remove(chat5);
+        chatsRepository.deleteChat(chat3);
+        chatsRepository.deleteChat(chat4);
+        chatsRepository.deleteChat(chat5);
     }
 
     @Test
@@ -114,15 +114,15 @@ public class ChatsRepositoryTest extends IntegrationTest {
         Chat chat6 = new Chat(chat_id6, REGISTERED.toString());
         boolean isError = false;
 
-        chatsRepository.add(chat6);
+        chatsRepository.addChat(chat6);
         try {
-            chatsRepository.add(chat6);
+            chatsRepository.addChat(chat6);
         } catch (DuplicateKeyException e) {
             isError = true;
         }
 
         assertTrue(isError);
 
-        chatsRepository.remove(chat6);
+        chatsRepository.deleteChat(chat6);
     }
 }

@@ -1,6 +1,9 @@
 package edu.java.controller;
 
+import edu.java.services.jdbc.JdbcChatService;
+import edu.java.services.jdbc.JdbcLinkService;
 import edu.shared_dto.request_dto.AddLinkRequest;
+import edu.shared_dto.request_dto.RemoveLinkRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
 import edu.shared_dto.response_dto.LinkResponse;
 import edu.shared_dto.response_dto.ListLinksResponse;
@@ -10,7 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +26,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})
 public class ScrapperController {
+
+    private final JdbcChatService jdbcChatService;
+    private final JdbcLinkService jdbcLinkService;
 
     @PostMapping("/tg-chat/{id}")
     @Operation(summary = "Зарегистрировать чат")
@@ -35,8 +45,13 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> registerChat(@PathVariable("id") Long id) {
-        log.info("registerChat");
-        return ResponseEntity.ok().build();
+
+        if (jdbcChatService.addChat(id)) {
+            log.info("Chat with id " + id + " is registred!");
+            return ResponseEntity.ok().build();
+        }
+        log.error("Request error! Chat with id " + id + " is already registred!");
+        return ResponseEntity.status(400).build();
     }
 
     @DeleteMapping("/tg-chat/{id}")
@@ -53,8 +68,13 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> deleteChat(@PathVariable("id") Long id) {
-        log.info("deleteChat");
-        return ResponseEntity.ok().build();
+
+        if (jdbcChatService.deleteChat(id)) {
+            log.info("Chat with id " + id + " is deleted");
+            return ResponseEntity.ok().build();
+        }
+        log.error("Request error! Chat with id " + id + " is not registred!");
+        return ResponseEntity.status(404).build();
     }
 
     @GetMapping("/links")
@@ -68,8 +88,15 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
-        log.info("getLinks");
-        return ResponseEntity.ok().build();
+
+        if (jdbcChatService.findChatById(chatId) != null) {
+
+            jdbcLinkService.findAllLinksByChat(chatId);
+            log.info("Get all links of chat " + chatId);
+            return ResponseEntity.ok().build();
+        }
+        log.error("Request error of getting links of chat " + chatId + "!");
+        return ResponseEntity.status(400).build();
     }
 
     @PostMapping("/links")
@@ -87,10 +114,14 @@ public class ScrapperController {
     })
     public ResponseEntity<?> addLink(
         @RequestHeader("Tg-Chat-Id") Long chatId,
-        @RequestBody @Valid AddLinkRequest request) {
+        @RequestBody @Valid @NotNull AddLinkRequest request) {
 
-        log.info("addLink");
-        return ResponseEntity.ok().build();
+        if (jdbcLinkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
+            log.info("Link " + request.link() + " is added to chat " + chatId);
+            return ResponseEntity.ok().build();
+        }
+        log.error("Request error! Link " + request.link() + " is already added to chat " + chatId + "!");
+        return ResponseEntity.status(406).build();
     }
 
     @DeleteMapping("/links")
@@ -106,8 +137,15 @@ public class ScrapperController {
                      content = @Content(schema = @Schema(implementation = APIErrorResponse.class),
                                         mediaType = "application/json"))
     })
-    public ResponseEntity<?> deleteLink(@RequestHeader("Tg-Chat-Id") Long chatId) {
-        log.info("deleteLink");
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteLink(
+        @RequestHeader("Tg-Chat-Id") Long chatId,
+        @RequestBody @Valid @NotNull RemoveLinkRequest request) {
+
+        if (jdbcLinkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
+            log.info("Link " + request.link() + " is deleted from chat " + chatId);
+            return ResponseEntity.ok().build();
+        }
+        log.error("Request error! Link " + request.link() + " is not found!");
+        return ResponseEntity.status(404).build();
     }
 }

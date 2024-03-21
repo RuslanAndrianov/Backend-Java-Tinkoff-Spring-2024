@@ -56,7 +56,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
 
         chatsRepository = new ChatsRepository(jdbcTemplate, chatRowMapper);
         linksRepository = new LinksRepository(jdbcTemplate, linkRowMapper);
-        chatsToLinksRepository = new ChatsToLinksRepository(jdbcTemplate, linkRowMapper);
+        chatsToLinksRepository = new ChatsToLinksRepository(jdbcTemplate, linkRowMapper, chatRowMapper);
     }
 
     @Test
@@ -70,19 +70,19 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Chat chat1 = new Chat(chat_id7, REGISTERED.toString());
         Link link1 = new Link(link_id7, url1, OffsetDateTime.now());
 
-        chatsRepository.add(chat1);
-        linksRepository.add(link1);
-        chatsToLinksRepository.addLink(chat1, link1);
+        chatsRepository.addChat(chat1);
+        linksRepository.addLink(link1);
+        chatsToLinksRepository.addLinkToChat(chat1, link1);
 
-        List<Link> links = chatsToLinksRepository.findAllLinksByChat(chat1);
+        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
 
         assertEquals(links.size(), 1);
         assertEquals(links.getFirst().linkId(), link_id7);
         assertEquals(links.getFirst().url(), url1);
 
-        chatsToLinksRepository.removeLink(chat1, link1);
-        chatsRepository.remove(chat1);
-        linksRepository.remove(link1);
+        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
+        chatsRepository.deleteChat(chat1);
+        linksRepository.deleteLink(link1);
     }
 
     @Test
@@ -96,15 +96,15 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Chat chat1 = new Chat(chat_id8, REGISTERED.toString());
         Link link1 = new Link(link_id8, url1, OffsetDateTime.now());
 
-        chatsRepository.add(chat1);
-        linksRepository.add(link1);
-        chatsToLinksRepository.addLink(chat1, link1);
+        chatsRepository.addChat(chat1);
+        linksRepository.addLink(link1);
+        chatsToLinksRepository.addLinkToChat(chat1, link1);
 
-        chatsToLinksRepository.removeLink(chat1, link1);
-        chatsRepository.remove(chat1);
-        linksRepository.remove(link1);
+        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
+        chatsRepository.deleteChat(chat1);
+        linksRepository.deleteLink(link1);
 
-        List<Link> links = chatsToLinksRepository.findAllLinksByChat(chat1);
+        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
 
         assertEquals(links.size(), 0);
     }
@@ -127,17 +127,17 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
 
         Chat chat1 = new Chat(chat_id9, REGISTERED.toString());
 
-        chatsRepository.add(chat1);
-        linksRepository.add(link1);
-        linksRepository.add(link2);
-        chatsToLinksRepository.addLink(chat1, link1);
-        chatsToLinksRepository.addLink(chat1, link2);
+        chatsRepository.addChat(chat1);
+        linksRepository.addLink(link1);
+        linksRepository.addLink(link2);
+        chatsToLinksRepository.addLinkToChat(chat1, link1);
+        chatsToLinksRepository.addLinkToChat(chat1, link2);
 
-        chatsToLinksRepository.removeChat(chat1);
-        chatsRepository.remove(chat1);
-        linksRepository.remove(link1);
-        linksRepository.remove(link2);
-        List<Link> links = chatsToLinksRepository.findAllLinksByChat(chat1);
+        chatsToLinksRepository.deleteChat(chat1);
+        chatsRepository.deleteChat(chat1);
+        linksRepository.deleteLink(link1);
+        linksRepository.deleteLink(link2);
+        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
 
         assertEquals(links.size(), 0);
     }
@@ -165,17 +165,17 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Chat chat1 = new Chat(chat_id10, REGISTERED.toString());
         Chat chat2 = new Chat(chat_id11, REGISTERED.toString());
 
-        chatsRepository.add(chat1);
-        chatsRepository.add(chat2);
-        linksRepository.add(link1);
-        linksRepository.add(link2);
-        linksRepository.add(link3);
-        chatsToLinksRepository.addLink(chat1, link1);
-        chatsToLinksRepository.addLink(chat1, link2);
-        chatsToLinksRepository.addLink(chat2, link3);
+        chatsRepository.addChat(chat1);
+        chatsRepository.addChat(chat2);
+        linksRepository.addLink(link1);
+        linksRepository.addLink(link2);
+        linksRepository.addLink(link3);
+        chatsToLinksRepository.addLinkToChat(chat1, link1);
+        chatsToLinksRepository.addLinkToChat(chat1, link2);
+        chatsToLinksRepository.addLinkToChat(chat2, link3);
 
-        List<Link> links1 = chatsToLinksRepository.findAllLinksByChat(chat1);
-        List<Link> links2 = chatsToLinksRepository.findAllLinksByChat(chat2);
+        List<Link> links1 = chatsToLinksRepository.getAllLinksByChat(chat1);
+        List<Link> links2 = chatsToLinksRepository.getAllLinksByChat(chat2);
 
         assertEquals(links1.size(), 2);
         assertEquals(links1.getFirst().linkId(), link_id11);
@@ -187,14 +187,14 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         assertEquals(links2.getFirst().linkId(), link_id13);
         assertEquals(links2.getFirst().url(), url3);
 
-        chatsToLinksRepository.removeLink(chat1, link1);
-        chatsToLinksRepository.removeLink(chat1, link2);
-        chatsToLinksRepository.removeLink(chat2, link3);
-        chatsRepository.remove(chat1);
-        chatsRepository.remove(chat2);
-        linksRepository.remove(link1);
-        linksRepository.remove(link2);
-        linksRepository.remove(link3);
+        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
+        chatsToLinksRepository.deleteLinkFromChat(chat1, link2);
+        chatsToLinksRepository.deleteLinkFromChat(chat2, link3);
+        chatsRepository.deleteChat(chat1);
+        chatsRepository.deleteChat(chat2);
+        linksRepository.deleteLink(link1);
+        linksRepository.deleteLink(link2);
+        linksRepository.deleteLink(link3);
     }
 
     @Test
@@ -210,20 +210,20 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link1 = new Link(link_id14, url1, OffsetDateTime.now());
         boolean isError = false;
 
-        chatsRepository.add(chat1);
-        linksRepository.add(link1);
-        chatsToLinksRepository.addLink(chat1, link1);
+        chatsRepository.addChat(chat1);
+        linksRepository.addLink(link1);
+        chatsToLinksRepository.addLinkToChat(chat1, link1);
 
         try {
-            chatsToLinksRepository.addLink(chat1, link1);
+            chatsToLinksRepository.addLinkToChat(chat1, link1);
         } catch (DuplicateKeyException e) {
             isError = true;
         }
 
         assertTrue(isError);
 
-        chatsToLinksRepository.removeChat(chat1);
-        chatsRepository.remove(chat1);
-        linksRepository.remove(link1);
+        chatsToLinksRepository.deleteChat(chat1);
+        chatsRepository.deleteChat(chat1);
+        linksRepository.deleteLink(link1);
     }
 }

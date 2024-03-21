@@ -3,8 +3,10 @@ package edu.java.domain.repository;
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -12,32 +14,65 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ChatsToLinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Link> linkRowMapper;
+    private final RowMapper<Chat> chatRowMapper;
 
     @Transactional
-    public void addLink(@NotNull Chat chat, Link link) {
+    public boolean addLinkToChat(Chat chat, Link link) {
         String sql = "INSERT INTO chats_to_links VALUES (?, ?)";
-        jdbcTemplate.update(sql, chat.chatId(), link.linkId());
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, chat.chatId(), link.linkId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Error of addition link to chat!");
+        }
+        return result;
     }
 
     @Transactional
-    public void removeLink(@NotNull Chat chat, Link link) {
+    public boolean deleteLinkFromChat(Chat chat, Link link) {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ? AND link_id = ?";
-        jdbcTemplate.update(sql, chat.chatId(), link.linkId());
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, chat.chatId(), link.linkId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Error of deletion link from chat!");
+        }
+        return result;
     }
 
     @Transactional
-    public void removeChat(@NotNull Chat chat) {
+    public boolean deleteChat(Chat chat) {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ?";
-        jdbcTemplate.update(sql, chat.chatId());
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, chat.chatId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Error of deletion chat!");
+        }
+        return result;
     }
 
     @Transactional
-    public List<Link> findAllLinksByChat(@NotNull Chat chat) {
-        String sql = "select * from chats_to_links join links using (link_id) where chat_id = ?";
+    public boolean isChatExist(Chat chat) {
+        String sql = "SELECT DISTINCT chat_id FROM chats_to_links WHERE chat_id = ?";
+        boolean result = false;
+        try {
+            result = Objects.requireNonNull(
+                jdbcTemplate.queryForObject(sql, chatRowMapper, chat.chatId())).chatId() > 0;
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Chat is not exist in table!");
+        }
+        return result;
+    }
+
+    @Transactional
+    public List<Link> getAllLinksByChat(Chat chat) {
+        String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = ?";
         return jdbcTemplate.query(sql, linkRowMapper, chat.chatId());
     }
 }

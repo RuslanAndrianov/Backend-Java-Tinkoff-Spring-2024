@@ -3,7 +3,8 @@ package edu.java.domain.repository;
 import edu.java.domain.dto.Link;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -11,37 +12,63 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
+@SuppressWarnings("MultipleStringLiterals")
 public class LinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Link> linksRowMapper;
 
     @Transactional
-    public void add(@NotNull Link link) {
-        String sql = "INSERT INTO links (link_id, url, last_updated) VALUES (?, ?, DEFAULT)";
-        jdbcTemplate.update(sql, link.linkId(), link.url());
+    public boolean addLink(Link link) {
+        String sql = "INSERT INTO links VALUES (?, ?, DEFAULT)";
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, link.linkId(), link.url()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link addition error!");
+        }
+        return result;
     }
 
     @Transactional
-    public void remove(@NotNull Link link) {
+    public boolean deleteLink(Link link) {
         String sql = "DELETE FROM links WHERE link_id = ?";
-        jdbcTemplate.update(sql, link.linkId());
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, link.linkId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link deletion error!");
+        }
+        return result;
     }
 
     @Transactional
-    public Link findLinkById(long linkId) {
-        String sql = "SELECT link_id, url, last_updated FROM links WHERE link_id = ?";
-        return jdbcTemplate.queryForObject(sql, linksRowMapper, linkId);
+    public Link getLinkById(long linkId) {
+        String sql = "SELECT * FROM links WHERE link_id = ?";
+        Link link = null;
+        try {
+            link = jdbcTemplate.queryForObject(sql, linksRowMapper, linkId);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link with id " + linkId + " is not found!");
+        }
+        return link;
     }
 
     @Transactional
-    public Link findLinkByURL(String url) {
-        String sql = "SELECT link_id, url, last_updated FROM links WHERE url = ?";
-        return jdbcTemplate.queryForObject(sql, linksRowMapper, url);
+    public Link getLinkByURL(String url) {
+        String sql = "SELECT * FROM links WHERE url = ?";
+        Link link = null;
+        try {
+            link = jdbcTemplate.queryForObject(sql, linksRowMapper, url);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link " + url + " is not found!");
+        }
+        return link;
     }
 
     @Transactional
-    public List<Link> findAllLinks() {
+    public List<Link> getAllLinks() {
         String sql = "SELECT * FROM links";
         return jdbcTemplate.query(sql, linksRowMapper);
     }

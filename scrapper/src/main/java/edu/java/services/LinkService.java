@@ -5,9 +5,11 @@ import java.util.Collection;
 
 public interface LinkService {
 
-    void add(long tgChatId, String url);
+    boolean addLinkToChatByUrl(long tgChatId, String url);
 
-    void remove(long tgChatId, String url);
+    boolean deleteLinkFromChatByUrl(long tgChatId, String url);
 
-    Collection<Link> listAll(long tgChatId);
+    Link findLinkByUrl(String url);
+
+    Collection<Link> findAllLinksByChat(long tgChatId);
 }
