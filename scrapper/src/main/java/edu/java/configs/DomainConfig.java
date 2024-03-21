@@ -48,7 +48,8 @@ public class DomainConfig {
             new Link(
                 resultSet.getLong("link_id"),
                 resultSet.getString("url"),
-                timestampToOffsetDate(resultSet.getTimestamp("last_updated"))
+                timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
+                timestampToOffsetDate(resultSet.getTimestamp("last_checked"))
             );
     }
 

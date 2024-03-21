@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatsToLinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Link> linkRowMapper;
     private final RowMapper<Long> chatLinkRowMapper;
+    private final RowMapper<Link> linkRowMapper;
 
     @Transactional
     public boolean addLinkToChat(Chat chat, Link link) {

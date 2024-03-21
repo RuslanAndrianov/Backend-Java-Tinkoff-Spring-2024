@@ -48,7 +48,7 @@ public class JdbcLinkService implements LinkService {
         if (link == null) {
             List<Link> links = linksRepository.getAllLinks();
             long linkId = links.isEmpty() ? 1 : links.getLast().linkId() + 1;
-            link = new Link(linkId, url, OffsetDateTime.now());
+            link = new Link(linkId, url, OffsetDateTime.now(), OffsetDateTime.now());
             linksRepository.addLink(link);
         }
 

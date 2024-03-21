@@ -38,7 +38,8 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         new Link(
             resultSet.getLong("link_id"),
             resultSet.getString("url"),
-            timestampToOffsetDate(resultSet.getTimestamp("last_updated"))
+            timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
+            timestampToOffsetDate(resultSet.getTimestamp("last_checked"))
         );
 
     private static final RowMapper<Long> chatLinkRowMapper = (resultSet, rowNum) ->
@@ -60,7 +61,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         chatsRepository = new ChatsRepository(jdbcTemplate, chatRowMapper);
         linksRepository = new LinksRepository(jdbcTemplate, linkRowMapper);
         chatsToLinksRepository = new ChatsToLinksRepository(
-            jdbcTemplate, linkRowMapper, chatLinkRowMapper);
+            jdbcTemplate, chatLinkRowMapper, linkRowMapper);
     }
 
     @Test
@@ -71,7 +72,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         long link_id = 10L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
         Chat chat = new Chat(chat_id, REGISTERED.toString());
-        Link link = new Link(link_id, url, OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
         boolean isLinkAdded;
 
         chatsRepository.addChat(chat);
@@ -100,7 +101,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat = new Chat(chat_id, REGISTERED.toString());
-        Link link = new Link(link_id, url, OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
         boolean isLinkDeleted;
 
         List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
@@ -131,8 +132,8 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         String url2 =
             "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
         Chat chat = new Chat(chat_id, REGISTERED.toString());
-        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
-        Link link2 = new Link(link_id2, url2, OffsetDateTime.now());
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now());
         boolean isChatDeleted;
 
         chatsRepository.addChat(chat);
@@ -161,7 +162,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         long link_id = 14L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
         Chat chat = new Chat(chat_id, REGISTERED.toString());
-        Link link = new Link(link_id, url, OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
         boolean isChatExist;
 
         chatsRepository.addChat(chat);
@@ -195,9 +196,9 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         String url2 =
             "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
-        Link link2 = new Link(link_id2, url2, OffsetDateTime.now());
-        Link link3 = new Link(link_id3, url3, OffsetDateTime.now());
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now());
         Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
         Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
 
@@ -241,7 +242,7 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         long link_id = 18L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
         Chat chat = new Chat(chat_id, REGISTERED.toString());
-        Link link = new Link(link_id, url, OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
         boolean isLinkAdded;
 
         chatsRepository.addChat(chat);
