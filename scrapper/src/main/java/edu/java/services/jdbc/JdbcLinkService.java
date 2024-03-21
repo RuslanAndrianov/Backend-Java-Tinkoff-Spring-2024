@@ -16,36 +16,76 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@SuppressWarnings("MagicNumber")
 public class JdbcLinkService implements LinkService {
 
     private final LinksRepository linksRepository;
     private final ChatsRepository chatsRepository;
     private final ChatsToLinksRepository chatsToLinksRepository;
 
+    // Возвращает разные intы в зависимости от сценария:
+    // 1 - чат существует, ошибок при добавлении не наблюдается
+    // 0 - чат существует, пытаемся добавить ссылку 2-ой раз
+    // -1 - чат не существует
+    // -2 - иная проблема при добавлении ссылки
     @Override
-    public boolean addLinkToChatByUrl(long tgChatId, String url) {
+    public int addLinkToChatByUrl(long tgChatId, String url) {
         Chat chat = chatsRepository.getChatById(tgChatId);
-        Link link = linksRepository.getLinkByURL(url);
-        boolean result1 = false;
-        boolean result2;
+        if (chat == null) {
+            return -1;
+        }
 
+        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
+        for (Link chatLink : chatLinks) {
+            if (chatLink.url().equals(url)) {
+                return 0;
+            }
+        }
+
+        Link link = linksRepository.getLinkByURL(url);
+
+        // Если ссылки еще нет в links, то добавляем ее в links с новым id
         if (link == null) {
             List<Link> links = linksRepository.getAllLinks();
             long linkId = links.isEmpty() ? 1 : links.getLast().linkId() + 1;
             link = new Link(linkId, url, OffsetDateTime.now());
-            result1 = linksRepository.addLink(link);
+            linksRepository.addLink(link);
         }
 
-        result2 = chatsToLinksRepository.addLinkToChat(chat, link);
+        boolean result = chatsToLinksRepository.addLinkToChat(chat, link);
 
-        return result1 || result2;
+        return result ? 1 : -2;
     }
 
+    // Возвращает разные intы в зависимости от сценария:
+    // 1 - чат существует, ссылка к чату привязана
+    // 0 - чат существует, ссылка к чату не привязана
+    // -1 - чат не существует
+    // -2 - иная проблема при добавлении ссылки
     @Override
-    public boolean deleteLinkFromChatByUrl(long tgChatId, String url) {
+    public int deleteLinkFromChatByUrl(long tgChatId, String url) {
         Chat chat = chatsRepository.getChatById(tgChatId);
+        if (chat == null) {
+            return -1;
+        }
+
+        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
+        boolean isLinkAddedToChat = false;
+        for (Link chatLink : chatLinks) {
+            if (chatLink.url().equals(url)) {
+                isLinkAddedToChat = true;
+                break;
+            }
+        }
+        if (!isLinkAddedToChat) {
+            return 0;
+        }
+
         Link link = linksRepository.getLinkByURL(url);
-        return chatsToLinksRepository.deleteLinkFromChat(chat, link);
+
+        boolean result = chatsToLinksRepository.deleteLinkFromChat(chat, link);
+
+        return result ? 1 : -2;
     }
 
     @Override

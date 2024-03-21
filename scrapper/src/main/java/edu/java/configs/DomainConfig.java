@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 @Configuration
+@SuppressWarnings("MultipleStringLiterals")
 public class DomainConfig {
 
     @Bean
@@ -49,6 +50,11 @@ public class DomainConfig {
                 resultSet.getString("url"),
                 timestampToOffsetDate(resultSet.getTimestamp("last_updated"))
             );
+    }
+
+    @Bean
+    public RowMapper<Long> chatLinkRowMapper() {
+        return (resultSet, rowNum) -> resultSet.getLong("chat_id");
     }
 
     private OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {

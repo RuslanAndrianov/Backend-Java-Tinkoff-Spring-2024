@@ -6,20 +6,20 @@ import edu.java.domain.repository.ChatsRepository;
 import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.domain.repository.LinksRepository;
 import edu.java.scrapper.IntegrationTest;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import static edu.shared_dto.ChatState.REGISTERED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ChatsToLinksRepositoryTest extends IntegrationTest {
@@ -41,6 +41,9 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
             timestampToOffsetDate(resultSet.getTimestamp("last_updated"))
         );
 
+    private static final RowMapper<Long> chatLinkRowMapper = (resultSet, rowNum) ->
+        resultSet.getLong("chat_id");
+
     private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
         return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
     }
@@ -56,114 +59,147 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
 
         chatsRepository = new ChatsRepository(jdbcTemplate, chatRowMapper);
         linksRepository = new LinksRepository(jdbcTemplate, linkRowMapper);
-        chatsToLinksRepository = new ChatsToLinksRepository(jdbcTemplate, linkRowMapper, chatRowMapper);
+        chatsToLinksRepository = new ChatsToLinksRepository(
+            jdbcTemplate, linkRowMapper, chatLinkRowMapper);
     }
 
     @Test
     @Transactional
     @Rollback
-    void addLinkTest() {
-        long chat_id7 = 7L;
-        long link_id7 = 77L;
-        String url1 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+    void addLinkToChatTest() {
+        long chat_id = 10L;
+        long link_id = 10L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkAdded;
 
-        Chat chat1 = new Chat(chat_id7, REGISTERED.toString());
-        Link link1 = new Link(link_id7, url1, OffsetDateTime.now());
+        chatsRepository.addChat(chat);
+        linksRepository.addLink(link);
 
-        chatsRepository.addChat(chat1);
-        linksRepository.addLink(link1);
-        chatsToLinksRepository.addLinkToChat(chat1, link1);
+        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
 
-        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
+        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
 
-        assertEquals(links.size(), 1);
-        assertEquals(links.getFirst().linkId(), link_id7);
-        assertEquals(links.getFirst().url(), url1);
+        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
 
-        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
-        chatsRepository.deleteChat(chat1);
-        linksRepository.deleteLink(link1);
+        assertTrue(isLinkAdded);
+        assertEquals(linksAfter.size() - linksBefore.size(), 1);
+
+        chatsToLinksRepository.deleteLinkFromChat(chat, link);
+        chatsRepository.deleteChat(chat);
+        linksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeLinkTest() {
-        long chat_id8 = 8L;
-        long link_id8 = 8L;
-        String url1 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+    void deleteLinkFromChatTest() {
+        long chat_id = 11L;
+        long link_id = 11L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
-        Chat chat1 = new Chat(chat_id8, REGISTERED.toString());
-        Link link1 = new Link(link_id8, url1, OffsetDateTime.now());
+        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkDeleted;
 
-        chatsRepository.addChat(chat1);
-        linksRepository.addLink(link1);
-        chatsToLinksRepository.addLinkToChat(chat1, link1);
+        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
 
-        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
-        chatsRepository.deleteChat(chat1);
-        linksRepository.deleteLink(link1);
+        chatsRepository.addChat(chat);
+        linksRepository.addLink(link);
+        chatsToLinksRepository.addLinkToChat(chat, link);
 
-        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
+        isLinkDeleted = chatsToLinksRepository.deleteLinkFromChat(chat, link);
+        chatsRepository.deleteChat(chat);
+        linksRepository.deleteLink(link);
 
-        assertEquals(links.size(), 0);
+        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
+
+        assertTrue(isLinkDeleted);
+        assertEquals(linksBefore.size(), linksAfter.size());
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeChatTest() {
+    void deleteChatTest() {
+        long chat_id = 12L;
+        long link_id1 = 12L;
+        long link_id2 = 13L;
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
             "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now());
+        boolean isChatDeleted;
 
-        long chat_id9 = 9L;
-        long link_id9 = 9L;
-        long link_id10 = 10L;
-
-        Link link1 = new Link(link_id9, url1, OffsetDateTime.now());
-        Link link2 = new Link(link_id10, url2, OffsetDateTime.now());
-
-        Chat chat1 = new Chat(chat_id9, REGISTERED.toString());
-
-        chatsRepository.addChat(chat1);
+        chatsRepository.addChat(chat);
         linksRepository.addLink(link1);
         linksRepository.addLink(link2);
-        chatsToLinksRepository.addLinkToChat(chat1, link1);
-        chatsToLinksRepository.addLinkToChat(chat1, link2);
 
-        chatsToLinksRepository.deleteChat(chat1);
-        chatsRepository.deleteChat(chat1);
+        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
+        chatsToLinksRepository.addLinkToChat(chat, link1);
+        chatsToLinksRepository.addLinkToChat(chat, link2);
+
+        isChatDeleted = chatsToLinksRepository.deleteChat(chat);
+        chatsRepository.deleteChat(chat);
         linksRepository.deleteLink(link1);
         linksRepository.deleteLink(link2);
-        List<Link> links = chatsToLinksRepository.getAllLinksByChat(chat1);
+        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
 
-        assertEquals(links.size(), 0);
+        assertTrue(isChatDeleted);
+        assertEquals(linksBefore.size(), linksAfter.size());
     }
 
     @Test
     @Transactional
     @Rollback
-    void findAllLinksByChatTest() {
+    void isChatExistTest() {
+        long chat_id = 13L;
+        long link_id = 14L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isChatExist;
+
+        chatsRepository.addChat(chat);
+        linksRepository.addLink(link);
+        chatsToLinksRepository.addLinkToChat(chat, link);
+
+        isChatExist = chatsToLinksRepository.isChatExist(chat);
+
+        assertTrue(isChatExist);
+
+        chatsToLinksRepository.deleteChat(chat);
+        chatsRepository.deleteChat(chat);
+        linksRepository.deleteLink(link);
+
+        isChatExist = chatsToLinksRepository.isChatExist(chat);
+
+        assertFalse(isChatExist);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getAllLinksByChatTest() {
+        long chat_id1 = 14L;
+        long chat_id2 = 15L;
+        long link_id1 = 15L;
+        long link_id2 = 16L;
+        long link_id3 = 17L;
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
             "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-
-        long chat_id10 = 10L;
-        long chat_id11 = 11L;
-        long link_id11 = 11L;
-        long link_id12 = 12L;
-        long link_id13 = 13L;
-
-        Link link1 = new Link(link_id11, url1, OffsetDateTime.now());
-        Link link2 = new Link(link_id12, url2, OffsetDateTime.now());
-        Link link3 = new Link(link_id13, url3, OffsetDateTime.now());
-
-        Chat chat1 = new Chat(chat_id10, REGISTERED.toString());
-        Chat chat2 = new Chat(chat_id11, REGISTERED.toString());
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now());
+        Link link3 = new Link(link_id3, url3, OffsetDateTime.now());
+        Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
+        Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
 
         chatsRepository.addChat(chat1);
         chatsRepository.addChat(chat2);
@@ -178,13 +214,13 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         List<Link> links2 = chatsToLinksRepository.getAllLinksByChat(chat2);
 
         assertEquals(links1.size(), 2);
-        assertEquals(links1.getFirst().linkId(), link_id11);
+        assertEquals(links1.getFirst().linkId(), link_id1);
         assertEquals(links1.getFirst().url(), url1);
-        assertEquals(links1.get(1).linkId(), link_id12);
-        assertEquals(links1.get(1).url(), url2);
+        assertEquals(links1.getLast().linkId(), link_id2);
+        assertEquals(links1.getLast().url(), url2);
 
         assertEquals(links2.size(), 1);
-        assertEquals(links2.getFirst().linkId(), link_id13);
+        assertEquals(links2.getFirst().linkId(), link_id3);
         assertEquals(links2.getFirst().url(), url3);
 
         chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
@@ -201,29 +237,23 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void duplicateKeyTest() {
-        String url1 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        long chat_id = 16L;
+        long link_id = 18L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkAdded;
 
-        long chat_id12 = 12L;
-        long link_id14 = 14L;
+        chatsRepository.addChat(chat);
+        linksRepository.addLink(link);
 
-        Chat chat1 = new Chat(chat_id12, REGISTERED.toString());
-        Link link1 = new Link(link_id14, url1, OffsetDateTime.now());
-        boolean isError = false;
+        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
+        assertTrue(isLinkAdded);
+        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
+        assertFalse(isLinkAdded);
 
-        chatsRepository.addChat(chat1);
-        linksRepository.addLink(link1);
-        chatsToLinksRepository.addLinkToChat(chat1, link1);
-
-        try {
-            chatsToLinksRepository.addLinkToChat(chat1, link1);
-        } catch (DuplicateKeyException e) {
-            isError = true;
-        }
-
-        assertTrue(isError);
-
-        chatsToLinksRepository.deleteChat(chat1);
-        chatsRepository.deleteChat(chat1);
-        linksRepository.deleteLink(link1);
+        chatsToLinksRepository.deleteChat(chat);
+        chatsRepository.deleteChat(chat);
+        linksRepository.deleteLink(link);
     }
 }

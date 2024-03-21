@@ -114,14 +114,27 @@ public class ScrapperController {
     })
     public ResponseEntity<?> addLink(
         @RequestHeader("Tg-Chat-Id") Long chatId,
-        @RequestBody @Valid @NotNull AddLinkRequest request) {
+        @RequestBody @Valid @NotNull AddLinkRequest request
+    ) {
 
-        if (jdbcLinkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
-            log.info("Link " + request.link() + " is added to chat " + chatId);
-            return ResponseEntity.ok().build();
-        }
-        log.error("Request error! Link " + request.link() + " is already added to chat " + chatId + "!");
-        return ResponseEntity.status(406).build();
+        return switch (jdbcLinkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
+            case 1 -> {
+                log.info("Link " + request.link() + " is added to chat " + chatId);
+                yield ResponseEntity.ok().build();
+            }
+            case 0 -> {
+                log.error("Request error! Link " + request.link() + " is already added to chat " + chatId + "!");
+                yield ResponseEntity.status(406).build();
+            }
+            case -1 -> {
+                log.error("Request error! Chat " + chatId + " is not exist!");
+                yield ResponseEntity.status(400).build();
+            }
+            default -> {
+                log.error("Request error! Something went wrong!");
+                yield ResponseEntity.status(400).build();
+            }
+        };
     }
 
     @DeleteMapping("/links")
@@ -139,13 +152,26 @@ public class ScrapperController {
     })
     public ResponseEntity<?> deleteLink(
         @RequestHeader("Tg-Chat-Id") Long chatId,
-        @RequestBody @Valid @NotNull RemoveLinkRequest request) {
+        @RequestBody @Valid @NotNull RemoveLinkRequest request
+    ) {
 
-        if (jdbcLinkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
-            log.info("Link " + request.link() + " is deleted from chat " + chatId);
-            return ResponseEntity.ok().build();
-        }
-        log.error("Request error! Link " + request.link() + " is not found!");
-        return ResponseEntity.status(404).build();
+        return switch (jdbcLinkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
+            case 1 -> {
+                log.info("Link " + request.link() + " is deleted from chat " + chatId);
+                yield ResponseEntity.ok().build();
+            }
+            case 0 -> {
+                log.error("Request error! Link " + request.link() + " is not added to chat " + chatId + "!");
+                yield ResponseEntity.status(404).build();
+            }
+            case -1 -> {
+                log.error("Request error! Chat " + chatId + " is not exist!");
+                yield ResponseEntity.status(400).build();
+            }
+            default -> {
+                log.error("Request error! Something went wrong!");
+                yield ResponseEntity.status(400).build();
+            }
+        };
     }
 }

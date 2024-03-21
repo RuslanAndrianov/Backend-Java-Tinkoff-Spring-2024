@@ -3,7 +3,6 @@ package edu.java.domain.repository;
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -19,7 +18,7 @@ public class ChatsToLinksRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Link> linkRowMapper;
-    private final RowMapper<Chat> chatRowMapper;
+    private final RowMapper<Long> chatLinkRowMapper;
 
     @Transactional
     public boolean addLinkToChat(Chat chat, Link link) {
@@ -62,8 +61,7 @@ public class ChatsToLinksRepository {
         String sql = "SELECT DISTINCT chat_id FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = Objects.requireNonNull(
-                jdbcTemplate.queryForObject(sql, chatRowMapper, chat.chatId())).chatId() > 0;
+            result = (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.chatId()) > 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat is not exist in table!");
         }
@@ -75,4 +73,6 @@ public class ChatsToLinksRepository {
         String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = ?";
         return jdbcTemplate.query(sql, linkRowMapper, chat.chatId());
     }
+
+
 }

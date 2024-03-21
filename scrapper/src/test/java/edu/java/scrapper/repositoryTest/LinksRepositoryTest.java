@@ -10,12 +10,12 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LinksRepositoryTest extends IntegrationTest {
@@ -47,124 +47,117 @@ public class LinksRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addTest() {
-        String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
+    void addLinkTest() {
+        long link_id = 1L;
+        String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkAdded;
 
-        long link_id1 = 1L;
+        List<Link> linksBefore = linksRepository.getAllLinks();
+        isLinkAdded = linksRepository.addLink(link);
+        List<Link> linksAfter = linksRepository.getAllLinks();
 
-        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
+        assertTrue(isLinkAdded);
+        assertEquals(linksAfter.size() - linksBefore.size(), 1);
+        assertEquals(linksAfter.getLast().linkId(), link_id);
+        assertEquals(linksAfter.getLast().url(), url);
 
-        linksRepository.addLink(link1);
-        List<Link> links = linksRepository.getAllLinks();
-
-        assertEquals(links.size(), 1);
-        assertEquals(links.getFirst().linkId(), link_id1);
-        assertEquals(links.getFirst().url(), url1);
-
-        linksRepository.deleteLink(link1);
+        linksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeTest() {
-        String url2 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
+    void deleteLinkTest() {
+        long link_id = 2L;
+        String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
+        Link link  = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkDeleted;
 
-        long link_id12 = 2L;
+        List<Link> linksBefore = linksRepository.getAllLinks();
+        linksRepository.addLink(link);
+        isLinkDeleted = linksRepository.deleteLink(link);
+        List<Link> linksAfter = linksRepository.getAllLinks();
 
-        Link link2  = new Link(link_id12, url2, OffsetDateTime.now());
-
-        linksRepository.addLink(link2);
-        linksRepository.deleteLink(link2);
-        List<Link> links = linksRepository.getAllLinks();
-
-        assertEquals(links.size(), 0);
+        assertTrue(isLinkDeleted);
+        assertEquals(linksBefore.size(), linksAfter.size());
     }
 
     @Test
     @Transactional
     @Rollback
-    void findLinkByIdTest() {
-        long link_id99 = 99L;
+    void getLinkByIdTest() {
+        long link_id = 3L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Link link = new Link(link_id, url, OffsetDateTime.now());
 
-        Link link99 = new Link(link_id99, url, OffsetDateTime.now());
+        linksRepository.addLink(link);
 
-        linksRepository.addLink(link99);
+        Link foundLink = linksRepository.getLinkById(link_id);
+        assertEquals(foundLink.linkId(), link.linkId());
+        assertEquals(foundLink.url(), link.url());
 
-        Link foundLink = linksRepository.getLinkById(link_id99);
-        assertEquals(foundLink.linkId(), link99.linkId());
-        assertEquals(foundLink.url(), link99.url());
-
-        linksRepository.deleteLink(link99);
+        linksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
     @Rollback
-    void findLinkByURLTest() {
-        long link_id999 = 999L;
+    void getLinkByURLTest() {
+        long link_id = 4L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Link link = new Link(link_id, url, OffsetDateTime.now());
 
-        Link link999 = new Link(link_id999, url, OffsetDateTime.now());
-
-        linksRepository.addLink(link999);
+        linksRepository.addLink(link);
 
         Link foundLink = linksRepository.getLinkByURL(url);
-        assertEquals(foundLink.linkId(), link999.linkId());
-        assertEquals(foundLink.url(), link999.url());
+        assertEquals(foundLink.linkId(), link.linkId());
+        assertEquals(foundLink.url(), link.url());
 
-        linksRepository.deleteLink(link999);
+        linksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
     @Rollback
-    void findAllLinksTest() {
-        String url3 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        String url4 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
-        String url5 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-
-        long link_id3 = 3L;
-        long link_id4 = 4L;
-        long link_id5 = 5L;
-
+    void getAllLinksTest() {
+        long link_id1 = 5L;
+        long link_id2 = 6L;
+        long link_id3 = 7L;
+        String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
+        String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+        String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now());
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now());
         Link link3 = new Link(link_id3, url3, OffsetDateTime.now());
-        Link link4 = new Link(link_id4, url4, OffsetDateTime.now());
-        Link link5 = new Link(link_id5, url5, OffsetDateTime.now());
 
+        List<Link> linksBefore = linksRepository.getAllLinks();
+        linksRepository.addLink(link1);
+        linksRepository.addLink(link2);
         linksRepository.addLink(link3);
-        linksRepository.addLink(link4);
-        linksRepository.addLink(link5);
+        List<Link> linksAfter = linksRepository.getAllLinks();
 
-        List<Link> links = linksRepository.getAllLinks();
-        assertEquals(links.size(), 3);
+        assertEquals(linksAfter.size() - linksBefore.size(), 3);
 
+        linksRepository.deleteLink(link1);
+        linksRepository.deleteLink(link2);
         linksRepository.deleteLink(link3);
-        linksRepository.deleteLink(link4);
-        linksRepository.deleteLink(link5);
     }
 
     @Test
     @Transactional
     @Rollback
     void duplicateKeyTest() {
-        String url6 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        long link_id = 8L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        Link link = new Link(link_id, url, OffsetDateTime.now());
+        boolean isLinkAdded;
 
-        long link_id6 = 6L;
+        isLinkAdded = linksRepository.addLink(link);
+        assertTrue(isLinkAdded);
+        isLinkAdded = linksRepository.addLink(link);
+        assertFalse(isLinkAdded);
 
-        Link link6 = new Link(link_id6, url6, OffsetDateTime.now());
-        boolean isError = false;
-
-        linksRepository.addLink(link6);
-        try {
-            linksRepository.addLink(link6);
-        } catch (DuplicateKeyException e) {
-            isError = true;
-        }
-
-        assertTrue(isError);
-
-        linksRepository.deleteLink(link6);
+        linksRepository.deleteLink(link);
     }
 }
