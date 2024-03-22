@@ -72,4 +72,23 @@ public class LinksRepository {
         String sql = "SELECT * FROM links";
         return jdbcTemplate.query(sql, linksRowMapper);
     }
+
+    @Transactional
+    public List<Link> getOldestCheckedLinks(String interval) {
+        String sql =
+            "SELECT * FROM links WHERE (last_checked < now() - interval '" + interval + "')";
+        return jdbcTemplate.query(sql, linksRowMapper);
+    }
+
+    @Transactional
+    public boolean setLastCheckedTimeToLink(Link link) {
+        String sql = "UPDATE links SET last_checked = now() WHERE link_id = ?";
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, link.linkId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link's last_checked update error!");
+        }
+        return result;
+    }
 }

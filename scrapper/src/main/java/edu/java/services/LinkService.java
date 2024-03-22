@@ -12,4 +12,8 @@ public interface LinkService {
     Link findLinkByUrl(String url);
 
     Collection<Link> findAllLinksByChat(long tgChatId);
+
+    Collection<Link> getOldestCheckedLinks();
+
+    boolean setLastCheckedTimeToLink(Link link);
 }

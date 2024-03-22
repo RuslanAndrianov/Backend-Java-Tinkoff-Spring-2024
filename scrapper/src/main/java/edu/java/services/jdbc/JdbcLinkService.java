@@ -98,4 +98,14 @@ public class JdbcLinkService implements LinkService {
         Chat chat = chatsRepository.getChatById(tgChatId);
         return chatsToLinksRepository.getAllLinksByChat(chat);
     }
+
+    @Override
+    public Collection<Link> getOldestCheckedLinks() {
+        return linksRepository.getOldestCheckedLinks("5 minutes");
+    }
+
+    @Override
+    public boolean setLastCheckedTimeToLink(Link link) {
+        return linksRepository.setLastCheckedTimeToLink(link);
+    }
 }

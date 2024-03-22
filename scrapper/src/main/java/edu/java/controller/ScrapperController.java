@@ -1,7 +1,7 @@
 package edu.java.controller;
 
-import edu.java.services.jdbc.JdbcChatService;
-import edu.java.services.jdbc.JdbcLinkService;
+import edu.java.services.ChatService;
+import edu.java.services.LinkService;
 import edu.shared_dto.request_dto.AddLinkRequest;
 import edu.shared_dto.request_dto.RemoveLinkRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})
 public class ScrapperController {
 
-    private final JdbcChatService jdbcChatService;
-    private final JdbcLinkService jdbcLinkService;
+    private final ChatService chatService;
+    private final LinkService linkService;
 
     @PostMapping("/tg-chat/{id}")
     @Operation(summary = "Зарегистрировать чат")
@@ -46,7 +46,7 @@ public class ScrapperController {
     })
     public ResponseEntity<?> registerChat(@PathVariable("id") Long id) {
 
-        if (jdbcChatService.addChat(id)) {
+        if (chatService.addChat(id)) {
             log.info("Chat with id " + id + " is registred!");
             return ResponseEntity.ok().build();
         }
@@ -69,7 +69,7 @@ public class ScrapperController {
     })
     public ResponseEntity<?> deleteChat(@PathVariable("id") Long id) {
 
-        if (jdbcChatService.deleteChat(id)) {
+        if (chatService.deleteChat(id)) {
             log.info("Chat with id " + id + " is deleted");
             return ResponseEntity.ok().build();
         }
@@ -89,9 +89,9 @@ public class ScrapperController {
     })
     public ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
 
-        if (jdbcChatService.findChatById(chatId) != null) {
+        if (chatService.findChatById(chatId) != null) {
 
-            jdbcLinkService.findAllLinksByChat(chatId);
+            linkService.findAllLinksByChat(chatId);
             log.info("Get all links of chat " + chatId);
             return ResponseEntity.ok().build();
         }
@@ -117,7 +117,7 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull AddLinkRequest request
     ) {
 
-        return switch (jdbcLinkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
+        return switch (linkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
             case 1 -> {
                 log.info("Link " + request.link() + " is added to chat " + chatId);
                 yield ResponseEntity.ok().build();
@@ -155,7 +155,7 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull RemoveLinkRequest request
     ) {
 
-        return switch (jdbcLinkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
+        return switch (linkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
             case 1 -> {
                 log.info("Link " + request.link() + " is deleted from chat " + chatId);
                 yield ResponseEntity.ok().build();
