@@ -1,6 +1,7 @@
 package edu.java.domain.repository;
 
 import edu.java.domain.dto.Link;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,13 +82,25 @@ public class LinksRepository {
     }
 
     @Transactional
-    public boolean setLastCheckedTimeToLink(Link link) {
-        String sql = "UPDATE links SET last_checked = now() WHERE link_id = ?";
+    public boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time) {
+        String sql = "UPDATE links SET last_checked = ? WHERE link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, time, link.linkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
-            log.error("Link's last_checked update error!");
+            log.error("Link's last_checked field update error!");
+        }
+        return result;
+    }
+
+    @Transactional
+    public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
+        String sql = "UPDATE links SET last_updated = ? WHERE link_id = ?";
+        boolean result = false;
+        try {
+            result = (jdbcTemplate.update(sql, time, link.linkId()) != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link's last_updated field update error!");
         }
         return result;
     }

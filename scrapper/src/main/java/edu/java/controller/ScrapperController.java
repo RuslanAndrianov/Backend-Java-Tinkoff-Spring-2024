@@ -91,7 +91,7 @@ public class ScrapperController {
 
         if (chatService.findChatById(chatId) != null) {
 
-            linkService.findAllLinksByChat(chatId);
+            linkService.getAllLinksByChat(chatId);
             log.info("Get all links of chat " + chatId);
             return ResponseEntity.ok().build();
         }

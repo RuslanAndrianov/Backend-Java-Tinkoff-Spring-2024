@@ -1,6 +1,8 @@
 package edu.java.services;
 
 import edu.java.domain.dto.Link;
+import edu.java.updater.LinkUpdater;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LinkUpdaterService {
 
+    private final LinkUpdater linkUpdater;
     private final LinkService linkService;
 
     public void updateLinks() {
@@ -19,8 +22,8 @@ public class LinkUpdaterService {
     }
 
     private void updateLink(Link link) {
-        linkService.setLastCheckedTimeToLink(link);
-        log.info("Update link");
+        linkService.setLastCheckedTimeToLink(link, OffsetDateTime.now());
+        linkUpdater.updateLink(link.url());
     }
 
 }

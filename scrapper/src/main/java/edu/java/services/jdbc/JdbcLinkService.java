@@ -89,23 +89,28 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public Link findLinkByUrl(String url) {
+    public Link getLinkByUrl(String url) {
         return linksRepository.getLinkByURL(url);
     }
 
     @Override
-    public Collection<Link> findAllLinksByChat(long tgChatId) {
+    public Collection<Link> getAllLinksByChat(long tgChatId) {
         Chat chat = chatsRepository.getChatById(tgChatId);
         return chatsToLinksRepository.getAllLinksByChat(chat);
     }
 
     @Override
     public Collection<Link> getOldestCheckedLinks() {
-        return linksRepository.getOldestCheckedLinks("5 minutes");
+        return linksRepository.getOldestCheckedLinks("3 minutes");
     }
 
     @Override
-    public boolean setLastCheckedTimeToLink(Link link) {
-        return linksRepository.setLastCheckedTimeToLink(link);
+    public boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time) {
+        return linksRepository.setLastCheckedTimeToLink(link, time);
+    }
+
+    @Override
+    public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
+        return linksRepository.setLastUpdatedTimeToLink(link, time);
     }
 }

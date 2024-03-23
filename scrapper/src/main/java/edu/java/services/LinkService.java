@@ -1,6 +1,7 @@
 package edu.java.services;
 
 import edu.java.domain.dto.Link;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 
 public interface LinkService {
@@ -9,11 +10,13 @@ public interface LinkService {
 
     int deleteLinkFromChatByUrl(long tgChatId, String url);
 
-    Link findLinkByUrl(String url);
+    Link getLinkByUrl(String url);
 
-    Collection<Link> findAllLinksByChat(long tgChatId);
+    Collection<Link> getAllLinksByChat(long tgChatId);
 
     Collection<Link> getOldestCheckedLinks();
 
-    boolean setLastCheckedTimeToLink(Link link);
+    boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time);
+
+    boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time);
 }
