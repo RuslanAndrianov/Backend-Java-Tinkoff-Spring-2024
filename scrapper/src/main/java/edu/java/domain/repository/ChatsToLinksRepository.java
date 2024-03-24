@@ -74,5 +74,9 @@ public class ChatsToLinksRepository {
         return jdbcTemplate.query(sql, linkRowMapper, chat.chatId());
     }
 
-
+    @Transactional
+    public List<Long> getAllChatsByLink(Link link) {
+        String sql = "SELECT chat_id FROM chats_to_links WHERE link_id = ?";
+        return jdbcTemplate.query(sql, chatLinkRowMapper, link.linkId());
+    }
 }

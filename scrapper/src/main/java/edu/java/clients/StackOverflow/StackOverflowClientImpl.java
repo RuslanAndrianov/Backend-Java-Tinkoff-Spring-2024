@@ -1,8 +1,10 @@
 package edu.java.clients.StackOverflow;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 public class StackOverflowClientImpl implements StackOverflowClient {
 
     @Value(value = "${api.stackoverflow.defaultUrl}")
@@ -21,21 +23,17 @@ public class StackOverflowClientImpl implements StackOverflowClient {
             .builder()
             .baseUrl(baseUrl)
             .build();
+        this.defaultUrl = baseUrl;
     }
 
     @Override
-    public QuestionResponse fetchQuestion(Long questionId) {
+    public StackOverflowResponse fetchQuestion(Long questionId) {
         return this.webClient
             .get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/questions/" + questionId)
-                .queryParam("pagesize", 1)
-                .queryParam("order", "desc")
-                .queryParam("sort", "activity")
-                .queryParam("site", "stackoverflow")
-                .build())
+            .uri(defaultUrl
+                + "/questions/{questionId}?order=desc&sort=activity&site=stackoverflow", questionId)
             .retrieve()
-            .bodyToMono(QuestionResponse.class)
+            .bodyToMono(StackOverflowResponse.class)
             .block();
     }
 }

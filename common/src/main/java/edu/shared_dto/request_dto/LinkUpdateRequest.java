@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-public record LinkUpdate(
+public record LinkUpdateRequest(
     @NotNull Long id,
     @NotNull URI url,
     @NotEmpty String description,

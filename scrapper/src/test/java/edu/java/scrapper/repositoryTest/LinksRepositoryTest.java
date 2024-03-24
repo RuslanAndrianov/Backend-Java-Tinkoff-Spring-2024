@@ -111,7 +111,7 @@ public class LinksRepositoryTest extends IntegrationTest {
 
         linksRepository.addLink(link);
 
-        Link foundLink = linksRepository.getLinkByURL(url);
+        Link foundLink = linksRepository.getLinkByUrl(url);
         assertEquals(foundLink.linkId(), link.linkId());
         assertEquals(foundLink.url(), link.url());
 

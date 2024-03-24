@@ -42,7 +42,7 @@ public class JdbcLinkService implements LinkService {
             }
         }
 
-        Link link = linksRepository.getLinkByURL(url);
+        Link link = linksRepository.getLinkByUrl(url);
 
         // Если ссылки еще нет в links, то добавляем ее в links с новым id
         if (link == null) {
@@ -81,7 +81,7 @@ public class JdbcLinkService implements LinkService {
             return 0;
         }
 
-        Link link = linksRepository.getLinkByURL(url);
+        Link link = linksRepository.getLinkByUrl(url);
 
         boolean result = chatsToLinksRepository.deleteLinkFromChat(chat, link);
 
@@ -90,7 +90,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public Link getLinkByUrl(String url) {
-        return linksRepository.getLinkByURL(url);
+        return linksRepository.getLinkByUrl(url);
     }
 
     @Override

@@ -1,11 +1,17 @@
 package edu.java.updater;
 
 import edu.java.clients.GitHub.GitHubClient;
-import edu.java.clients.GitHub.RepositoryResponse;
-import edu.java.clients.StackOverflow.QuestionResponse;
+import edu.java.clients.GitHub.GitHubResponse;
+import edu.java.clients.StackOverflow.NestedJSONProperties;
 import edu.java.clients.StackOverflow.StackOverflowClient;
+import edu.java.clients.StackOverflow.StackOverflowResponse;
 import edu.java.domain.dto.Link;
-import edu.java.services.LinkService;
+import edu.java.domain.repository.ChatsToLinksRepository;
+import edu.java.domain.repository.LinksRepository;
+import edu.java.http_client.BotClient;
+import edu.shared_dto.request_dto.LinkUpdateRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +24,14 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("MagicNumber")
 public class LinkUpdater {
 
-    private final LinkService linkService;
+    private final LinksRepository linksRepository;
+    private final ChatsToLinksRepository chatsToLinksRepository;
+    private final BotClient botClient;
     private final GitHubClient gitHubClient;
     private final StackOverflowClient stackOverflowClient;
 
     public void updateLink(@NotNull String url) {
-        Link link = linkService.getLinkByUrl(url);
+        Link link = linksRepository.getLinkByUrl(url);
         String[] partsOfUrl = url.split("/");
         String domain = partsOfUrl[2];
 
@@ -42,18 +50,39 @@ public class LinkUpdater {
     }
 
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
-        RepositoryResponse response = gitHubClient.fetchRepository(owner, repo);
+        GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
         OffsetDateTime updatedAt = response.updatedAt();
         if (updatedAt.isAfter(link.lastUpdated())) {
-            linkService.setLastUpdatedTimeToLink(link, updatedAt);
+            linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
+            try {
+                botClient.updateLink(new LinkUpdateRequest(
+                    link.linkId(),
+                    new URI(link.url()),
+                    "Repository: " + repo + "\n" + "Owner: " + owner,
+                    chatsToLinksRepository.getAllChatsByLink(link)
+                ));
+            } catch (URISyntaxException e) {
+                log.error("Error updateGitHubLink");
+            }
         }
     }
 
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
-        QuestionResponse response = stackOverflowClient.fetchQuestion(questionId);
-        OffsetDateTime lastActivityDate = response.lastActivityDate();
+        StackOverflowResponse response = stackOverflowClient.fetchQuestion(questionId);
+        NestedJSONProperties properties = response.deserialize();
+        OffsetDateTime lastActivityDate = properties.lastActivityDate();
         if (lastActivityDate.isAfter(link.lastUpdated())) {
-            linkService.setLastUpdatedTimeToLink(link, lastActivityDate);
+            linksRepository.setLastUpdatedTimeToLink(link, lastActivityDate);
+            try {
+                botClient.updateLink(new LinkUpdateRequest(
+                    link.linkId(),
+                    new URI(link.url()),
+                    "Question id: " + questionId,
+                    chatsToLinksRepository.getAllChatsByLink(link)
+                ));
+            } catch (URISyntaxException e) {
+                log.error("Error updateStackOverflowLink");
+            }
         }
     }
 }

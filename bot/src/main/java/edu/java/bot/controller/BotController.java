@@ -1,6 +1,6 @@
 package edu.java.bot.controller;
 
-import edu.shared_dto.request_dto.LinkUpdate;
+import edu.shared_dto.request_dto.LinkUpdateRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +28,7 @@ public class BotController {
                      content = @Content(schema = @Schema(implementation = APIErrorResponse.class),
                                         mediaType = "application/json"))
     })
-    public ResponseEntity<?> updateLink(@RequestBody LinkUpdate request) {
+    public ResponseEntity<?> updateLink(@RequestBody LinkUpdateRequest request) {
         log.info("Запрос: " + request);
         return ResponseEntity.ok().build();
     }

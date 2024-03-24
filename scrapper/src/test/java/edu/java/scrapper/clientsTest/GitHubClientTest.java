@@ -2,7 +2,7 @@ package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.clients.GitHub.GitHubClientImpl;
-import edu.java.clients.GitHub.RepositoryResponse;
+import edu.java.clients.GitHub.GitHubResponse;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,13 +55,16 @@ public class GitHubClientTest {
                                 }
                                 """)));
 
-        RepositoryResponse repositoryResponse = gitHubClient.fetchRepository(owner, repo);
+        GitHubResponse gitHubResponse = gitHubClient.fetchRepository(owner, repo);
 
-        assertEquals(repositoryResponse.id(),
+        assertEquals(
+            gitHubResponse.id(),
             757504505);
-        assertEquals(repositoryResponse.fullName(),
+        assertEquals(
+            gitHubResponse.fullName(),
             "RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024");
-        assertEquals(repositoryResponse.updatedAt(),
+        assertEquals(
+            gitHubResponse.updatedAt(),
             OffsetDateTime.parse("2024-02-14T16:24:22Z"));
     }
 }

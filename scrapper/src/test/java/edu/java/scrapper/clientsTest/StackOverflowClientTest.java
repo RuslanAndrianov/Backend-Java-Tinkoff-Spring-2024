@@ -1,8 +1,12 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.clients.StackOverflow.QuestionResponse;
+import edu.java.clients.StackOverflow.NestedJSONProperties;
 import edu.java.clients.StackOverflow.StackOverflowClientImpl;
+import edu.java.clients.StackOverflow.StackOverflowResponse;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -10,9 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -55,19 +56,23 @@ public class StackOverflowClientTest {
                 .withHeader("Content-Type", "application/json; charset=utf-8")
                 .withBody("""
                     {
-                        "question_id": 12345671,
-                        "title": "Get and set value spinner from other activity in android",
-                        "last_activity_date": 1347254940
+                        "items": [
+                            {
+                                "question_id": 12345671,
+                                "title": "Get and set value spinner from other activity in android",
+                                "last_activity_date": 1347254940
+                            }
+                        ]
                     }
                     """)));
 
-        QuestionResponse questionResponse = stackOverflowClient.fetchQuestion(questionId);
+        StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchQuestion(questionId);
+        NestedJSONProperties properties = stackOverflowResponse.deserialize();
 
-        assertEquals(questionResponse.questionId(),
-            12345671);
-        assertEquals(questionResponse.title(),
+        assertEquals(properties.questionId(), 12345671);
+        assertEquals(properties.title(),
             "Get and set value spinner from other activity in android");
-        assertEquals(questionResponse.lastActivityDate(),
+        assertEquals(properties.lastActivityDate(),
             OffsetDateTime.ofInstant(Instant.ofEpochSecond(1347254940L), ZoneId.of("UTC")));
     }
 }

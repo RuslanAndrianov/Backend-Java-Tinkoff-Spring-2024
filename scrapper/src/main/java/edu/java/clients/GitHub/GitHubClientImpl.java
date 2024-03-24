@@ -25,13 +25,12 @@ public class GitHubClientImpl implements GitHubClient {
     }
 
     @Override
-    public RepositoryResponse fetchRepository(String owner, String repo) {
+    public GitHubResponse fetchRepository(String owner, String repo) {
         return this.webClient
             .get()
-            // comment
             .uri(defaultUrl + "/repos/{owner}/{repo}", owner, repo)
             .retrieve()
-            .bodyToMono(RepositoryResponse.class)
+            .bodyToMono(GitHubResponse.class)
             .block();
     }
 }

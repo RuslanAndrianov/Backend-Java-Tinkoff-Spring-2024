@@ -57,7 +57,7 @@ public class LinksRepository {
     }
 
     @Transactional
-    public Link getLinkByURL(String url) {
+    public Link getLinkByUrl(String url) {
         String sql = "SELECT * FROM links WHERE url = ?";
         Link link = null;
         try {
