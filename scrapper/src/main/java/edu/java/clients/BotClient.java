@@ -1,8 +1,7 @@
-package edu.java.http_client;
+package edu.java.clients;
 
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,7 @@ public class BotClient {
         this.defaultUrl = baseUrl;
     }
 
-    public Optional<String> updateLink(LinkUpdateRequest request) {
+    public String updateLink(LinkUpdateRequest request) {
         return webClient
             .post()
             .uri(defaultUrl + "/updates")
@@ -45,6 +44,6 @@ public class BotClient {
                     .bodyToMono(APIErrorResponse.class)
                     .flatMap(errorResponse -> Mono.error(new Exception())))
             .bodyToMono(String.class)
-            .blockOptional();
+            .block();
     }
 }

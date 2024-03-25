@@ -8,7 +8,7 @@ import edu.java.clients.StackOverflow.StackOverflowResponse;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.domain.repository.LinksRepository;
-import edu.java.http_client.BotClient;
+import edu.java.clients.BotClient;
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
