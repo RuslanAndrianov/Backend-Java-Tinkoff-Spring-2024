@@ -2,6 +2,7 @@ package edu.java.bot.configs;
 
 import com.pengrad.telegrambot.TelegramBot;
 import edu.java.bot.listeners.TgUpdatesListener;
+import edu.java.bot.services.MessageService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,5 +26,10 @@ public class BotConfig {
         TgUpdatesListener tgUpdatesListener) {
 
         return new TgUpdatesListenerConfig(telegramBot, tgUpdatesListener);
+    }
+
+    @Bean
+    public TgUpdatesListener tgUpdatesListener(MessageService messageService) {
+        return new TgUpdatesListener(messageService);
     }
 }

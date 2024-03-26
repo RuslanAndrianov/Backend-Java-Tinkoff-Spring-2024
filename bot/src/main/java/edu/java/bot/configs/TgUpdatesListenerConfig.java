@@ -16,9 +16,4 @@ public class TgUpdatesListenerConfig {
 
         telegramBot.setUpdatesListener(tgUpdatesListener.getUpdatesListener());
     }
-
-    @Bean
-    public TgUpdatesListener tgUpdatesListener(MessageService messageService) {
-        return new TgUpdatesListener(messageService);
-    }
 }
