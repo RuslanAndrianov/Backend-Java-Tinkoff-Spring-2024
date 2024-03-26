@@ -3,7 +3,7 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.configs.CommandsConfig.COMMANDS;
+import static edu.java.bot.configs.CommandsConfig.commands;
 
 @Component
 public class HelpCommand implements Command {
@@ -27,7 +27,7 @@ public class HelpCommand implements Command {
         long chatId = update.message().chat().id();
         StringBuilder response = new StringBuilder();
         response.append("Список доступных команд:\n");
-        for (Command command : COMMANDS) {
+        for (Command command : commands) {
             response
                 .append(command.name())
                 .append(" - ")

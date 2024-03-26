@@ -1,5 +1,6 @@
 package edu.java.updater;
 
+import edu.java.clients.BotClient;
 import edu.java.clients.GitHub.GitHubClient;
 import edu.java.clients.GitHub.GitHubResponse;
 import edu.java.clients.StackOverflow.NestedJSONProperties;
@@ -8,7 +9,6 @@ import edu.java.clients.StackOverflow.StackOverflowResponse;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.domain.repository.LinksRepository;
-import edu.java.clients.BotClient;
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -52,6 +52,8 @@ public class LinkUpdater {
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
         GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
         OffsetDateTime updatedAt = response.updatedAt();
+        log.info("Response updated_at: " + updatedAt);
+        log.info("Link last_updated: " + link.lastUpdated());
         if (updatedAt.isAfter(link.lastUpdated())) {
             linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
             try {
