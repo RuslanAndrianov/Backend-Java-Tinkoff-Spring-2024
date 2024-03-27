@@ -1,5 +1,9 @@
 package edu.java.scrapper;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -8,20 +12,19 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import java.io.File;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 @Testcontainers
 @Slf4j
 public abstract class IntegrationTest {
+
     public static PostgreSQLContainer<?> POSTGRES;
+    public static JdbcTemplate jdbcTemplate;
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:15")
@@ -37,7 +40,8 @@ public abstract class IntegrationTest {
         try (Connection connection = DriverManager.getConnection(
             container.getJdbcUrl(),
             container.getUsername(),
-            container.getPassword())
+            container.getPassword()
+        )
         ) {
             Database database = DatabaseFactory
                 .getInstance()
@@ -50,10 +54,10 @@ public abstract class IntegrationTest {
                 .resolve("migrations");
 
             Liquibase liquibase = new Liquibase(
-                    "master.xml",
-                    new DirectoryResourceAccessor(changelogPath),
-                    database
-                );
+                "master.xml",
+                new DirectoryResourceAccessor(changelogPath),
+                database
+            );
 
             liquibase.update(new Contexts(), new LabelExpression());
 
@@ -68,4 +72,5 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
     }
+
 }

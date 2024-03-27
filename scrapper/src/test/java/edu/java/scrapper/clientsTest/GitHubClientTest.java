@@ -1,20 +1,20 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import edu.java.clients.GitHub.GitHubClientImpl;
+import edu.java.clients.GitHub.GitHubResponse;
 import java.time.OffsetDateTime;
-import edu.java.client.GitHub.GitHubClientImpl;
-import edu.java.client.GitHub.RepositoryResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class GitHubClientTest {
@@ -55,13 +55,16 @@ public class GitHubClientTest {
                                 }
                                 """)));
 
-        RepositoryResponse repositoryResponse = gitHubClient.fetchRepository(owner, repo);
+        GitHubResponse gitHubResponse = gitHubClient.fetchRepository(owner, repo);
 
-        assertEquals(repositoryResponse.id(),
+        assertEquals(
+            gitHubResponse.id(),
             757504505);
-        assertEquals(repositoryResponse.fullName(),
+        assertEquals(
+            gitHubResponse.fullName(),
             "RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024");
-        assertEquals(repositoryResponse.updatedAt(),
+        assertEquals(
+            gitHubResponse.updatedAt(),
             OffsetDateTime.parse("2024-02-14T16:24:22Z"));
     }
 }

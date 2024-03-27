@@ -1,10 +1,12 @@
 app:
   scheduler:
     enable: true
-    interval: 5000            # Задержка в миллисекундах
-    force-check-delay: 10000  # Задержка в миллисекундах
+    interval: 10000            # Задержка в миллисекундах
+    force-check-delay: 15000  # Задержка в миллисекундах
 
 spring:
+  liquibase:
+    enabled: false
   application:
     name: scrapper
   autoconfigure:

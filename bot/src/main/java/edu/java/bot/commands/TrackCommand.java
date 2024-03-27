@@ -2,21 +2,26 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.UserState;
+import edu.shared_dto.ChatState;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.DBUsersLinks.addLink;
-import static edu.java.bot.repository.in_memory.DBUsersLinks.isUserHasLink;
-import static edu.java.bot.repository.in_memory.DBUsersLinks.isUserRegistered;
-import static edu.java.bot.repository.in_memory.DBUsersState.setUserState;
+import static edu.java.bot.repository.in_memory.Links.addLink;
+import static edu.java.bot.repository.in_memory.Links.isUserHasLink;
+import static edu.java.bot.repository.in_memory.Links.isUserRegistered;
+import static edu.java.bot.repository.in_memory.Users.setUserState;
 import static edu.java.bot.utils.URLValidator.isValidURL;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class TrackCommand implements Command {
 
     public static final String NAME = "/track";
     public static final String DESCRIPTION = "начать отслеживание ссылки";
     public static final String ALREADY_TRACKING = "Ошибка! Ссылка уже отслеживается! Используйте команду заново!";
-    public static final String SUCCESS = "Ссылка отслеживается!";
+    public static final String SUCCESS = "Ссылка успешно отслеживается!";
 
     @Override
     public String name() {
@@ -29,21 +34,23 @@ public class TrackCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-
+    public SendMessage handle(@NotNull Update update) {
         long chatId = update.message().chat().id();
+
         if (!isUserRegistered(chatId)) {
             return new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER);
         }
-        setUserState(chatId, UserState.TRACK);
+
+        setUserState(chatId, ChatState.TRACK);
+
         return new SendMessage(chatId, INPUT_URL);
     }
 
-    public static SendMessage trackURL(Update update) {
+    public SendMessage trackURL(@NotNull Update update) {
         long chatId = update.message().chat().id();
         String text = update.message().text();
 
-        setUserState(chatId, UserState.REGISTERED);
+        setUserState(chatId, ChatState.REGISTERED);
 
         if (isUserHasLink(chatId, text)) {
             return new SendMessage(chatId, ALREADY_TRACKING);
@@ -53,6 +60,7 @@ public class TrackCommand implements Command {
             addLink(chatId, text);
             return new SendMessage(chatId, SUCCESS);
         }
+
         return new SendMessage(chatId, INVALID_URL);
     }
 }
