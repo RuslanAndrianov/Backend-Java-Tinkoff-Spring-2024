@@ -22,10 +22,10 @@ public class CommandsConfig {
 
     public CommandsConfig(@NotNull TelegramBot telegramBot, ScrapperClient scrapperClient) {
         commands.add(new HelpCommand());
-        commands.add(new ListCommand(scrapperClient));
-        commands.add(new StartCommand(scrapperClient));
-        commands.add(new TrackCommand(scrapperClient));
-        commands.add(new UntrackCommand(scrapperClient));
+        commands.add(new ListCommand());
+        commands.add(new StartCommand());
+        commands.add(new TrackCommand());
+        commands.add(new UntrackCommand());
         telegramBot.execute(this.createCommandMenu());
     }
 

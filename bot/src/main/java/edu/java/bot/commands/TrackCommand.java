@@ -2,11 +2,7 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.clients.ScrapperClient;
 import edu.shared_dto.ChatState;
-import edu.shared_dto.request_dto.AddLinkRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +22,6 @@ public class TrackCommand implements Command {
     public static final String DESCRIPTION = "начать отслеживание ссылки";
     public static final String ALREADY_TRACKING = "Ошибка! Ссылка уже отслеживается! Используйте команду заново!";
     public static final String SUCCESS = "Ссылка успешно отслеживается!";
-
-    private final ScrapperClient scrapperClient;
 
     @Override
     public String name() {
@@ -58,18 +52,13 @@ public class TrackCommand implements Command {
 
         setUserState(chatId, ChatState.REGISTERED);
 
-        try {
-            scrapperClient.addLink(chatId, new AddLinkRequest(new URI(text)));
-            if (isUserHasLink(chatId, text)) {
-                return new SendMessage(chatId, ALREADY_TRACKING);
-            }
+        if (isUserHasLink(chatId, text)) {
+            return new SendMessage(chatId, ALREADY_TRACKING);
+        }
 
-            if (isValidURL(text)) {
-                addLink(chatId, text);
-                return new SendMessage(chatId, SUCCESS);
-            }
-        } catch (URISyntaxException e) {
-            log.error("Tracking error!");
+        if (isValidURL(text)) {
+            addLink(chatId, text);
+            return new SendMessage(chatId, SUCCESS);
         }
 
         return new SendMessage(chatId, INVALID_URL);
