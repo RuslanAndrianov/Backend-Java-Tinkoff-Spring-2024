@@ -2,6 +2,7 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import static edu.java.bot.configs.CommandsConfig.commands;
 
@@ -9,7 +10,7 @@ import static edu.java.bot.configs.CommandsConfig.commands;
 public class HelpCommand implements Command {
 
     public static final String NAME = "/help";
-    public static final String DESCRIPTION = "вывести окно с командами";
+    public static final String DESCRIPTION = "вывести сообщение с командами";
 
     @Override
     public String name() {
@@ -22,7 +23,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update) {
+    public SendMessage handle(@NotNull Update update) {
 
         long chatId = update.message().chat().id();
         StringBuilder response = new StringBuilder();

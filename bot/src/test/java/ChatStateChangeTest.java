@@ -12,9 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static edu.java.bot.commands.TrackCommand.trackURL;
-import static edu.java.bot.commands.UntrackCommand.untrackURL;
-import static edu.java.bot.repository.in_memory.DBUsersState.getUserState;
+import static edu.java.bot.repository.in_memory.Users.getUserState;
 import static edu.shared_dto.ChatState.REGISTERED;
 import static edu.shared_dto.ChatState.TRACK;
 import static edu.shared_dto.ChatState.UNREGISTERED;
@@ -73,11 +71,11 @@ public class ChatStateChangeTest {
         assertEquals(getUserState(chat.id()), REGISTERED);
         SendMessage sendMessage2 = trackCommand.handle(update2);
         assertEquals(getUserState(chat.id()), TRACK);
-        SendMessage sendMessage3 = trackURL(update3);
+        SendMessage sendMessage3 = trackCommand.trackURL(update3);
         assertEquals(getUserState(chat.id()), REGISTERED);
         SendMessage sendMessage4 = untrackCommand.handle(update4);
         assertEquals(getUserState(chat.id()), UNTRACKED);
-        SendMessage sendMessage5 = untrackURL(update5);
+        SendMessage sendMessage5 = untrackCommand.untrackURL(update5);
         assertEquals(getUserState(chat.id()), REGISTERED);
     }
 

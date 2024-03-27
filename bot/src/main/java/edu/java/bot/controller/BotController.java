@@ -35,7 +35,7 @@ public class BotController {
     })
     public ResponseEntity<?> updateLink(@RequestBody LinkUpdateRequest request) {
         log.info("Запрос: " + request);
-        updateService.sendUpdateToAllChats(request);
+        updateService.sendNotificationToChats(request);
         return ResponseEntity.ok().build();
     }
 }

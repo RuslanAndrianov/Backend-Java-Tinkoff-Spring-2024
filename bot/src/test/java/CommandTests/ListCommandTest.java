@@ -16,7 +16,6 @@ import static edu.java.bot.commands.Command.ANSWER_TO_UNREGISTERED_USER;
 import static edu.java.bot.commands.ListCommand.EMPTY_LIST;
 import static edu.java.bot.commands.ListCommand.YOUR_LIST;
 import static edu.java.bot.commands.StartCommand.SUCCESS;
-import static edu.java.bot.commands.TrackCommand.trackURL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,7 +95,7 @@ public class ListCommandTest {
         SendMessage sendMessage1 = startCommand.handle(update1);
         assertEquals(sendMessage1.getParameters().get("text"), SUCCESS);
         SendMessage sendMessage2 = trackCommand.handle(update2);
-        SendMessage sendMessage3 = trackURL(update3);
+        SendMessage sendMessage3 = trackCommand.trackURL(update3);
         SendMessage sendMessage4 = listCommand.handle(update4);
 
         assertEquals(sendMessage4.getParameters().get("text"), YOUR_LIST + LINK + "\n\n");

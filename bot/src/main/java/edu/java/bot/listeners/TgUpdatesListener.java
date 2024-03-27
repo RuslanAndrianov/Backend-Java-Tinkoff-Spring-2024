@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TgUpdatesListener {
 
-    private final UpdatesListener updatesListener;
+    private final UpdatesListener tgUpdatesListener;
 
     public TgUpdatesListener(MessageService messageService) {
-        this.updatesListener = list -> {
+        this.tgUpdatesListener = list -> {
             list.forEach(messageService::handleMessage);
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         };

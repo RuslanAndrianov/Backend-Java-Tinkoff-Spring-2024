@@ -8,10 +8,12 @@ import edu.shared_dto.response_dto.ListLinksResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Component
 @SuppressWarnings("MemberName")
 public class ScrapperClient {
 
@@ -19,7 +21,7 @@ public class ScrapperClient {
     private String defaultUrl;
 
     private final WebClient webClient;
-    private final String TG_CHAT_ID = "tg-chat/{id}";
+    private final String TG_CHAT = "/tg-chat/";
     private final String LINKS = "/links";
     private final String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
 
@@ -36,12 +38,13 @@ public class ScrapperClient {
             .builder()
             .baseUrl(baseUrl)
             .build();
+        this.defaultUrl = baseUrl;
     }
 
     public String registerChat(Long id) {
         return webClient
             .post()
-            .uri(uriBuilder -> uriBuilder.path(TG_CHAT_ID).build(id))
+            .uri(defaultUrl + TG_CHAT + id)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError,
                 response -> response
@@ -51,10 +54,11 @@ public class ScrapperClient {
             .block();
     }
 
+    // TODO : добавить в будущем команду остановки бота <=> удаление чата из БД
     public String deleteChat(Long id) {
         return webClient
             .delete()
-            .uri(uriBuilder -> uriBuilder.path(TG_CHAT_ID).build(id))
+            .uri(defaultUrl + TG_CHAT + id)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError,
                 response -> response
@@ -67,7 +71,7 @@ public class ScrapperClient {
     public ListLinksResponse getLinks(Long id) {
         return webClient
             .get()
-            .uri(LINKS)
+            .uri(defaultUrl + LINKS)
             .header(TG_CHAT_ID_HEADER, String.valueOf(id))
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError,
@@ -81,7 +85,7 @@ public class ScrapperClient {
     public LinkResponse addLink(Long id, AddLinkRequest request) {
         return webClient
             .post()
-            .uri(LINKS)
+            .uri(defaultUrl + LINKS)
             .header(TG_CHAT_ID_HEADER, String.valueOf(id))
             .body(BodyInserters.fromValue(request))
             .retrieve()
@@ -96,7 +100,7 @@ public class ScrapperClient {
     public LinkResponse deleteLink(Long id, RemoveLinkRequest request) {
         return webClient
             .method(HttpMethod.DELETE)
-            .uri(LINKS)
+            .uri(defaultUrl + LINKS)
             .header(TG_CHAT_ID_HEADER, String.valueOf(id))
             .body(BodyInserters.fromValue(request))
             .retrieve()

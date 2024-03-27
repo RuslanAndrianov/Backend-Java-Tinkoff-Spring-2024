@@ -15,7 +15,6 @@ import static edu.java.bot.commands.Command.ANSWER_TO_UNREGISTERED_USER;
 import static edu.java.bot.commands.Command.INPUT_URL;
 import static edu.java.bot.commands.Command.INVALID_URL;
 import static edu.java.bot.commands.TrackCommand.ALREADY_TRACKING;
-import static edu.java.bot.commands.TrackCommand.trackURL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,7 +68,7 @@ public class TrackCommandTest {
         assertEquals(sendMessage1.getParameters().get("text"), StartCommand.SUCCESS);
         SendMessage sendMessage2 = trackCommand.handle(update2);
         assertEquals(sendMessage2.getParameters().get("text"), INPUT_URL);
-        SendMessage sendMessage3 = trackURL(update3);
+        SendMessage sendMessage3 = trackCommand.trackURL(update3);
         assertEquals(sendMessage3.getParameters().get("text"), TrackCommand.SUCCESS);
     }
 
@@ -99,7 +98,7 @@ public class TrackCommandTest {
         assertEquals(sendMessage1.getParameters().get("text"), StartCommand.SUCCESS);
         SendMessage sendMessage2 = trackCommand.handle(update2);
         assertEquals(sendMessage2.getParameters().get("text"), INPUT_URL);
-        SendMessage sendMessage3 = trackURL(update3);
+        SendMessage sendMessage3 = trackCommand.trackURL(update3);
         assertEquals(sendMessage3.getParameters().get("text"), INVALID_URL);
     }
 
@@ -138,11 +137,11 @@ public class TrackCommandTest {
         assertEquals(sendMessage1.getParameters().get("text"), StartCommand.SUCCESS);
         SendMessage sendMessage2 = trackCommand.handle(update2);
         assertEquals(sendMessage2.getParameters().get("text"), INPUT_URL);
-        SendMessage sendMessage3 = trackURL(update3);
+        SendMessage sendMessage3 = trackCommand.trackURL(update3);
         assertEquals(sendMessage3.getParameters().get("text"), TrackCommand.SUCCESS);
         SendMessage sendMessage4 = trackCommand.handle(update4);
         assertEquals(sendMessage4.getParameters().get("text"), INPUT_URL);
-        SendMessage sendMessage5 = trackURL(update5);
+        SendMessage sendMessage5 = trackCommand.trackURL(update5);
         assertEquals(sendMessage5.getParameters().get("text"), ALREADY_TRACKING);
     }
 }

@@ -2,19 +2,25 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import edu.java.bot.clients.ScrapperClient;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.DBUsersLinks.getUserLinks;
-import static edu.java.bot.repository.in_memory.DBUsersLinks.isUserRegistered;
+import static edu.java.bot.repository.in_memory.Links.getUserLinks;
+import static edu.java.bot.repository.in_memory.Links.isUserRegistered;
 
 @Component
+@RequiredArgsConstructor
 public class ListCommand implements Command {
 
     public static final String NAME = "/list";
     public static final String DESCRIPTION = "показать список отслеживаемых ссылок";
     public static final String EMPTY_LIST = "Список ваших отслеживаемых ссылок пустой!";
     public static final String YOUR_LIST = "Список ваших отслеживаемых ссылок:\n";
+    private final ScrapperClient scrapperClient;
+
 
     @Override
     public String name() {
@@ -27,12 +33,14 @@ public class ListCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update) {
+    public SendMessage handle(@NotNull Update update) {
 
         long chatId = update.message().chat().id();
         if (!isUserRegistered(chatId)) {
             return new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER);
         }
+
+        scrapperClient.getLinks(chatId);
 
         List<String> userLinks = getUserLinks(chatId);
         if (userLinks.isEmpty()) {

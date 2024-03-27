@@ -8,9 +8,9 @@ import static edu.shared_dto.ChatState.REGISTERED;
 import static edu.shared_dto.ChatState.UNREGISTERED;
 
 @Component
-public class DBUsersState {
+public class Users {
 
-    private DBUsersState() {
+    private Users() {
         db = new HashMap<>();
     }
 

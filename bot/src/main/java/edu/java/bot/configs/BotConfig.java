@@ -1,6 +1,7 @@
 package edu.java.bot.configs;
 
 import com.pengrad.telegrambot.TelegramBot;
+import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.listeners.TgUpdatesListener;
 import edu.java.bot.services.MessageService;
 import org.jetbrains.annotations.NotNull;
@@ -16,8 +17,8 @@ public class BotConfig {
     }
 
     @Bean
-    public CommandsConfig commandsConfig(TelegramBot telegramBot) {
-        return new CommandsConfig(telegramBot);
+    public CommandsConfig commandsConfig(TelegramBot telegramBot, ScrapperClient scrapperClient) {
+        return new CommandsConfig(telegramBot, scrapperClient);
     }
 
     @Bean

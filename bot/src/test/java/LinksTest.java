@@ -6,23 +6,17 @@ import edu.java.bot.BotApplication;
 import edu.java.bot.commands.StartCommand;
 import edu.java.bot.commands.TrackCommand;
 import edu.java.bot.commands.UntrackCommand;
-import edu.java.bot.repository.in_memory.DBUsersLinks;
+import edu.java.bot.repository.in_memory.Links;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import java.util.ArrayList;
-import java.util.List;
-import static edu.java.bot.commands.TrackCommand.trackURL;
-import static edu.java.bot.commands.UntrackCommand.untrackURL;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = BotApplication.class)
-public class DBUsersLinksTest {
+public class LinksTest {
 
     @Autowired
     StartCommand startCommand;
@@ -71,19 +65,19 @@ public class DBUsersLinksTest {
 
         SendMessage sendMessage1 = startCommand.handle(update1);
         SendMessage sendMessage2 = startCommand.handle(update2);
-        assertTrue(DBUsersLinks.isUserRegistered(chat1.id()));
-        assertTrue(DBUsersLinks.isUserRegistered(chat2.id()));
+        assertTrue(Links.isUserRegistered(chat1.id()));
+        assertTrue(Links.isUserRegistered(chat2.id()));
         SendMessage sendMessage3 = trackCommand.handle(update3);
         SendMessage sendMessage4 = trackCommand.handle(update4);
-        SendMessage sendMessage5 = trackURL(update5);
-        SendMessage sendMessage6 = trackURL(update6);
+        SendMessage sendMessage5 = trackCommand.trackURL(update5);
+        SendMessage sendMessage6 = trackCommand.trackURL(update6);
 
         // Работает локально, но возникает ошибка при сборке на GitHub
 
-        /*assertTrue(DBUsersLinks.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(DBUsersLinks.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(DBUsersLinks.getUserLinks(chat1.id()), List.of(LINK1));
-        assertEquals(DBUsersLinks.getUserLinks(chat2.id()), List.of(LINK2));*/
+        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(Links.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1));
+        assertEquals(Links.getUserLinks(chat2.id()), List.of(LINK2));*/
     }
 
     @Test
@@ -144,30 +138,30 @@ public class DBUsersLinksTest {
 
         SendMessage sendMessage1 = startCommand.handle(update1);
         SendMessage sendMessage2 = startCommand.handle(update2);
-        assertTrue(DBUsersLinks.isUserRegistered(chat1.id()));
-        assertTrue(DBUsersLinks.isUserRegistered(chat2.id()));
+        assertTrue(Links.isUserRegistered(chat1.id()));
+        assertTrue(Links.isUserRegistered(chat2.id()));
         SendMessage sendMessage3 = trackCommand.handle(update3);
         SendMessage sendMessage4 = trackCommand.handle(update4);
-        SendMessage sendMessage5 = trackURL(update5);
-        SendMessage sendMessage6 = trackURL(update6);
+        SendMessage sendMessage5 = trackCommand.trackURL(update5);
+        SendMessage sendMessage6 = trackCommand.trackURL(update6);
 
         // Работает локально, но возникает ошибка при сборке на GitHub
-        /*assertTrue(DBUsersLinks.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(DBUsersLinks.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(DBUsersLinks.getUserLinks(chat1.id()), List.of(LINK1));
-        assertEquals(DBUsersLinks.getUserLinks(chat2.id()), List.of(LINK2));*/
+        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(Links.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1));
+        assertEquals(Links.getUserLinks(chat2.id()), List.of(LINK2));*/
 
         SendMessage sendMessage7 = trackCommand.handle(update7);
         SendMessage sendMessage8 = untrackCommand.handle(update8);
-        SendMessage sendMessage9 = trackURL(update9);
-        SendMessage sendMessage10 = untrackURL(update10);
+        SendMessage sendMessage9 = trackCommand.trackURL(update9);
+        SendMessage sendMessage10 = untrackCommand.untrackURL(update10);
 
         // Работает локально, но возникает ошибка при сборке на GitHub
 
-        /*assertTrue(DBUsersLinks.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(DBUsersLinks.isUserHasLink(chat1.id(), LINK2));
-        assertFalse(DBUsersLinks.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(DBUsersLinks.getUserLinks(chat1.id()), List.of(LINK1, LINK2));
-        assertEquals(DBUsersLinks.getUserLinks(chat2.id()), new ArrayList<>());*/
+        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(Links.isUserHasLink(chat1.id(), LINK2));
+        assertFalse(Links.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1, LINK2));
+        assertEquals(Links.getUserLinks(chat2.id()), new ArrayList<>());*/
     }
 }
