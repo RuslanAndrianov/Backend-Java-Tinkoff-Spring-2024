@@ -26,7 +26,8 @@ public class LinksRepositoryTest extends IntegrationTest {
                 resultSet.getLong("link_id"),
                 resultSet.getString("url"),
                 timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
-                timestampToOffsetDate(resultSet.getTimestamp("last_checked"))
+                timestampToOffsetDate(resultSet.getTimestamp("last_checked")),
+                resultSet.getInt("zone_offset")
             );
 
     private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
@@ -51,7 +52,7 @@ public class LinksRepositoryTest extends IntegrationTest {
     void addLinkTest() {
         long link_id = 1L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
         List<Link> linksBefore = linksRepository.getAllLinks();
@@ -72,7 +73,7 @@ public class LinksRepositoryTest extends IntegrationTest {
     void deleteLinkTest() {
         long link_id = 2L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        Link link  = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link  = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkDeleted;
 
         List<Link> linksBefore = linksRepository.getAllLinks();
@@ -90,7 +91,7 @@ public class LinksRepositoryTest extends IntegrationTest {
     void getLinkByIdTest() {
         long link_id = 3L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
         linksRepository.addLink(link);
 
@@ -107,7 +108,7 @@ public class LinksRepositoryTest extends IntegrationTest {
     void getLinkByURLTest() {
         long link_id = 4L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
         linksRepository.addLink(link);
 
@@ -128,9 +129,9 @@ public class LinksRepositoryTest extends IntegrationTest {
         String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now());
-        Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now());
-        Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+        Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+        Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
         List<Link> linksBefore = linksRepository.getAllLinks();
         linksRepository.addLink(link1);
@@ -151,7 +152,7 @@ public class LinksRepositoryTest extends IntegrationTest {
     void duplicateKeyTest() {
         long link_id = 8L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now());
+        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
         isLinkAdded = linksRepository.addLink(link);

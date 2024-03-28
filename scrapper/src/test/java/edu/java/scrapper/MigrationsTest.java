@@ -1,8 +1,10 @@
 package edu.java.scrapper;
 
+import edu.shared_dto.ChatState;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
+import java.time.OffsetDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,13 +28,19 @@ public class MigrationsTest extends IntegrationTest {
         assertTrue(POSTGRES.isRunning());
 
         jdbcTemplate.update(
-            "INSERT INTO chats VALUES (?)",
-            expectedChatId);
+            "INSERT INTO chats VALUES (?, ?)",
+            expectedChatId,
+            ChatState.REGISTERED.toString()
+        );
 
         jdbcTemplate.update(
-            "INSERT INTO links VALUES (?, ?)",
+            "INSERT INTO links VALUES (?, ?, ?, ?, ?)",
             expectedLinkId,
-            expectedUrl);
+            expectedUrl,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            0
+        );
 
         jdbcTemplate.update(
             "INSERT INTO chats_to_links VALUES (?, ?)",
