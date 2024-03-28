@@ -55,9 +55,7 @@ public class LinkUpdater {
         GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
         OffsetDateTime updatedAt = response.updatedAt();
 
-        OffsetDateTime lastUpdated = OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
-            ZoneOffset.UTC);
+        OffsetDateTime lastUpdated = getCorrectLastUpdated(link);
 
         if (updatedAt.isAfter(lastUpdated)) {
             linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
@@ -79,9 +77,7 @@ public class LinkUpdater {
         NestedJSONProperties properties = response.deserialize();
         OffsetDateTime lastActivityDate = properties.lastActivityDate();
 
-        OffsetDateTime lastUpdated = OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
-            ZoneOffset.UTC);
+        OffsetDateTime lastUpdated = getCorrectLastUpdated(link);
 
         if (lastActivityDate.isAfter(lastUpdated)) {
             linksRepository.setLastUpdatedTimeToLink(link, lastActivityDate);
@@ -96,5 +92,12 @@ public class LinkUpdater {
                 log.error("Error updateStackOverflowLink");
             }
         }
+    }
+
+    private OffsetDateTime getCorrectLastUpdated(@NotNull Link link) {
+
+        return OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
+            ZoneOffset.UTC);
     }
 }
