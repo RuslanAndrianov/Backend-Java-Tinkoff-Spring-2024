@@ -7,7 +7,6 @@ import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.domain.repository.LinksRepository;
 import edu.java.services.LinkService;
 import java.time.OffsetDateTime;
-import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,13 +99,13 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public Collection<Link> getAllLinksByChat(long tgChatId) {
+    public List<Link> getAllLinksByChat(long tgChatId) {
         Chat chat = chatsRepository.getChatById(tgChatId);
         return chatsToLinksRepository.getAllLinksByChat(chat);
     }
 
     @Override
-    public Collection<Link> getOldestCheckedLinks() {
+    public List<Link> getOldestCheckedLinks() {
         return linksRepository.getOldestCheckedLinks("3 minutes");
     }
 
