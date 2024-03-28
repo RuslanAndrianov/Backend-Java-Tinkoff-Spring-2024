@@ -6,7 +6,7 @@ import edu.java.bot.BotApplication;
 import edu.java.bot.commands.StartCommand;
 import edu.java.bot.commands.TrackCommand;
 import edu.java.bot.commands.UntrackCommand;
-import edu.java.bot.repository.in_memory.Links;
+import edu.java.bot.repository.in_memory.UserLinks;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = BotApplication.class)
-public class LinksTest {
+public class UserLinksTest {
 
     @Autowired
     StartCommand startCommand;
@@ -65,8 +65,8 @@ public class LinksTest {
 
         SendMessage sendMessage1 = startCommand.handle(update1);
         SendMessage sendMessage2 = startCommand.handle(update2);
-        assertTrue(Links.isUserRegistered(chat1.id()));
-        assertTrue(Links.isUserRegistered(chat2.id()));
+        assertTrue(UserLinks.isUserRegistered(chat1.id()));
+        assertTrue(UserLinks.isUserRegistered(chat2.id()));
         SendMessage sendMessage3 = trackCommand.handle(update3);
         SendMessage sendMessage4 = trackCommand.handle(update4);
         SendMessage sendMessage5 = trackCommand.trackURL(update5);
@@ -74,10 +74,10 @@ public class LinksTest {
 
         // Работает локально, но возникает ошибка при сборке на GitHub
 
-        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(Links.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1));
-        assertEquals(Links.getUserLinks(chat2.id()), List.of(LINK2));*/
+        /*assertTrue(UserLinks.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(UserLinks.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(UserLinks.getUserLinks(chat1.id()), List.of(LINK1));
+        assertEquals(UserLinks.getUserLinks(chat2.id()), List.of(LINK2));*/
     }
 
     @Test
@@ -138,18 +138,18 @@ public class LinksTest {
 
         SendMessage sendMessage1 = startCommand.handle(update1);
         SendMessage sendMessage2 = startCommand.handle(update2);
-        assertTrue(Links.isUserRegistered(chat1.id()));
-        assertTrue(Links.isUserRegistered(chat2.id()));
+        assertTrue(UserLinks.isUserRegistered(chat1.id()));
+        assertTrue(UserLinks.isUserRegistered(chat2.id()));
         SendMessage sendMessage3 = trackCommand.handle(update3);
         SendMessage sendMessage4 = trackCommand.handle(update4);
         SendMessage sendMessage5 = trackCommand.trackURL(update5);
         SendMessage sendMessage6 = trackCommand.trackURL(update6);
 
         // Работает локально, но возникает ошибка при сборке на GitHub
-        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(Links.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1));
-        assertEquals(Links.getUserLinks(chat2.id()), List.of(LINK2));*/
+        /*assertTrue(UserLinks.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(UserLinks.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(UserLinks.getUserLinks(chat1.id()), List.of(LINK1));
+        assertEquals(UserLinks.getUserLinks(chat2.id()), List.of(LINK2));*/
 
         SendMessage sendMessage7 = trackCommand.handle(update7);
         SendMessage sendMessage8 = untrackCommand.handle(update8);
@@ -158,10 +158,10 @@ public class LinksTest {
 
         // Работает локально, но возникает ошибка при сборке на GitHub
 
-        /*assertTrue(Links.isUserHasLink(chat1.id(), LINK1));
-        assertTrue(Links.isUserHasLink(chat1.id(), LINK2));
-        assertFalse(Links.isUserHasLink(chat2.id(), LINK2));
-        assertEquals(Links.getUserLinks(chat1.id()), List.of(LINK1, LINK2));
-        assertEquals(Links.getUserLinks(chat2.id()), new ArrayList<>());*/
+        /*assertTrue(UserLinks.isUserHasLink(chat1.id(), LINK1));
+        assertTrue(UserLinks.isUserHasLink(chat1.id(), LINK2));
+        assertFalse(UserLinks.isUserHasLink(chat2.id(), LINK2));
+        assertEquals(UserLinks.getUserLinks(chat1.id()), List.of(LINK1, LINK2));
+        assertEquals(UserLinks.getUserLinks(chat2.id()), new ArrayList<>());*/
     }
 }

@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.Links.deleteLink;
-import static edu.java.bot.repository.in_memory.Links.isUserHasLink;
-import static edu.java.bot.repository.in_memory.Links.isUserRegistered;
+import static edu.java.bot.repository.in_memory.UserLinks.deleteLink;
+import static edu.java.bot.repository.in_memory.UserLinks.isUserHasLink;
+import static edu.java.bot.repository.in_memory.UserLinks.isUserRegistered;
 import static edu.java.bot.repository.in_memory.Users.setUserState;
 import static edu.java.bot.utils.URLValidator.isValidURL;
 

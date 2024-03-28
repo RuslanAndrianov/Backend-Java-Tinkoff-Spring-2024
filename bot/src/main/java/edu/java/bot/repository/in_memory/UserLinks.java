@@ -7,9 +7,9 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Links {
+public class UserLinks {
 
-    private Links() {
+    private UserLinks() {
         db = new HashMap<>();
     }
 

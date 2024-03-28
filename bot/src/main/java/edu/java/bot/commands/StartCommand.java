@@ -2,11 +2,11 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.Links;
+import edu.java.bot.repository.in_memory.UserLinks;
 import edu.java.bot.repository.in_memory.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.Links.isUserRegistered;
+import static edu.java.bot.repository.in_memory.UserLinks.isUserRegistered;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class StartCommand implements Command {
         if (isUserRegistered(chatId)) {
             return new SendMessage(chatId, ALREADY_REGISTERED);
         } else {
-            Links.addUser(chatId);
+            UserLinks.addUser(chatId);
             Users.addUser(chatId);
             return new SendMessage(chatId, SUCCESS);
         }

@@ -12,7 +12,9 @@ import edu.java.domain.repository.LinksRepository;
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -52,9 +54,12 @@ public class LinkUpdater {
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
         GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
         OffsetDateTime updatedAt = response.updatedAt();
-        log.info("Response updated_at: " + updatedAt);
-        log.info("Link last_updated: " + link.lastUpdated());
-        if (updatedAt.isAfter(link.lastUpdated())) {
+
+        OffsetDateTime lastUpdated = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
+            ZoneOffset.UTC);
+
+        if (updatedAt.isAfter(lastUpdated)) {
             linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
@@ -73,7 +78,12 @@ public class LinkUpdater {
         StackOverflowResponse response = stackOverflowClient.fetchQuestion(questionId);
         NestedJSONProperties properties = response.deserialize();
         OffsetDateTime lastActivityDate = properties.lastActivityDate();
-        if (lastActivityDate.isAfter(link.lastUpdated())) {
+
+        OffsetDateTime lastUpdated = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
+            ZoneOffset.UTC);
+
+        if (lastActivityDate.isAfter(lastUpdated)) {
             linksRepository.setLastUpdatedTimeToLink(link, lastActivityDate);
             try {
                 botClient.updateLink(new LinkUpdateRequest(

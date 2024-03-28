@@ -22,10 +22,13 @@ public class LinksRepository {
 
     @Transactional
     public boolean addLink(Link link) {
-        String sql = "INSERT INTO links VALUES (?, ?, DEFAULT)";
+        String sql = "INSERT INTO links VALUES (?, ?, ?, ?, ?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, link.linkId(), link.url()) != 0);
+            result = (jdbcTemplate.update(
+                sql,
+                link.linkId(), link.url(), link.lastUpdated(),
+                link.lastChecked(), link.zoneOffset()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link addition error!");
         }

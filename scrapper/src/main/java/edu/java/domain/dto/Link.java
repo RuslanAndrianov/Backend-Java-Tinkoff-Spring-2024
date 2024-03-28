@@ -6,6 +6,7 @@ public record Link(
     long linkId,
     String url,
     OffsetDateTime lastUpdated,
-    OffsetDateTime lastChecked
+    OffsetDateTime lastChecked,
+    int zoneOffset
 ) {
 }

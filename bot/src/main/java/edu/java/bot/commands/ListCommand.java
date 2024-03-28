@@ -7,8 +7,8 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.Links.getUserLinks;
-import static edu.java.bot.repository.in_memory.Links.isUserRegistered;
+import static edu.java.bot.repository.in_memory.UserLinks.getUserLinks;
+import static edu.java.bot.repository.in_memory.UserLinks.isUserRegistered;
 
 @Component
 @RequiredArgsConstructor

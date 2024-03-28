@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 @Configuration
 @SuppressWarnings("MultipleStringLiterals")
+@Slf4j
 public class DomainConfig {
 
     @Bean
@@ -49,7 +51,8 @@ public class DomainConfig {
                 resultSet.getLong("link_id"),
                 resultSet.getString("url"),
                 timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
-                timestampToOffsetDate(resultSet.getTimestamp("last_checked"))
+                timestampToOffsetDate(resultSet.getTimestamp("last_checked")),
+                resultSet.getInt("zone_offset")
             );
     }
 
@@ -58,7 +61,7 @@ public class DomainConfig {
         return (resultSet, rowNum) -> resultSet.getLong("chat_id");
     }
 
-    private OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
+    private @NotNull OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
         return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
     }
 }
