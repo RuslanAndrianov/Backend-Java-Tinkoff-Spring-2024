@@ -1,6 +1,6 @@
 package edu.java.scrapper;
 
-import edu.shared_dto.ChatState;
+import edu.ChatState;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;

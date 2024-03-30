@@ -2,27 +2,25 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.shared_dto.ChatState;
+import edu.shared_dto.response_dto.LinkResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.UserLinks.deleteLink;
-import static edu.java.bot.repository.in_memory.UserLinks.isUserHasLink;
-import static edu.java.bot.repository.in_memory.UserLinks.isUserRegistered;
-import static edu.java.bot.repository.in_memory.Users.setUserState;
-import static edu.java.bot.utils.URLValidator.isValidURL;
+import static edu.java.bot.commands.Answers.INPUT_URL;
+import static edu.java.bot.commands.Answers.INVALID_URL;
+import static edu.java.bot.commands.Answers.NO_TRACKING;
+import static edu.java.bot.commands.Answers.SOMETHING_WENT_WRONG;
+import static edu.java.bot.commands.Answers.SUCCESSFUL_UNTRACKING;
+import static edu.utils.URLValidator.isValidGitHubURL;
+import static edu.utils.URLValidator.isValidStackOverflowURL;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class UntrackCommand implements Command {
-
     public static final String NAME = "/untrack";
     public static final String DESCRIPTION = "прекратить отслеживание ссылки";
-    public static final String NON_TRACKING =
-        "Ошибка! Такой ссылки нет в списке отслеживаемых! Используйте команду заново!";
-    public static final String SUCCESS = "Ссылка не отслеживается!";
 
     @Override
     public String name() {
@@ -35,34 +33,30 @@ public class UntrackCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-
+    public SendMessage handle(@NotNull Update update, Object scrapperResponse) {
         long chatId = update.message().chat().id();
-
-        if (!isUserRegistered(chatId)) {
-            return new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER);
+        String url = update.message().text();
+        String responseUrl;
+        Long linkId;
+        try {
+            responseUrl = ((LinkResponse) scrapperResponse).url() + "";
+            linkId = ((LinkResponse) scrapperResponse).id();
+        } catch (NullPointerException e) {
+            return new SendMessage(chatId, INVALID_URL);
         }
 
-        setUserState(chatId, ChatState.UNTRACKED);
+        if (linkId == 0L) {
+            return new SendMessage(chatId, NO_TRACKING);
+        }
 
-        return new SendMessage(chatId, INPUT_URL);
+        if ((isValidGitHubURL(url) || isValidStackOverflowURL(url)) && url.equals(responseUrl)) {
+            return new SendMessage(chatId, SUCCESSFUL_UNTRACKING);
+        }
+        return new SendMessage(chatId, SOMETHING_WENT_WRONG);
     }
 
     public SendMessage untrackURL(@NotNull Update update) {
         long chatId = update.message().chat().id();
-        String text = update.message().text();
-
-        setUserState(chatId, ChatState.REGISTERED);
-
-        if (!isValidURL(text)) {
-            return new SendMessage(chatId, INVALID_URL);
-        }
-
-        if (!isUserHasLink(chatId, text)) {
-            return new SendMessage(chatId, NON_TRACKING);
-        }
-
-        deleteLink(chatId, text);
-        return new SendMessage(chatId, SUCCESS);
+        return new SendMessage(chatId, INPUT_URL);
     }
 }

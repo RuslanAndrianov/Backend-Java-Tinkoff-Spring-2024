@@ -11,6 +11,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import static edu.utils.URLValidator.isValidGitHubURL;
+import static edu.utils.URLValidator.isValidStackOverflowURL;
 
 @RequiredArgsConstructor
 @Service
@@ -45,21 +47,22 @@ public class JdbcLinkService implements LinkService {
 
         // Если ссылки еще нет в links, то добавляем ее в links с новым id
         if (link == null) {
-            List<Link> links = linksRepository.getAllLinks();
-            long linkId = links.isEmpty() ? 1 : links.getLast().linkId() + 1;
-            link = new Link(
-                linkId,
-                url,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                OffsetDateTime.now().getOffset().getTotalSeconds()
-            );
-            linksRepository.addLink(link);
+            if (isValidGitHubURL(url) || isValidStackOverflowURL(url)) {
+                List<Link> links = linksRepository.getAllLinks();
+                long linkId = links.isEmpty() ? 1 : links.size() + 1;
+                link = new Link(
+                    linkId,
+                    url,
+                    OffsetDateTime.now(),
+                    OffsetDateTime.now(),
+                    OffsetDateTime.now().getOffset().getTotalSeconds()
+                );
+                linksRepository.addLink(link);
+                chatsToLinksRepository.addLinkToChat(chat, link);
+                return 1;
+            }
         }
-
-        boolean result = chatsToLinksRepository.addLinkToChat(chat, link);
-
-        return result ? 1 : -2;
+        return -2;
     }
 
     // Возвращает разные intы в зависимости от сценария:

@@ -1,4 +1,4 @@
-package edu.shared_dto;
+package edu;
 
 public enum ChatState {
     UNREGISTERED, REGISTERED, TRACK, UNTRACKED

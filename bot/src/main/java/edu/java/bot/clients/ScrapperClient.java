@@ -5,26 +5,28 @@ import edu.shared_dto.request_dto.RemoveLinkRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
 import edu.shared_dto.response_dto.LinkResponse;
 import edu.shared_dto.response_dto.ListLinksResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Component
-@SuppressWarnings("MemberName")
+@Slf4j
+@SuppressWarnings("MagicNumber")
 public class ScrapperClient {
 
     @Value(value = "${api.scrapper.defaultUrl}")
     private String defaultUrl;
 
     private final WebClient webClient;
-    private final String TG_CHAT = "/tg-chat/";
-    private final String LINKS = "/links";
-    private final String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
-
+    private final String tgChat = "/tg-chat/";
+    private final String links = "/links";
+    private final String tgChatIdHeader = "Tg-Chat-Id";
 
     public ScrapperClient() {
         this.webClient = WebClient
@@ -44,12 +46,14 @@ public class ScrapperClient {
     public String registerChat(Long id) {
         return webClient
             .post()
-            .uri(defaultUrl + TG_CHAT + id)
+            .uri(defaultUrl + tgChat + id)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError,
+            .onStatus(
+                HttpStatusCode::is4xxClientError,
                 response -> response
                     .bodyToMono(APIErrorResponse.class)
-                    .flatMap(errorResponse -> Mono.error(new Exception())))
+                    .flatMap(errorResponse -> Mono.error(new Exception()))
+            )
             .bodyToMono(String.class)
             .block();
     }
@@ -58,12 +62,14 @@ public class ScrapperClient {
     public String deleteChat(Long id) {
         return webClient
             .delete()
-            .uri(defaultUrl + TG_CHAT + id)
+            .uri(defaultUrl + tgChat + id)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError,
+            .onStatus(
+                HttpStatusCode::is4xxClientError,
                 response -> response
                     .bodyToMono(APIErrorResponse.class)
-                    .flatMap(errorResponse -> Mono.error(new Exception())))
+                    .flatMap(errorResponse -> Mono.error(new Exception()))
+            )
             .bodyToMono(String.class)
             .block();
     }
@@ -71,44 +77,85 @@ public class ScrapperClient {
     public ListLinksResponse getLinks(Long id) {
         return webClient
             .get()
-            .uri(defaultUrl + LINKS)
-            .header(TG_CHAT_ID_HEADER, String.valueOf(id))
+            .uri(defaultUrl + links)
+            .header(tgChatIdHeader, String.valueOf(id))
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError,
+            .onStatus(
+                HttpStatusCode::is4xxClientError,
                 response -> response
                     .bodyToMono(APIErrorResponse.class)
-                    .flatMap(errorResponse -> Mono.error(new Exception())))
+                    .flatMap(errorResponse -> Mono.error(new Exception()))
+            )
             .bodyToMono(ListLinksResponse.class)
             .block();
     }
 
     public LinkResponse addLink(Long id, AddLinkRequest request) {
-        return webClient
-            .post()
-            .uri(defaultUrl + LINKS)
-            .header(TG_CHAT_ID_HEADER, String.valueOf(id))
-            .body(BodyInserters.fromValue(request))
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError,
-                response -> response
-                    .bodyToMono(APIErrorResponse.class)
-                    .flatMap(errorResponse -> Mono.error(new Exception())))
-            .bodyToMono(LinkResponse.class)
-            .block();
+        LinkResponse linkResponse = null;
+        boolean isDuplicateLink = false;
+        try {
+            linkResponse = webClient
+                .post()
+                .uri(defaultUrl + links)
+                .header(tgChatIdHeader, String.valueOf(id))
+                .body(BodyInserters.fromValue(request))
+                .retrieve()
+                .onStatus(
+                    httpStatusCode ->
+                        httpStatusCode.value() >= 400
+                    && httpStatusCode.value() < 500
+                    && httpStatusCode.value() != 406,
+                    response -> response
+                        .bodyToMono(APIErrorResponse.class)
+                        .flatMap(errorResponse -> Mono.error(new Exception()))
+                )
+                .bodyToMono(LinkResponse.class)
+                .block();
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode().value() == 406) {
+                isDuplicateLink = true;
+            }
+        }
+
+        if (isDuplicateLink) {
+            return new LinkResponse(0L, null);
+        }
+
+        return linkResponse;
     }
 
     public LinkResponse deleteLink(Long id, RemoveLinkRequest request) {
-        return webClient
-            .method(HttpMethod.DELETE)
-            .uri(defaultUrl + LINKS)
-            .header(TG_CHAT_ID_HEADER, String.valueOf(id))
-            .body(BodyInserters.fromValue(request))
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError,
-                response -> response
-                    .bodyToMono(APIErrorResponse.class)
-                    .flatMap(errorResponse -> Mono.error(new Exception())))
-            .bodyToMono(LinkResponse.class)
-            .block();
+        LinkResponse linkResponse = null;
+        boolean isNotTrackingLink = false;
+        try {
+            linkResponse = webClient
+                .method(HttpMethod.DELETE)
+                .uri(defaultUrl + links)
+                .header(tgChatIdHeader, String.valueOf(id))
+                .body(BodyInserters.fromValue(request))
+                .retrieve()
+                .onStatus(
+                    httpStatusCode ->
+                        httpStatusCode.value() >= 400
+                            && httpStatusCode.value() < 500
+                            && httpStatusCode.value() != 404,
+                    response -> response
+                        .bodyToMono(APIErrorResponse.class)
+                        .flatMap(errorResponse -> Mono.error(new Exception()))
+                )
+                .bodyToMono(LinkResponse.class)
+                .block();
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode().value() == 404) {
+                isNotTrackingLink = true;
+            }
+        }
+
+        if (isNotTrackingLink) {
+            return new LinkResponse(0L, null);
+        }
+
+        return linkResponse;
     }
 }

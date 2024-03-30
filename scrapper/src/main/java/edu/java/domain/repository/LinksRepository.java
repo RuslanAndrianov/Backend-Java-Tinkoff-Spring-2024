@@ -25,10 +25,12 @@ public class LinksRepository {
         String sql = "INSERT INTO links VALUES (?, ?, ?, ?, ?)";
         boolean result = false;
         try {
+            log.info(link + "");
             result = (jdbcTemplate.update(
                 sql,
                 link.linkId(), link.url(), link.lastUpdated(),
                 link.lastChecked(), link.zoneOffset()) != 0);
+            log.info(link + "");
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link addition error!");
         }

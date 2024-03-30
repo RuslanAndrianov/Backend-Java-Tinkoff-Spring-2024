@@ -23,18 +23,17 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(@NotNull Update update) {
-
+    public SendMessage handle(@NotNull Update update, Object ignored) {
         long chatId = update.message().chat().id();
-        StringBuilder response = new StringBuilder();
-        response.append("Список доступных команд:\n");
+        StringBuilder answer = new StringBuilder();
+        answer.append("Список доступных команд:\n");
         for (Command command : commands) {
-            response
+            answer
                 .append(command.name())
                 .append(" - ")
                 .append(command.description())
                 .append("\n");
         }
-        return new SendMessage(chatId, String.valueOf(response));
+        return new SendMessage(chatId, String.valueOf(answer));
     }
 }

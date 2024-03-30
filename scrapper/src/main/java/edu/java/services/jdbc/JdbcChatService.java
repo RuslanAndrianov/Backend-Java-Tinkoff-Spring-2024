@@ -6,7 +6,7 @@ import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import static edu.shared_dto.ChatState.REGISTERED;
+import static edu.ChatState.REGISTERED;
 
 @RequiredArgsConstructor
 @Service

@@ -2,20 +2,17 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.UserLinks;
-import edu.java.bot.repository.in_memory.Users;
-import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import static edu.java.bot.repository.in_memory.UserLinks.isUserRegistered;
+import static edu.java.bot.commands.Answers.ALREADY_REGISTERED;
+import static edu.java.bot.commands.Answers.SOMETHING_WENT_WRONG;
+import static edu.java.bot.commands.Answers.SUCCESSFUL_REGISTRATION;
 
 @Component
-@RequiredArgsConstructor
 public class StartCommand implements Command {
 
     public static final String NAME = "/start";
     public static final String DESCRIPTION = "зарегистрироваться в боте";
-    public static final String SUCCESS = "Вы зарегистрировались в боте!";
-    public static final String ALREADY_REGISTERED = "Вы уже зарегистрированы!";
 
     @Override
     public String name() {
@@ -28,16 +25,18 @@ public class StartCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-
+    public SendMessage handle(@NotNull Update update, Object scrapperResponse) {
         long chatId = update.message().chat().id();
-
-        if (isUserRegistered(chatId)) {
+        long parsedResponse;
+        try {
+            parsedResponse = Long.parseLong((String) scrapperResponse);
+            if (chatId == parsedResponse) {
+                return new SendMessage(chatId, SUCCESSFUL_REGISTRATION);
+            } else {
+                return new SendMessage(chatId, SOMETHING_WENT_WRONG);
+            }
+        } catch (NumberFormatException e) {
             return new SendMessage(chatId, ALREADY_REGISTERED);
-        } else {
-            UserLinks.addUser(chatId);
-            Users.addUser(chatId);
-            return new SendMessage(chatId, SUCCESS);
         }
     }
 }

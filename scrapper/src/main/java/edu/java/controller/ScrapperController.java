@@ -67,7 +67,9 @@ public class ScrapperController {
         @ApiResponse(responseCode = "200", description = "Чат успешно удалён",
                      content = @Content(schema = @Schema(implementation = LinkResponse.class),
                                         mediaType = "application/json")),
+
         // TODO : Пока что не придумано, когда возвращать код 400
+
         @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
                      content = @Content(schema = @Schema(implementation = APIErrorResponse.class),
                                         mediaType = "application/json")),
@@ -133,11 +135,13 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull AddLinkRequest request
     ) {
         String linkUrl = String.valueOf(request.link());
-        long linkId = linkService.getLinkByUrl(linkUrl).linkId();
-
-        switch (linkService.addLinkToChatByUrl(chatId, linkUrl)) {
+        int abc = linkService.addLinkToChatByUrl(chatId, linkUrl);
+        log.info(abc + "");
+        log.info(linkService.getLinkByUrl(linkUrl) + "");
+        switch (abc) {
             case 1:
                 log.info("Link " + linkUrl + " is added to chat " + chatId);
+                long linkId = linkService.getLinkByUrl(linkUrl).linkId();
                 return new ResponseEntity<>(
                     new LinkResponse(linkId, request.link()),
                     HttpStatusCode.valueOf(200));
@@ -171,11 +175,12 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull RemoveLinkRequest request
     ) {
         String linkUrl = String.valueOf(request.link());
-        long linkId = linkService.getLinkByUrl(linkUrl).linkId();
+
 
         switch (linkService.deleteLinkFromChatByUrl(chatId, linkUrl)) {
             case 1:
                 log.info("Link " + linkUrl + " is deleted from chat " + chatId);
+                long linkId = linkService.getLinkByUrl(linkUrl).linkId();
                 return new ResponseEntity<>(
                     new LinkResponse(linkId, request.link()),
                     HttpStatusCode.valueOf(200));
@@ -188,6 +193,6 @@ public class ScrapperController {
             default:
                 log.error("Error! Something went wrong!");
         }
-        return ResponseEntity.status(400).build();
+        return new ResponseEntity<>(HttpStatusCode.valueOf(400));
     }
 }
