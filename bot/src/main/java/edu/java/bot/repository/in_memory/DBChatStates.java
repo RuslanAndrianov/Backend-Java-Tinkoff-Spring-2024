@@ -13,6 +13,7 @@ import static edu.ChatState.UNREGISTERED;
 
 @Component
 @Slf4j
+@SuppressWarnings({"MultipleStringLiterals", "HideUtilityClassConstructor"})
 public class DBChatStates {
 
     public DBChatStates() {

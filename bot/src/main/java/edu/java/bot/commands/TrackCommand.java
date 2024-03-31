@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import static edu.java.bot.commands.Answers.ALREADY_TRACKING;
 import static edu.java.bot.commands.Answers.INAPPROPRIATE_LINK_TRACK;
 import static edu.java.bot.commands.Answers.INPUT_URL;
-import static edu.java.bot.commands.Answers.INVALID_URL;
 import static edu.java.bot.commands.Answers.SOMETHING_WENT_WRONG;
 import static edu.java.bot.commands.Answers.SUCCESSFUL_TRACKING;
 import static edu.utils.URLValidator.isValidGitHubURL;

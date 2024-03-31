@@ -3,6 +3,7 @@ package edu.java.bot.services;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import edu.ChatState;
 import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.commands.Command;
 import edu.java.bot.commands.HelpCommand;
@@ -11,7 +12,6 @@ import edu.java.bot.commands.StartCommand;
 import edu.java.bot.commands.TrackCommand;
 import edu.java.bot.commands.UntrackCommand;
 import edu.java.bot.repository.in_memory.DBChatStates;
-import edu.ChatState;
 import edu.shared_dto.request_dto.AddLinkRequest;
 import edu.shared_dto.request_dto.RemoveLinkRequest;
 import java.net.URI;
@@ -20,20 +20,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import static edu.ChatState.REGISTERED;
+import static edu.ChatState.TRACK;
+import static edu.ChatState.UNREGISTERED;
+import static edu.ChatState.UNTRACKED;
 import static edu.java.bot.commands.Answers.ANSWER_TO_UNREGISTERED_USER;
 import static edu.java.bot.commands.Answers.INVALID_COMMAND;
 import static edu.java.bot.commands.Answers.USE_TRACK_OR_UNTRACK;
 import static edu.java.bot.configs.CommandsConfig.commands;
 import static edu.utils.URLValidator.isValidURL;
-import static edu.ChatState.REGISTERED;
-import static edu.ChatState.TRACK;
-import static edu.ChatState.UNREGISTERED;
-import static edu.ChatState.UNTRACKED;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
-@SuppressWarnings({"ReturnCount", "AvoidStarImport"})
+@SuppressWarnings({"ReturnCount", "AvoidStarImport",
+    "MissingSwitchDefault", "MultipleStringLiterals"})
 public class MessageService {
 
     private final TelegramBot telegramBot;

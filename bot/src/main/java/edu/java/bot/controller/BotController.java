@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
+@SuppressWarnings("MagicNumber")
 public class BotController {
 
     private final UpdateService updateService;
