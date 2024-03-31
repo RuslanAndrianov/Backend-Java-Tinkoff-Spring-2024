@@ -2,9 +2,9 @@ package edu.java.scrapper.repositoryTest;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
-import edu.java.domain.repository.ChatsRepository;
-import edu.java.domain.repository.ChatsToLinksRepository;
-import edu.java.domain.repository.LinksRepository;
+import edu.java.domain.repository.jdbc.JdbcChatsRepository;
+import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
+import edu.java.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.scrapper.IntegrationTest;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
@@ -22,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ChatsToLinksRepositoryTest extends IntegrationTest {
+public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
 
-    private static final ChatsToLinksRepository chatsToLinksRepository;
-    private static final ChatsRepository chatsRepository;
-    private static final LinksRepository linksRepository;
+    private static final JdbcChatsToLinksRepository JDBC_CHATS_TO_LINKS_REPOSITORY;
+    private static final JdbcChatsRepository JDBC_CHATS_REPOSITORY;
+    private static final JdbcLinksRepository JDBC_LINKS_REPOSITORY;
 
     private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) ->
         new Chat(
@@ -59,9 +59,9 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
             .build()
         );
 
-        chatsRepository = new ChatsRepository(jdbcTemplate, chatRowMapper);
-        linksRepository = new LinksRepository(jdbcTemplate, linkRowMapper);
-        chatsToLinksRepository = new ChatsToLinksRepository(
+        JDBC_CHATS_REPOSITORY = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
+        JDBC_LINKS_REPOSITORY = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
+        JDBC_CHATS_TO_LINKS_REPOSITORY = new JdbcChatsToLinksRepository(
             jdbcTemplate, chatLinkRowMapper, linkRowMapper);
     }
 
@@ -76,21 +76,21 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
-        chatsRepository.addChat(chat);
-        linksRepository.addLink(link);
+        JDBC_CHATS_REPOSITORY.addChat(chat);
+        JDBC_LINKS_REPOSITORY.addLink(link);
 
-        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksBefore = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
 
-        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link);
 
-        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksAfter = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
 
         assertTrue(isLinkAdded);
         assertEquals(linksAfter.size() - linksBefore.size(), 1);
 
-        chatsToLinksRepository.deleteLinkFromChat(chat, link);
-        chatsRepository.deleteChat(chat);
-        linksRepository.deleteLink(link);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteLinkFromChat(chat, link);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 
     @Test
@@ -105,17 +105,17 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkDeleted;
 
-        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksBefore = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
 
-        chatsRepository.addChat(chat);
-        linksRepository.addLink(link);
-        chatsToLinksRepository.addLinkToChat(chat, link);
+        JDBC_CHATS_REPOSITORY.addChat(chat);
+        JDBC_LINKS_REPOSITORY.addLink(link);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link);
 
-        isLinkDeleted = chatsToLinksRepository.deleteLinkFromChat(chat, link);
-        chatsRepository.deleteChat(chat);
-        linksRepository.deleteLink(link);
+        isLinkDeleted = JDBC_CHATS_TO_LINKS_REPOSITORY.deleteLinkFromChat(chat, link);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
 
-        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksAfter = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
 
         assertTrue(isLinkDeleted);
         assertEquals(linksBefore.size(), linksAfter.size());
@@ -137,19 +137,19 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isChatDeleted;
 
-        chatsRepository.addChat(chat);
-        linksRepository.addLink(link1);
-        linksRepository.addLink(link2);
+        JDBC_CHATS_REPOSITORY.addChat(chat);
+        JDBC_LINKS_REPOSITORY.addLink(link1);
+        JDBC_LINKS_REPOSITORY.addLink(link2);
 
-        List<Link> linksBefore = chatsToLinksRepository.getAllLinksByChat(chat);
-        chatsToLinksRepository.addLinkToChat(chat, link1);
-        chatsToLinksRepository.addLinkToChat(chat, link2);
+        List<Link> linksBefore = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link1);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link2);
 
-        isChatDeleted = chatsToLinksRepository.deleteChat(chat);
-        chatsRepository.deleteChat(chat);
-        linksRepository.deleteLink(link1);
-        linksRepository.deleteLink(link2);
-        List<Link> linksAfter = chatsToLinksRepository.getAllLinksByChat(chat);
+        isChatDeleted = JDBC_CHATS_TO_LINKS_REPOSITORY.deleteChat(chat);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat);
+        JDBC_LINKS_REPOSITORY.deleteLink(link1);
+        JDBC_LINKS_REPOSITORY.deleteLink(link2);
+        List<Link> linksAfter = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat);
 
         assertTrue(isChatDeleted);
         assertEquals(linksBefore.size(), linksAfter.size());
@@ -166,19 +166,19 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isChatExist;
 
-        chatsRepository.addChat(chat);
-        linksRepository.addLink(link);
-        chatsToLinksRepository.addLinkToChat(chat, link);
+        JDBC_CHATS_REPOSITORY.addChat(chat);
+        JDBC_LINKS_REPOSITORY.addLink(link);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link);
 
-        isChatExist = chatsToLinksRepository.isChatExist(chat);
+        isChatExist = JDBC_CHATS_TO_LINKS_REPOSITORY.isChatExist(chat);
 
         assertTrue(isChatExist);
 
-        chatsToLinksRepository.deleteChat(chat);
-        chatsRepository.deleteChat(chat);
-        linksRepository.deleteLink(link);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteChat(chat);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
 
-        isChatExist = chatsToLinksRepository.isChatExist(chat);
+        isChatExist = JDBC_CHATS_TO_LINKS_REPOSITORY.isChatExist(chat);
 
         assertFalse(isChatExist);
     }
@@ -203,17 +203,17 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
         Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
 
-        chatsRepository.addChat(chat1);
-        chatsRepository.addChat(chat2);
-        linksRepository.addLink(link1);
-        linksRepository.addLink(link2);
-        linksRepository.addLink(link3);
-        chatsToLinksRepository.addLinkToChat(chat1, link1);
-        chatsToLinksRepository.addLinkToChat(chat1, link2);
-        chatsToLinksRepository.addLinkToChat(chat2, link3);
+        JDBC_CHATS_REPOSITORY.addChat(chat1);
+        JDBC_CHATS_REPOSITORY.addChat(chat2);
+        JDBC_LINKS_REPOSITORY.addLink(link1);
+        JDBC_LINKS_REPOSITORY.addLink(link2);
+        JDBC_LINKS_REPOSITORY.addLink(link3);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat1, link1);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat1, link2);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat2, link3);
 
-        List<Link> links1 = chatsToLinksRepository.getAllLinksByChat(chat1);
-        List<Link> links2 = chatsToLinksRepository.getAllLinksByChat(chat2);
+        List<Link> links1 = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat1);
+        List<Link> links2 = JDBC_CHATS_TO_LINKS_REPOSITORY.getAllLinksByChat(chat2);
 
         assertEquals(links1.size(), 2);
         assertEquals(links1.getFirst().linkId(), link_id1);
@@ -225,14 +225,14 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         assertEquals(links2.getFirst().linkId(), link_id3);
         assertEquals(links2.getFirst().url(), url3);
 
-        chatsToLinksRepository.deleteLinkFromChat(chat1, link1);
-        chatsToLinksRepository.deleteLinkFromChat(chat1, link2);
-        chatsToLinksRepository.deleteLinkFromChat(chat2, link3);
-        chatsRepository.deleteChat(chat1);
-        chatsRepository.deleteChat(chat2);
-        linksRepository.deleteLink(link1);
-        linksRepository.deleteLink(link2);
-        linksRepository.deleteLink(link3);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteLinkFromChat(chat1, link1);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteLinkFromChat(chat1, link2);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteLinkFromChat(chat2, link3);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat1);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat2);
+        JDBC_LINKS_REPOSITORY.deleteLink(link1);
+        JDBC_LINKS_REPOSITORY.deleteLink(link2);
+        JDBC_LINKS_REPOSITORY.deleteLink(link3);
     }
 
     @Test
@@ -246,16 +246,16 @@ public class ChatsToLinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
-        chatsRepository.addChat(chat);
-        linksRepository.addLink(link);
+        JDBC_CHATS_REPOSITORY.addChat(chat);
+        JDBC_LINKS_REPOSITORY.addLink(link);
 
-        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link);
         assertTrue(isLinkAdded);
-        isLinkAdded = chatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = JDBC_CHATS_TO_LINKS_REPOSITORY.addLinkToChat(chat, link);
         assertFalse(isLinkAdded);
 
-        chatsToLinksRepository.deleteChat(chat);
-        chatsRepository.deleteChat(chat);
-        linksRepository.deleteLink(link);
+        JDBC_CHATS_TO_LINKS_REPOSITORY.deleteChat(chat);
+        JDBC_CHATS_REPOSITORY.deleteChat(chat);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 }

@@ -2,9 +2,9 @@ package edu.java.services.jdbc;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
-import edu.java.domain.repository.ChatsRepository;
-import edu.java.domain.repository.ChatsToLinksRepository;
-import edu.java.domain.repository.LinksRepository;
+import edu.java.domain.repository.jdbc.JdbcChatsRepository;
+import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
+import edu.java.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.services.LinkService;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -20,9 +20,9 @@ import static edu.utils.URLValidator.isValidStackOverflowURL;
 @SuppressWarnings("MagicNumber")
 public class JdbcLinkService implements LinkService {
 
-    private final LinksRepository linksRepository;
-    private final ChatsRepository chatsRepository;
-    private final ChatsToLinksRepository chatsToLinksRepository;
+    private final JdbcLinksRepository jdbcLinksRepository;
+    private final JdbcChatsRepository jdbcChatsRepository;
+    private final JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
 
     // Возвращает разные intы в зависимости от сценария:
     // 1 - чат существует, ошибок при добавлении не наблюдается
@@ -31,24 +31,24 @@ public class JdbcLinkService implements LinkService {
     // -2 - иная проблема при добавлении ссылки
     @Override
     public int addLinkToChatByUrl(long tgChatId, String url) {
-        Chat chat = chatsRepository.getChatById(tgChatId);
+        Chat chat = jdbcChatsRepository.getChatById(tgChatId);
         if (chat == null) {
             return -1;
         }
 
-        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> chatLinks = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
         for (Link chatLink : chatLinks) {
             if (chatLink.url().equals(url)) {
                 return 0;
             }
         }
 
-        Link link = linksRepository.getLinkByUrl(url);
+        Link link = jdbcLinksRepository.getLinkByUrl(url);
 
         // Если ссылки еще нет в links, то добавляем ее в links с новым id
         if (link == null) {
             if (isValidGitHubURL(url) || isValidStackOverflowURL(url)) {
-                List<Link> links = linksRepository.getAllLinks();
+                List<Link> links = jdbcLinksRepository.getAllLinks();
                 long linkId = links.isEmpty() ? 1 : links.size() + 1;
                 link = new Link(
                     linkId,
@@ -57,8 +57,8 @@ public class JdbcLinkService implements LinkService {
                     OffsetDateTime.now(),
                     OffsetDateTime.now().getOffset().getTotalSeconds()
                 );
-                linksRepository.addLink(link);
-                chatsToLinksRepository.addLinkToChat(chat, link);
+                jdbcLinksRepository.addLink(link);
+                jdbcChatsToLinksRepository.addLinkToChat(chat, link);
                 return 1;
             }
         }
@@ -72,12 +72,12 @@ public class JdbcLinkService implements LinkService {
     // -2 - иная проблема при добавлении ссылки
     @Override
     public int deleteLinkFromChatByUrl(long tgChatId, String url) {
-        Chat chat = chatsRepository.getChatById(tgChatId);
+        Chat chat = jdbcChatsRepository.getChatById(tgChatId);
         if (chat == null) {
             return -1;
         }
 
-        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> chatLinks = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
         boolean isLinkAddedToChat = false;
         for (Link chatLink : chatLinks) {
             if (chatLink.url().equals(url)) {
@@ -89,36 +89,36 @@ public class JdbcLinkService implements LinkService {
             return 0;
         }
 
-        Link link = linksRepository.getLinkByUrl(url);
+        Link link = jdbcLinksRepository.getLinkByUrl(url);
 
-        boolean result = chatsToLinksRepository.deleteLinkFromChat(chat, link);
+        boolean result = jdbcChatsToLinksRepository.deleteLinkFromChat(chat, link);
 
         return result ? 1 : -2;
     }
 
     @Override
     public Link getLinkByUrl(String url) {
-        return linksRepository.getLinkByUrl(url);
+        return jdbcLinksRepository.getLinkByUrl(url);
     }
 
     @Override
     public List<Link> getAllLinksByChat(long tgChatId) {
-        Chat chat = chatsRepository.getChatById(tgChatId);
-        return chatsToLinksRepository.getAllLinksByChat(chat);
+        Chat chat = jdbcChatsRepository.getChatById(tgChatId);
+        return jdbcChatsToLinksRepository.getAllLinksByChat(chat);
     }
 
     @Override
     public List<Link> getOldestCheckedLinks() {
-        return linksRepository.getOldestCheckedLinks("3 minutes");
+        return jdbcLinksRepository.getOldestCheckedLinks("3 minutes");
     }
 
     @Override
     public boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time) {
-        return linksRepository.setLastCheckedTimeToLink(link, time);
+        return jdbcLinksRepository.setLastCheckedTimeToLink(link, time);
     }
 
     @Override
     public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
-        return linksRepository.setLastUpdatedTimeToLink(link, time);
+        return jdbcLinksRepository.setLastUpdatedTimeToLink(link, time);
     }
 }

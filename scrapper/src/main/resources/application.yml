@@ -1,8 +1,10 @@
 app:
   scheduler:
     enable: true
-    interval: 10000            # Задержка в миллисекундах
+    interval: 10000           # Задержка в миллисекундах
+    # TODO : в будущем внедрить force-check-delay
     force-check-delay: 15000  # Задержка в миллисекундах
+  database-access-type: jdbc  # jdbc / jpa / jooq
 
 spring:
   liquibase:

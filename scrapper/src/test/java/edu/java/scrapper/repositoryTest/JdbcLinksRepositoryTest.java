@@ -1,7 +1,7 @@
 package edu.java.scrapper.repositoryTest;
 
 import edu.java.domain.dto.Link;
-import edu.java.domain.repository.LinksRepository;
+import edu.java.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.scrapper.IntegrationTest;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LinksRepositoryTest extends IntegrationTest {
+public class JdbcLinksRepositoryTest extends IntegrationTest {
 
-    private static final LinksRepository linksRepository;
+    private static final JdbcLinksRepository JDBC_LINKS_REPOSITORY;
     private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) ->
             new Link(
                 resultSet.getLong("link_id"),
@@ -43,7 +43,7 @@ public class LinksRepositoryTest extends IntegrationTest {
             .build()
         );
 
-        linksRepository = new LinksRepository(jdbcTemplate, linkRowMapper);
+        JDBC_LINKS_REPOSITORY = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
     }
 
     @Test
@@ -55,16 +55,16 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
-        List<Link> linksBefore = linksRepository.getAllLinks();
-        isLinkAdded = linksRepository.addLink(link);
-        List<Link> linksAfter = linksRepository.getAllLinks();
+        List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
+        isLinkAdded = JDBC_LINKS_REPOSITORY.addLink(link);
+        List<Link> linksAfter = JDBC_LINKS_REPOSITORY.getAllLinks();
 
         assertTrue(isLinkAdded);
         assertEquals(linksAfter.size() - linksBefore.size(), 1);
         assertEquals(linksAfter.getLast().linkId(), link_id);
         assertEquals(linksAfter.getLast().url(), url);
 
-        linksRepository.deleteLink(link);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 
     @Test
@@ -76,10 +76,10 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link  = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkDeleted;
 
-        List<Link> linksBefore = linksRepository.getAllLinks();
-        linksRepository.addLink(link);
-        isLinkDeleted = linksRepository.deleteLink(link);
-        List<Link> linksAfter = linksRepository.getAllLinks();
+        List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
+        JDBC_LINKS_REPOSITORY.addLink(link);
+        isLinkDeleted = JDBC_LINKS_REPOSITORY.deleteLink(link);
+        List<Link> linksAfter = JDBC_LINKS_REPOSITORY.getAllLinks();
 
         assertTrue(isLinkDeleted);
         assertEquals(linksBefore.size(), linksAfter.size());
@@ -93,13 +93,13 @@ public class LinksRepositoryTest extends IntegrationTest {
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
-        linksRepository.addLink(link);
+        JDBC_LINKS_REPOSITORY.addLink(link);
 
-        Link foundLink = linksRepository.getLinkById(link_id);
+        Link foundLink = JDBC_LINKS_REPOSITORY.getLinkById(link_id);
         assertEquals(foundLink.linkId(), link.linkId());
         assertEquals(foundLink.url(), link.url());
 
-        linksRepository.deleteLink(link);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 
     @Test
@@ -110,13 +110,13 @@ public class LinksRepositoryTest extends IntegrationTest {
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
-        linksRepository.addLink(link);
+        JDBC_LINKS_REPOSITORY.addLink(link);
 
-        Link foundLink = linksRepository.getLinkByUrl(url);
+        Link foundLink = JDBC_LINKS_REPOSITORY.getLinkByUrl(url);
         assertEquals(foundLink.linkId(), link.linkId());
         assertEquals(foundLink.url(), link.url());
 
-        linksRepository.deleteLink(link);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 
     @Test
@@ -133,17 +133,17 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now(), 0);
 
-        List<Link> linksBefore = linksRepository.getAllLinks();
-        linksRepository.addLink(link1);
-        linksRepository.addLink(link2);
-        linksRepository.addLink(link3);
-        List<Link> linksAfter = linksRepository.getAllLinks();
+        List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
+        JDBC_LINKS_REPOSITORY.addLink(link1);
+        JDBC_LINKS_REPOSITORY.addLink(link2);
+        JDBC_LINKS_REPOSITORY.addLink(link3);
+        List<Link> linksAfter = JDBC_LINKS_REPOSITORY.getAllLinks();
 
         assertEquals(linksAfter.size() - linksBefore.size(), 3);
 
-        linksRepository.deleteLink(link1);
-        linksRepository.deleteLink(link2);
-        linksRepository.deleteLink(link3);
+        JDBC_LINKS_REPOSITORY.deleteLink(link1);
+        JDBC_LINKS_REPOSITORY.deleteLink(link2);
+        JDBC_LINKS_REPOSITORY.deleteLink(link3);
     }
 
     @Test
@@ -155,11 +155,11 @@ public class LinksRepositoryTest extends IntegrationTest {
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
-        isLinkAdded = linksRepository.addLink(link);
+        isLinkAdded = JDBC_LINKS_REPOSITORY.addLink(link);
         assertTrue(isLinkAdded);
-        isLinkAdded = linksRepository.addLink(link);
+        isLinkAdded = JDBC_LINKS_REPOSITORY.addLink(link);
         assertFalse(isLinkAdded);
 
-        linksRepository.deleteLink(link);
+        JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
 }
