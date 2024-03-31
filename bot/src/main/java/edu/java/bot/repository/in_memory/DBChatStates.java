@@ -1,6 +1,5 @@
 package edu.java.bot.repository.in_memory;
 
-import edu.ChatState;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import static edu.ChatState.REGISTERED;
-import static edu.ChatState.UNREGISTERED;
+import static edu.java.bot.repository.in_memory.ChatState.REGISTERED;
+import static edu.java.bot.repository.in_memory.ChatState.UNREGISTERED;
 
 @Component
 @Slf4j

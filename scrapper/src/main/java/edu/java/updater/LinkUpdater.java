@@ -3,9 +3,9 @@ package edu.java.updater;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHub.GitHubClient;
 import edu.java.clients.GitHub.GitHubResponse;
-import edu.java.clients.StackOverflow.NestedJSONProperties;
-import edu.java.clients.StackOverflow.StackOverflowClient;
 import edu.java.clients.StackOverflow.StackOverflowResponse;
+import edu.java.clients.StackOverflow.StackOverflowClient;
+import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
 import edu.java.domain.repository.LinksRepository;
@@ -75,8 +75,8 @@ public class LinkUpdater {
     }
 
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
-        StackOverflowResponse response = stackOverflowClient.fetchQuestion(questionId);
-        NestedJSONProperties properties = response.deserialize();
+        StackOverflowItemsResponse response = stackOverflowClient.fetchQuestion(questionId);
+        StackOverflowResponse properties = response.deserialize();
         OffsetDateTime lastActivityDate = properties.lastActivityDate();
 
         OffsetDateTime lastUpdated = getCorrectLastUpdated(link);

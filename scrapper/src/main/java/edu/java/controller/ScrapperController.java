@@ -136,13 +136,10 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull AddLinkRequest request
     ) {
         String linkUrl = String.valueOf(request.link());
-        int abc = linkService.addLinkToChatByUrl(chatId, linkUrl);
-        log.info(abc + "");
-        log.info(linkService.getLinkByUrl(linkUrl) + "");
-        switch (abc) {
+        switch (linkService.addLinkToChatByUrl(chatId, linkUrl)) {
             case 1:
-                log.info("Link " + linkUrl + " is added to chat " + chatId);
                 long linkId = linkService.getLinkByUrl(linkUrl).linkId();
+                log.info("Link " + linkUrl + " is added to chat " + chatId);
                 return new ResponseEntity<>(
                     new LinkResponse(linkId, request.link()),
                     HttpStatusCode.valueOf(200));
@@ -176,8 +173,6 @@ public class ScrapperController {
         @RequestBody @Valid @NotNull RemoveLinkRequest request
     ) {
         String linkUrl = String.valueOf(request.link());
-
-
         switch (linkService.deleteLinkFromChatByUrl(chatId, linkUrl)) {
             case 1:
                 log.info("Link " + linkUrl + " is deleted from chat " + chatId);

@@ -38,10 +38,7 @@ public class DomainConfig {
 
     @Bean
     public RowMapper<Chat> chatRowMapper() {
-        return (resultSet, rowNum) ->
-            new Chat(
-                resultSet.getLong("chat_id"),
-                resultSet.getString("chat_state"));
+        return (resultSet, rowNum) -> new Chat(resultSet.getLong("chat_id"));
     }
 
     @Bean

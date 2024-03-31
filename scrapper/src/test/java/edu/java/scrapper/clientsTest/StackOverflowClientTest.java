@@ -1,9 +1,9 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.clients.StackOverflow.NestedJSONProperties;
-import edu.java.clients.StackOverflow.StackOverflowClientImpl;
 import edu.java.clients.StackOverflow.StackOverflowResponse;
+import edu.java.clients.StackOverflow.StackOverflowClientImpl;
+import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -66,8 +66,8 @@ public class StackOverflowClientTest {
                     }
                     """)));
 
-        StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchQuestion(questionId);
-        NestedJSONProperties properties = stackOverflowResponse.deserialize();
+        StackOverflowItemsResponse stackOverflowItemsResponse = stackOverflowClient.fetchQuestion(questionId);
+        StackOverflowResponse properties = stackOverflowItemsResponse.deserialize();
 
         assertEquals(properties.questionId(), 12345671);
         assertEquals(properties.title(),

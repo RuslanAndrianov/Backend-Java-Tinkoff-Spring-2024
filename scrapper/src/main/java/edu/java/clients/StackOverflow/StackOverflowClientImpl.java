@@ -27,13 +27,13 @@ public class StackOverflowClientImpl implements StackOverflowClient {
     }
 
     @Override
-    public StackOverflowResponse fetchQuestion(Long questionId) {
+    public StackOverflowItemsResponse fetchQuestion(Long questionId) {
         return this.webClient
             .get()
             .uri(defaultUrl
                 + "/questions/{questionId}?order=desc&sort=activity&site=stackoverflow", questionId)
             .retrieve()
-            .bodyToMono(StackOverflowResponse.class)
+            .bodyToMono(StackOverflowItemsResponse.class)
             .block();
     }
 }

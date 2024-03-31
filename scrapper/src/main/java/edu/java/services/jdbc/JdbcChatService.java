@@ -6,7 +6,6 @@ import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
 import edu.java.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import static edu.ChatState.REGISTERED;
 
 @RequiredArgsConstructor
 @Service
@@ -17,7 +16,7 @@ public class JdbcChatService implements ChatService {
 
     @Override
     public boolean addChat(long tgChatId) {
-        Chat chat = new Chat(tgChatId, REGISTERED.toString());
+        Chat chat = new Chat(tgChatId);
         return jdbcChatsRepository.addChat(chat);
     }
 

@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import static edu.ChatState.REGISTERED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,9 +18,7 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
 
     private static final JdbcChatsRepository JDBC_CHATS_REPOSITORY;
     private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) ->
-        new Chat(
-            resultSet.getLong("chat_id"),
-            resultSet.getString("chat_state"));
+        new Chat(resultSet.getLong("chat_id"));
 
     static {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
@@ -40,7 +37,7 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
     @Rollback
     void addChatTest() {
         long chat_id = 1L;
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         boolean isChatAdded;
 
         List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
@@ -58,7 +55,7 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
     @Rollback
     void deleteChatTest() {
         long chat_id = 2L;
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         boolean isChatDeleted;
 
         List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
@@ -75,7 +72,7 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
     @Rollback
     void getChatByIdTest() {
         long chat_id = 3L;
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
 
         JDBC_CHATS_REPOSITORY.addChat(chat);
 
@@ -92,9 +89,9 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
         long chat_id1 = 4L;
         long chat_id2 = 5L;
         long chat_id3 = 6L;
-        Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
-        Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
-        Chat chat3 = new Chat(chat_id3, REGISTERED.toString());
+        Chat chat1 = new Chat(chat_id1);
+        Chat chat2 = new Chat(chat_id2);
+        Chat chat3 = new Chat(chat_id3);
 
         List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
         JDBC_CHATS_REPOSITORY.addChat(chat1);
@@ -114,7 +111,7 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
     @Rollback
     void duplicateKeyTest() {
         long chat_id = 7L;
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         boolean isChatAdded;
 
         isChatAdded = JDBC_CHATS_REPOSITORY.addChat(chat);

@@ -22,10 +22,10 @@ public class JdbcChatsRepository implements ChatsRepository {
     @Override
     @Transactional
     public boolean addChat(Chat chat) {
-        String sql = "INSERT INTO chats (chat_id, chat_state) VALUES (?, ?)";
+        String sql = "INSERT INTO chats VALUES (?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId(), chat.chatState()) != 0);
+            result = (jdbcTemplate.update(sql, chat.chatId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat addition error!");
         }

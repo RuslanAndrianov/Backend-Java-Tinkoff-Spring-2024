@@ -17,22 +17,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import static edu.ChatState.REGISTERED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
+public class JdbcChatsToLinksRepositoryTest extends IntegrationTest {
 
     private static final JdbcChatsToLinksRepository JDBC_CHATS_TO_LINKS_REPOSITORY;
     private static final JdbcChatsRepository JDBC_CHATS_REPOSITORY;
     private static final JdbcLinksRepository JDBC_LINKS_REPOSITORY;
 
     private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) ->
-        new Chat(
-            resultSet.getLong("chat_id"),
-            resultSet.getString("chat_state")
-        );
+        new Chat(resultSet.getLong("chat_id"));
 
     private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) ->
         new Link(
@@ -72,7 +68,7 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
         long chat_id = 10L;
         long link_id = 10L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
@@ -101,7 +97,7 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
         long link_id = 11L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkDeleted;
 
@@ -132,7 +128,7 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
             "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isChatDeleted;
@@ -162,7 +158,7 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
         long chat_id = 13L;
         long link_id = 14L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isChatExist;
 
@@ -200,8 +196,8 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
         Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now(), 0);
-        Chat chat1 = new Chat(chat_id1, REGISTERED.toString());
-        Chat chat2 = new Chat(chat_id2, REGISTERED.toString());
+        Chat chat1 = new Chat(chat_id1);
+        Chat chat2 = new Chat(chat_id2);
 
         JDBC_CHATS_REPOSITORY.addChat(chat1);
         JDBC_CHATS_REPOSITORY.addChat(chat2);
@@ -242,7 +238,7 @@ public class JdbcChatsToJdbcLinksRepositoryTest extends IntegrationTest {
         long chat_id = 16L;
         long link_id = 18L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Chat chat = new Chat(chat_id, REGISTERED.toString());
+        Chat chat = new Chat(chat_id);
         Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
         boolean isLinkAdded;
 
