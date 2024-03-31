@@ -22,6 +22,8 @@ public class UserLinksTest {
     @Autowired
     UntrackCommand untrackCommand;
 
+    // TODO : ПОПРАВИТЬ ВСЕ bot ТЕСТЫ!
+
     @Test
     @DisplayName("Сценарий 1")
     void scenario1() {
