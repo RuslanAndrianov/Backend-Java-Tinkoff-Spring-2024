@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScrapperController {
 
     // TODO : refactoring
+    // TODO : добавить удаление ссылки из links, если 0 чатов отслеживают ссылку
 
     private final ChatService chatService;
     private final LinkService linkService;
