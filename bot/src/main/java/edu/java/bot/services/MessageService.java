@@ -3,7 +3,6 @@ package edu.java.bot.services;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.in_memory.ChatState;
 import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.commands.Command;
 import edu.java.bot.commands.HelpCommand;
@@ -11,6 +10,7 @@ import edu.java.bot.commands.ListCommand;
 import edu.java.bot.commands.StartCommand;
 import edu.java.bot.commands.TrackCommand;
 import edu.java.bot.commands.UntrackCommand;
+import edu.java.bot.repository.in_memory.ChatState;
 import edu.java.bot.repository.in_memory.DBChatStates;
 import edu.shared_dto.request_dto.AddLinkRequest;
 import edu.shared_dto.request_dto.RemoveLinkRequest;
@@ -20,14 +20,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import static edu.java.bot.repository.in_memory.ChatState.REGISTERED;
-import static edu.java.bot.repository.in_memory.ChatState.TRACK;
-import static edu.java.bot.repository.in_memory.ChatState.UNREGISTERED;
-import static edu.java.bot.repository.in_memory.ChatState.UNTRACKED;
 import static edu.java.bot.commands.Answers.ANSWER_TO_UNREGISTERED_USER;
 import static edu.java.bot.commands.Answers.INVALID_COMMAND;
 import static edu.java.bot.commands.Answers.USE_TRACK_OR_UNTRACK;
 import static edu.java.bot.configs.CommandsConfig.commands;
+import static edu.java.bot.repository.in_memory.ChatState.REGISTERED;
+import static edu.java.bot.repository.in_memory.ChatState.TRACK;
+import static edu.java.bot.repository.in_memory.ChatState.UNREGISTERED;
+import static edu.java.bot.repository.in_memory.ChatState.UNTRACKED;
 import static edu.utils.URLValidator.isValidURL;
 
 @RequiredArgsConstructor
@@ -40,9 +40,9 @@ public class MessageService {
     private final TelegramBot telegramBot;
     private final ScrapperClient scrapperClient;
 
-    // TODO : featuring and refactoring
+    // TODO : refactoring
 
-    // TL;DR :
+    // Если лень разбираться в коде:
     // 0. Ищем индексы команд в commands (чтобы не привязываться к MagicNumber
     //    и добавлять новые команды в commands в любом порядке).
     // 1. Проверяем сообщение на совпадение с командами.

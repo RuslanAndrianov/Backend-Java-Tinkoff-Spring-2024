@@ -2,11 +2,10 @@ package edu.java.domain.repository.jpa.linksRepository;
 
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.LinksRepository;
-import edu.java.domain.repository.jpa.chatsRepository.JpaChatsRepositoryInterface;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor

@@ -6,15 +6,16 @@ import edu.java.domain.repository.jpa.chatsRepository.JpaChatsRepository;
 import edu.java.domain.repository.jpa.chatsToLinksRepository.JpaChatsToLinksRepository;
 import edu.java.domain.repository.jpa.linksRepository.JpaLinksRepository;
 import edu.java.services.LinkService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import static edu.utils.URLValidator.isValidGitHubURL;
 import static edu.utils.URLValidator.isValidStackOverflowURL;
 
 @RequiredArgsConstructor
 @Service
+@SuppressWarnings("MagicNumber")
 public class JpaLinkService implements LinkService {
 
     private final JpaLinksRepository jpaLinksRepository;

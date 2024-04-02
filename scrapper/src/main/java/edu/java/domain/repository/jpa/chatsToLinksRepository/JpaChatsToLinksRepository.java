@@ -3,9 +3,9 @@ package edu.java.domain.repository.jpa.chatsToLinksRepository;
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor

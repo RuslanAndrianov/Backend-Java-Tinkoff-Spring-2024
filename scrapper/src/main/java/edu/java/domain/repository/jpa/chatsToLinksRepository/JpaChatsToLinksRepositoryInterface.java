@@ -2,10 +2,10 @@ package edu.java.domain.repository.jpa.chatsToLinksRepository;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import java.util.List;
 
 public interface JpaChatsToLinksRepositoryInterface extends JpaRepository<Chat, Link> {
 
