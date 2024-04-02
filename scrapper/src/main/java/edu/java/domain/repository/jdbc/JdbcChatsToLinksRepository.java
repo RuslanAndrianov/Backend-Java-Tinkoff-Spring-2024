@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
@@ -27,7 +26,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "INSERT INTO chats_to_links VALUES (?, ?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId(), link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, chat.getChatId(), link.getLinkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of addition link to chat!");
         }
@@ -40,7 +39,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ? AND link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId(), link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, chat.getChatId(), link.getLinkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of deletion link from chat!");
         }
@@ -53,7 +52,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId()) != 0);
+            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of deletion chat!");
         }
@@ -67,7 +66,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         boolean result = false;
         try {
             result =
-                (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.chatId()) > 0);
+                (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.getChatId()) > 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat is not exist in table!");
         }
@@ -78,13 +77,13 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
     @Transactional
     public List<Link> getAllLinksByChat(Chat chat) {
         String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = ?";
-        return jdbcTemplate.query(sql, linkRowMapper, chat.chatId());
+        return jdbcTemplate.query(sql, linkRowMapper, chat.getChatId());
     }
 
     @Override
     @Transactional
     public List<Long> getAllChatsByLink(Link link) {
         String sql = "SELECT chat_id FROM chats_to_links WHERE link_id = ?";
-        return jdbcTemplate.query(sql, chatLinkRowMapper, link.linkId());
+        return jdbcTemplate.query(sql, chatLinkRowMapper, link.getLinkId());
     }
 }

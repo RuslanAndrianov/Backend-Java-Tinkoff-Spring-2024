@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 @RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("MultipleStringLiterals")
@@ -29,8 +28,8 @@ public class JdbcLinksRepository implements LinksRepository {
         try {
             result = (jdbcTemplate.update(
                 sql,
-                link.linkId(), link.url(), link.lastUpdated(),
-                link.lastChecked(), link.zoneOffset()) != 0);
+                    link.getLinkId(), link.getUrl(), link.getLastUpdated(),
+                    link.getLastChecked(), link.getZoneOffset()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link addition error!");
         }
@@ -43,7 +42,7 @@ public class JdbcLinksRepository implements LinksRepository {
         String sql = "DELETE FROM links WHERE link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, link.getLinkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link deletion error!");
         }
@@ -97,7 +96,7 @@ public class JdbcLinksRepository implements LinksRepository {
         String sql = "UPDATE links SET last_checked = ? WHERE link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, time, link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, time, link.getLinkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link's last_checked field update error!");
         }
@@ -110,7 +109,7 @@ public class JdbcLinksRepository implements LinksRepository {
         String sql = "UPDATE links SET last_updated = ? WHERE link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, time, link.linkId()) != 0);
+            result = (jdbcTemplate.update(sql, time, link.getLinkId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Link's last_updated field update error!");
         }

@@ -4,7 +4,9 @@ import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
 import java.util.List;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,26 +27,26 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
 
     @Override
     public boolean deleteChat(Chat chat) {
-        long chatId = chat.chatId();
+        long chatId = chat.getChatId();
         jpaInterface.deleteChat(chatId);
         return true;
     }
 
     @Override
     public boolean isChatExist(Chat chat) {
-        long chatId = chat.chatId();
+        long chatId = chat.getChatId();
         return jpaInterface.isChatExist(chatId) != null;
     }
 
     @Override
     public List<Link> getAllLinksByChat(Chat chat) {
-        long chatId = chat.chatId();
+        long chatId = chat.getChatId();
         return jpaInterface.getAllLinksByChat(chatId);
     }
 
     @Override
     public List<Long> getAllChatsByLink(Link link) {
-        long linkId = link.linkId();
+        long linkId = link.getLinkId();
         return jpaInterface.getAllChatsByLink(linkId);
     }
 }

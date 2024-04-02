@@ -16,7 +16,8 @@ public class JpaChatService implements ChatService {
 
     @Override
     public boolean addChat(long tgChatId) {
-        Chat chat = new Chat(tgChatId);
+        Chat chat = new Chat();
+        chat.setChatId(tgChatId);
         return jpaChatsRepository.addChat(chat);
     }
 

@@ -31,7 +31,7 @@ public class JpaLinkService implements LinkService {
 
         List<Link> chatLinks = jpaChatsToLinksRepository.getAllLinksByChat(chat);
         for (Link chatLink : chatLinks) {
-            if (chatLink.url().equals(url)) {
+            if (chatLink.getUrl().equals(url)) {
                 return 0;
             }
         }
@@ -43,13 +43,12 @@ public class JpaLinkService implements LinkService {
             if (isValidGitHubURL(url) || isValidStackOverflowURL(url)) {
                 List<Link> links = jpaLinksRepository.getAllLinks();
                 long linkId = links.isEmpty() ? 1 : links.size() + 1;
-                link = new Link(
-                    linkId,
-                    url,
-                    OffsetDateTime.now(),
-                    OffsetDateTime.now(),
-                    OffsetDateTime.now().getOffset().getTotalSeconds()
-                );
+                link = new Link();
+                link.setLinkId(linkId);
+                link.setUrl(url);
+                link.setLastChecked(OffsetDateTime.now());
+                link.setLastUpdated(OffsetDateTime.now());
+                link.setZoneOffset(OffsetDateTime.now().getOffset().getTotalSeconds());
                 jpaLinksRepository.addLink(link);
                 jpaChatsToLinksRepository.addLinkToChat(chat, link);
                 return 1;
@@ -68,7 +67,7 @@ public class JpaLinkService implements LinkService {
         List<Link> chatLinks = jpaChatsToLinksRepository.getAllLinksByChat(chat);
         boolean isLinkAddedToChat = false;
         for (Link chatLink : chatLinks) {
-            if (chatLink.url().equals(url)) {
+            if (chatLink.getUrl().equals(url)) {
                 isLinkAddedToChat = true;
                 break;
             }

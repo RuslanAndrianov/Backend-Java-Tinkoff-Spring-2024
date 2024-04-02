@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Service
 public class JdbcChatService implements ChatService {
 
     private final JdbcChatsRepository jdbcChatsRepository;
@@ -16,7 +15,8 @@ public class JdbcChatService implements ChatService {
 
     @Override
     public boolean addChat(long tgChatId) {
-        Chat chat = new Chat(tgChatId);
+        Chat chat = new Chat();
+        chat.setChatId(tgChatId);
         return jdbcChatsRepository.addChat(chat);
     }
 

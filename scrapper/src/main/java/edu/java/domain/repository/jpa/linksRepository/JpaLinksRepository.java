@@ -4,25 +4,34 @@ import edu.java.domain.dto.Link;
 import edu.java.domain.repository.LinksRepository;
 import java.time.OffsetDateTime;
 import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class JpaLinksRepository implements LinksRepository {
 
+    // TODO : написать все запросы нормально, чтобы работали
+
+    @Autowired
+    private final EntityManagerFactory entityManagerFactory;
     private final JpaLinksRepositoryInterface jpaInterface;
 
     @Override
     public boolean addLink(Link link) {
         jpaInterface.save(link);
-        return jpaInterface.existsById(link.linkId());
+        return jpaInterface.existsById(link.getLinkId());
     }
 
     @Override
     public boolean deleteLink(Link link) {
         jpaInterface.delete(link);
-        return !jpaInterface.existsById(link.linkId());
+        return !jpaInterface.existsById(link.getLinkId());
     }
 
     @Override
@@ -47,13 +56,18 @@ public class JpaLinksRepository implements LinksRepository {
 
     @Override
     public boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time) {
-        jpaInterface.setLastCheckedTimeToLink(link, time);
-        return jpaInterface.getLinkByUrl(link.url()).lastChecked().isEqual(time);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        link.setLastChecked(time);
+        entityManager.persist(link);
+        //jpaInterface.setLastCheckedTimeToLink(link, time);
+        entityManager.close();
+        return jpaInterface.getLinkByUrl(link.getUrl()).getLastChecked().isEqual(time);
     }
 
     @Override
     public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
         jpaInterface.setLastUpdatedTimeToLink(link, time);
-        return jpaInterface.getLinkByUrl(link.url()).lastUpdated().isEqual(time);
+        return jpaInterface.getLinkByUrl(link.getUrl()).getLastUpdated().isEqual(time);
     }
 }

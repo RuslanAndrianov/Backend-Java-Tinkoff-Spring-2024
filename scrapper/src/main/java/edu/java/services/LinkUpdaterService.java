@@ -23,7 +23,7 @@ public class LinkUpdaterService {
 
     private void updateLink(Link link) {
         linkService.setLastCheckedTimeToLink(link, OffsetDateTime.now());
-        linkUpdater.updateLink(link.url());
+        linkUpdater.updateLink(link.getUrl());
     }
 
 }

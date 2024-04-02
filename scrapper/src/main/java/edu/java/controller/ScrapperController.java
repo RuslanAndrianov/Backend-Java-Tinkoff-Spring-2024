@@ -104,7 +104,7 @@ public class ScrapperController {
 
             try {
                 for (Link linkOfChat : linksOfChat) {
-                    linkResponses.add(new LinkResponse(linkOfChat.linkId(), new URI(linkOfChat.url())));
+                    linkResponses.add(new LinkResponse(linkOfChat.getLinkId(), new URI(linkOfChat.getUrl())));
                 }
                 log.info("Get all links of chat " + chatId);
                 return new ResponseEntity<>(
@@ -138,7 +138,7 @@ public class ScrapperController {
         String linkUrl = String.valueOf(request.link());
         switch (linkService.addLinkToChatByUrl(chatId, linkUrl)) {
             case 1:
-                long linkId = linkService.getLinkByUrl(linkUrl).linkId();
+                long linkId = linkService.getLinkByUrl(linkUrl).getLinkId();
                 log.info("Link " + linkUrl + " is added to chat " + chatId);
                 return new ResponseEntity<>(
                     new LinkResponse(linkId, request.link()),
@@ -176,7 +176,7 @@ public class ScrapperController {
         switch (linkService.deleteLinkFromChatByUrl(chatId, linkUrl)) {
             case 1:
                 log.info("Link " + linkUrl + " is deleted from chat " + chatId);
-                long linkId = linkService.getLinkByUrl(linkUrl).linkId();
+                long linkId = linkService.getLinkByUrl(linkUrl).getLinkId();
                 return new ResponseEntity<>(
                     new LinkResponse(linkId, request.link()),
                     HttpStatusCode.valueOf(200));

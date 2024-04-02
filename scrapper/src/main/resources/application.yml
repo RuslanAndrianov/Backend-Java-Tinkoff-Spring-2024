@@ -4,7 +4,7 @@ app:
     interval: 10000           # Задержка в миллисекундах
     # TODO : в будущем внедрить force-check-delay
     force-check-delay: 15000  # Задержка в миллисекундах
-  database-access-type: jdbc  # jdbc / jpa / jooq
+  database-access-type: jpa  # jdbc / jpa / jooq
 
 spring:
   liquibase:

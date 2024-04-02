@@ -4,7 +4,9 @@ import edu.java.domain.dto.Chat;
 import edu.java.domain.repository.ChatsRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import jakarta.persistence.EntityManagerFactory;
 
 @Repository
 @RequiredArgsConstructor
@@ -15,13 +17,13 @@ public class JpaChatsRepository implements ChatsRepository {
     @Override
     public boolean addChat(Chat chat) {
         jpaInterface.save(chat);
-        return jpaInterface.existsById(chat.chatId());
+        return jpaInterface.existsById(chat.getChatId());
     }
 
     @Override
     public boolean deleteChat(Chat chat) {
         jpaInterface.delete(chat);
-        return !jpaInterface.existsById(chat.chatId());
+        return !jpaInterface.existsById(chat.getChatId());
     }
 
     @Override

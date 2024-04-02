@@ -49,7 +49,8 @@ public class LinkUpdater {
                 Long questionId = Long.valueOf(partsOfUrl[4]);
                 updateStackOverflowLink(link, questionId);
                 break;
-            default: log.error("Inappropriate link!");
+            default:
+                log.error("Inappropriate link!");
         }
     }
 
@@ -63,8 +64,8 @@ public class LinkUpdater {
             linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
-                    link.linkId(),
-                    new URI(link.url()),
+                    link.getLinkId(),
+                    new URI(link.getUrl()),
                     "Repository: " + repo + "\n" + "Owner: " + owner,
                     chatsToLinksRepository.getAllChatsByLink(link)
                 ));
@@ -85,8 +86,8 @@ public class LinkUpdater {
             linksRepository.setLastUpdatedTimeToLink(link, lastActivityDate);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
-                    link.linkId(),
-                    new URI(link.url()),
+                    link.getLinkId(),
+                    new URI(link.getUrl()),
                     "Question id: " + questionId,
                     chatsToLinksRepository.getAllChatsByLink(link)
                 ));
@@ -98,7 +99,8 @@ public class LinkUpdater {
 
     private OffsetDateTime getCorrectLastUpdated(@NotNull Link link) {
         return OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(link.lastUpdated().toEpochSecond() - link.zoneOffset()),
-            ZoneOffset.UTC);
+            Instant.ofEpochSecond(link.getLastUpdated().toEpochSecond() - link.getZoneOffset()),
+            ZoneOffset.UTC
+        );
     }
 }

@@ -7,12 +7,13 @@ import edu.java.services.ChatService;
 import edu.java.services.LinkService;
 import edu.java.services.jpa.JpaChatService;
 import edu.java.services.jpa.JpaLinkService;
+import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
 @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jpa")
+@Configuration
 public class JpaConfig {
 
     @Bean

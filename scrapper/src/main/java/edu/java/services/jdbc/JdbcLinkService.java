@@ -15,7 +15,6 @@ import static edu.utils.URLValidator.isValidGitHubURL;
 import static edu.utils.URLValidator.isValidStackOverflowURL;
 
 @RequiredArgsConstructor
-@Service
 @Slf4j
 @SuppressWarnings("MagicNumber")
 public class JdbcLinkService implements LinkService {
@@ -38,7 +37,7 @@ public class JdbcLinkService implements LinkService {
 
         List<Link> chatLinks = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
         for (Link chatLink : chatLinks) {
-            if (chatLink.url().equals(url)) {
+            if (chatLink.getUrl().equals(url)) {
                 return 0;
             }
         }
@@ -50,13 +49,12 @@ public class JdbcLinkService implements LinkService {
             if (isValidGitHubURL(url) || isValidStackOverflowURL(url)) {
                 List<Link> links = jdbcLinksRepository.getAllLinks();
                 long linkId = links.isEmpty() ? 1 : links.size() + 1;
-                link = new Link(
-                    linkId,
-                    url,
-                    OffsetDateTime.now(),
-                    OffsetDateTime.now(),
-                    OffsetDateTime.now().getOffset().getTotalSeconds()
-                );
+                link = new Link();
+                link.setLinkId(linkId);
+                link.setUrl(url);
+                link.setLastChecked(OffsetDateTime.now());
+                link.setLastUpdated(OffsetDateTime.now());
+                link.setZoneOffset(OffsetDateTime.now().getOffset().getTotalSeconds());
                 jdbcLinksRepository.addLink(link);
                 jdbcChatsToLinksRepository.addLinkToChat(chat, link);
                 return 1;
@@ -80,7 +78,7 @@ public class JdbcLinkService implements LinkService {
         List<Link> chatLinks = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
         boolean isLinkAddedToChat = false;
         for (Link chatLink : chatLinks) {
-            if (chatLink.url().equals(url)) {
+            if (chatLink.getUrl().equals(url)) {
                 isLinkAddedToChat = true;
                 break;
             }

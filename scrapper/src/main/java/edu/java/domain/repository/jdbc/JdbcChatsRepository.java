@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsRepository implements ChatsRepository {
@@ -25,7 +24,7 @@ public class JdbcChatsRepository implements ChatsRepository {
         String sql = "INSERT INTO chats VALUES (?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId()) != 0);
+            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat addition error!");
         }
@@ -38,7 +37,7 @@ public class JdbcChatsRepository implements ChatsRepository {
         String sql = "DELETE FROM chats WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.chatId()) != 0);
+            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat deletion error!");
         }

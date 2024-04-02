@@ -38,19 +38,26 @@ public class DomainConfig {
 
     @Bean
     public RowMapper<Chat> chatRowMapper() {
-        return (resultSet, rowNum) -> new Chat(resultSet.getLong("chat_id"));
+        return (resultSet, rowNum) -> {
+            Chat chat = new Chat();
+            chat.setChatId(resultSet.getLong("chat_id"));
+            return chat;
+        };
     }
 
     @Bean
     public RowMapper<Link> linkRowMapper() {
-        return (resultSet, rowNum) ->
-            new Link(
-                resultSet.getLong("link_id"),
-                resultSet.getString("url"),
-                timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
-                timestampToOffsetDate(resultSet.getTimestamp("last_checked")),
-                resultSet.getInt("zone_offset")
-            );
+        return (resultSet, rowNum) -> {
+            Link link = new Link();
+            link.setLinkId(resultSet.getLong("link_id"));
+            link.setUrl(resultSet.getString("url"));
+            link.setLastUpdated(
+                timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
+            link.setLastChecked(
+                timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
+            link.setZoneOffset(resultSet.getInt("zone_offset"));
+            return link;
+        };
     }
 
     @Bean
