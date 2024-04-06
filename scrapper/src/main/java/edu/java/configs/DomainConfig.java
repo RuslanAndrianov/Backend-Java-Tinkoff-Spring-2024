@@ -23,7 +23,7 @@ public class DomainConfig {
         return DataSourceBuilder
             .create()
             .driverClassName("org.postgresql.Driver")
-            .url("jdbc:postgresql://localhost:5432/scrapper")
+            .url("jdbc:postgresql://localhost:5437/scrapper")
             .username(postgres)
             .password(postgres)
             .build();
