@@ -1,18 +1,20 @@
 app:
+  database-access-type: jdbc  # jdbc / jpa / jooq
   scheduler:
     enable: true
     interval: 10000           # Задержка в миллисекундах
     # TODO : в будущем внедрить force-check-delay
     force-check-delay: 15000  # Задержка в миллисекундах
-  database-access-type: jdbc  # jdbc / jpa / jooq
 
 spring:
-  liquibase:
-    enabled: false
   application:
     name: scrapper
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: false
 
 server:
   port: 8080
