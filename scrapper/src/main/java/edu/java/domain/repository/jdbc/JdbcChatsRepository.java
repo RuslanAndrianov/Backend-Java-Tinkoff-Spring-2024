@@ -5,12 +5,15 @@ import edu.java.domain.repository.ChatsRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+@ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc")
+@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsRepository implements ChatsRepository {

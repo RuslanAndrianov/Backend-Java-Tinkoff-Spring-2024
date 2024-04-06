@@ -5,21 +5,19 @@ import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
 import edu.java.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.services.ChatService;
 import edu.java.services.LinkService;
-import edu.java.services.jdbc.JdbcChatService;
-import edu.java.services.jdbc.JdbcLinkService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
 @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc")
+@Configuration
 public class JdbcConfig {
     @Bean
     ChatService chatService(
         JdbcChatsRepository jdbcChatsRepository,
         JdbcChatsToLinksRepository jdbcChatsToLinksRepository
         ) {
-        return new JdbcChatService(
+        return new ChatService(
             jdbcChatsRepository,
             jdbcChatsToLinksRepository
         );
@@ -31,7 +29,7 @@ public class JdbcConfig {
         JdbcChatsRepository jdbcChatsRepository,
         JdbcChatsToLinksRepository jdbcChatsToLinksRepository
     ) {
-        return new JdbcLinkService(
+        return new LinkService(
             jdbcLinksRepository,
             jdbcChatsRepository,
             jdbcChatsToLinksRepository

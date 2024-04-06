@@ -6,12 +6,16 @@ import edu.java.domain.repository.ChatsToLinksRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+@ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc")
+@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
@@ -65,8 +69,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "SELECT DISTINCT chat_id FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {
-            result =
-                (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.getChatId()) > 0);
+            result = (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.getChatId()) != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat is not exist in table!");
         }
@@ -75,14 +78,14 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
 
     @Override
     @Transactional
-    public List<Link> getAllLinksByChat(Chat chat) {
+    public List<Link> getAllLinksByChat(@NotNull Chat chat) {
         String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = ?";
         return jdbcTemplate.query(sql, linkRowMapper, chat.getChatId());
     }
 
     @Override
     @Transactional
-    public List<Long> getAllChatsByLink(Link link) {
+    public List<Long> getAllChatsByLink(@NotNull Link link) {
         String sql = "SELECT chat_id FROM chats_to_links WHERE link_id = ?";
         return jdbcTemplate.query(sql, chatLinkRowMapper, link.getLinkId());
     }

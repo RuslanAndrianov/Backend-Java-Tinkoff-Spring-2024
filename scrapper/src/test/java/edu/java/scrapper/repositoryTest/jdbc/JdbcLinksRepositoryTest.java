@@ -1,4 +1,4 @@
-package edu.java.scrapper.repositoryTest;
+package edu.java.scrapper.repositoryTest.jdbc;
 
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.jdbc.JdbcLinksRepository;
@@ -21,14 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JdbcLinksRepositoryTest extends IntegrationTest {
 
     private static final JdbcLinksRepository JDBC_LINKS_REPOSITORY;
-    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) ->
-            new Link(
-                resultSet.getLong("link_id"),
-                resultSet.getString("url"),
-                timestampToOffsetDate(resultSet.getTimestamp("last_updated")),
-                timestampToOffsetDate(resultSet.getTimestamp("last_checked")),
-                resultSet.getInt("zone_offset")
-            );
+    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
+        Link link = new Link();
+        link.setLinkId(resultSet.getLong("link_id"));
+        link.setUrl(resultSet.getString("url"));
+        link.setLastUpdated(
+            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
+        link.setLastChecked(
+            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
+        link.setZoneOffset(resultSet.getInt("zone_offset"));
+        return link;
+    };
 
     private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
         return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
@@ -52,7 +55,14 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
     void addLinkTest() {
         long link_id = 1L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link = new Link();
+        link.setLinkId(link_id);
+        link.setUrl(url);
+        link.setLastUpdated(OffsetDateTime.now());
+        link.setLastChecked(OffsetDateTime.now());
+        link.setZoneOffset(0);
+
         boolean isLinkAdded;
 
         List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
@@ -61,8 +71,8 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
 
         assertTrue(isLinkAdded);
         assertEquals(linksAfter.size() - linksBefore.size(), 1);
-        assertEquals(linksAfter.getLast().linkId(), link_id);
-        assertEquals(linksAfter.getLast().url(), url);
+        assertEquals(linksAfter.getLast().getLinkId(), link_id);
+        assertEquals(linksAfter.getLast().getUrl(), url);
 
         JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
@@ -73,7 +83,14 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
     void deleteLinkTest() {
         long link_id = 2L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        Link link  = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link = new Link();
+        link.setLinkId(link_id);
+        link.setUrl(url);
+        link.setLastUpdated(OffsetDateTime.now());
+        link.setLastChecked(OffsetDateTime.now());
+        link.setZoneOffset(0);
+
         boolean isLinkDeleted;
 
         List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
@@ -91,13 +108,19 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
     void getLinkByIdTest() {
         long link_id = 3L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link = new Link();
+        link.setLinkId(link_id);
+        link.setUrl(url);
+        link.setLastUpdated(OffsetDateTime.now());
+        link.setLastChecked(OffsetDateTime.now());
+        link.setZoneOffset(0);
 
         JDBC_LINKS_REPOSITORY.addLink(link);
 
         Link foundLink = JDBC_LINKS_REPOSITORY.getLinkById(link_id);
-        assertEquals(foundLink.linkId(), link.linkId());
-        assertEquals(foundLink.url(), link.url());
+        assertEquals(foundLink.getLinkId(), link.getLinkId());
+        assertEquals(foundLink.getUrl(), link.getUrl());
 
         JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
@@ -108,13 +131,19 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
     void getLinkByURLTest() {
         long link_id = 4L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link = new Link();
+        link.setLinkId(link_id);
+        link.setUrl(url);
+        link.setLastUpdated(OffsetDateTime.now());
+        link.setLastChecked(OffsetDateTime.now());
+        link.setZoneOffset(0);
 
         JDBC_LINKS_REPOSITORY.addLink(link);
 
         Link foundLink = JDBC_LINKS_REPOSITORY.getLinkByUrl(url);
-        assertEquals(foundLink.linkId(), link.linkId());
-        assertEquals(foundLink.url(), link.url());
+        assertEquals(foundLink.getLinkId(), link.getLinkId());
+        assertEquals(foundLink.getUrl(), link.getUrl());
 
         JDBC_LINKS_REPOSITORY.deleteLink(link);
     }
@@ -129,9 +158,27 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
         String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link1 = new Link(link_id1, url1, OffsetDateTime.now(), OffsetDateTime.now(), 0);
-        Link link2 = new Link(link_id2, url2, OffsetDateTime.now(), OffsetDateTime.now(), 0);
-        Link link3 = new Link(link_id3, url3, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link1 = new Link();
+        link1.setLinkId(link_id1);
+        link1.setUrl(url1);
+        link1.setLastUpdated(OffsetDateTime.now());
+        link1.setLastChecked(OffsetDateTime.now());
+        link1.setZoneOffset(0);
+
+        Link link2 = new Link();
+        link2.setLinkId(link_id2);
+        link2.setUrl(url2);
+        link2.setLastUpdated(OffsetDateTime.now());
+        link2.setLastChecked(OffsetDateTime.now());
+        link2.setZoneOffset(0);
+
+        Link link3 = new Link();
+        link3.setLinkId(link_id3);
+        link3.setUrl(url3);
+        link3.setLastUpdated(OffsetDateTime.now());
+        link3.setLastChecked(OffsetDateTime.now());
+        link3.setZoneOffset(0);
 
         List<Link> linksBefore = JDBC_LINKS_REPOSITORY.getAllLinks();
         JDBC_LINKS_REPOSITORY.addLink(link1);
@@ -152,7 +199,14 @@ public class JdbcLinksRepositoryTest extends IntegrationTest {
     void duplicateKeyTest() {
         long link_id = 8L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
-        Link link = new Link(link_id, url, OffsetDateTime.now(), OffsetDateTime.now(), 0);
+
+        Link link = new Link();
+        link.setLinkId(link_id);
+        link.setUrl(url);
+        link.setLastUpdated(OffsetDateTime.now());
+        link.setLastChecked(OffsetDateTime.now());
+        link.setZoneOffset(0);
+
         boolean isLinkAdded;
 
         isLinkAdded = JDBC_LINKS_REPOSITORY.addLink(link);

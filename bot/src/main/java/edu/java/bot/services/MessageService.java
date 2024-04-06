@@ -40,17 +40,19 @@ public class MessageService {
     private final TelegramBot telegramBot;
     private final ScrapperClient scrapperClient;
 
-    // TODO : refactoring
-
     // Если лень разбираться в коде:
-    // 0. Ищем индексы команд в commands (чтобы не привязываться к MagicNumber
-    //    и добавлять новые команды в commands в любом порядке).
-    // 1. Проверяем сообщение на совпадение с командами.
-    // 2. Проверяем, является ли сообщение валидным URL.
+    // 1. Ищем индексы команд в commands (чтобы не привязываться к MagicNumber
+    //    и можно было добавлять новые команды в commands в любом порядке).
+    // 2. До обработки сообщения загружаем состояние чата из кэш-файла.
+    // 3. Если пользователь пытается зарегистрироваться, то регистрируем его.
+    // 4. Если пользователь незарегистрирован, то выдаем пользователю сообщение об ошибке.
+    // 5. Проверяем сообщение на совпадение с остальными командами.
+    // 6. Проверяем, является ли сообщение валидным URL.
     //    Если невалидный URL, то пишем, что не смогли распознать команду.
-    // 3. Если состояние чата TRACK, то пытаемся добавить в отслеживание валидный URL.
-    // 4. Если состояние чата UNTRACKED, то пытаемся убрать из отслеживания валидный URL.
-    // До обработки сообщения загружаем состояние чата из кэш-файла.
+    // 7. Если состояние чата TRACK, то пытаемся добавить в отслеживание валидный URL.
+    // 8. Если состояние чата UNTRACKED, то пытаемся убрать из отслеживания валидный URL.
+    // 9. Если добрались до этого этапа, то это значит, что зарегистрированный пользователь
+    //    прислал сообщение с валидным URL => говорим ему использовать команду /track или /untrack.
     // После обработки сообщения сохраняем состояние чата в кэш-файл.
 
     public void handleMessage(@NotNull Update update) {
@@ -58,10 +60,7 @@ public class MessageService {
         String chatMessage = update.message().text();
         Object scrapperResponse;
 
-        ChatState chatState = DBChatStates.loadChatStateFromCache(chatId);
-        DBChatStates.setChatState(chatId, chatState);
-
-        // 0.
+        // 1.
         int helpCmdIndex = getCommandIndex(HelpCommand.class);
         int listCmdIndex = getCommandIndex(ListCommand.class);
         int startCmdIndex = getCommandIndex(StartCommand.class);
@@ -74,12 +73,31 @@ public class MessageService {
         TrackCommand trackCommand = (TrackCommand) commands.get(trackCmdIndex);
         UntrackCommand untrackCommand = (UntrackCommand) commands.get(untrackCmdIndex);
 
-        // 1.
+        // 2.
+        ChatState chatState = DBChatStates.loadChatStateFromCache(chatId);
+        DBChatStates.setChatState(chatId, chatState);
+
+        // 3.
+        if (chatMessage.equals(StartCommand.NAME)) {
+            log.info(StartCommand.NAME + " command at chat " + chatId);
+            scrapperResponse = scrapperClient.registerChat(chatId);
+            telegramBot.execute(startCommand.handle(update, scrapperResponse));
+            DBChatStates.addChat(chatId);
+            DBChatStates.saveChatStateToCache(chatId);
+            return;
+        }
+
+        // 4.
+        if (DBChatStates.getChatState(chatId) == UNREGISTERED) {
+            telegramBot.execute(new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER));
+            return;
+        }
+
+        // 5.
         switch (chatMessage) {
             case HelpCommand.NAME:
                 log.info(HelpCommand.NAME + " command at chat " + chatId);
                 telegramBot.execute(helpCommand.handle(update, null));
-
                 DBChatStates.saveChatStateToCache(chatId);
                 return;
 
@@ -87,46 +105,26 @@ public class MessageService {
                 log.info(ListCommand.NAME + " command at chat " + chatId);
                 scrapperResponse = scrapperClient.getLinks(chatId);
                 telegramBot.execute(listCommand.handle(update, scrapperResponse));
-
                 DBChatStates.setChatState(chatId, REGISTERED);
-                DBChatStates.saveChatStateToCache(chatId);
-                return;
-
-            case StartCommand.NAME:
-                log.info(StartCommand.NAME + " command at chat " + chatId);
-                scrapperResponse = scrapperClient.registerChat(chatId);
-                telegramBot.execute(startCommand.handle(update, scrapperResponse));
-
-                DBChatStates.addChat(chatId);
                 DBChatStates.saveChatStateToCache(chatId);
                 return;
 
             case TrackCommand.NAME:
                 log.info(TrackCommand.NAME + " command at chat " + chatId);
-                if (DBChatStates.getChatState(chatId) != UNREGISTERED) {
-                    telegramBot.execute(trackCommand.trackURL(update));
-
-                    DBChatStates.setChatState(chatId, TRACK);
-                    DBChatStates.saveChatStateToCache(chatId);
-                } else {
-                    telegramBot.execute(new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER));
-                }
+                telegramBot.execute(trackCommand.trackURL(update));
+                DBChatStates.setChatState(chatId, TRACK);
+                DBChatStates.saveChatStateToCache(chatId);
                 return;
 
             case UntrackCommand.NAME:
                 log.info(UntrackCommand.NAME + " command at chat " + chatId);
-                if (DBChatStates.getChatState(chatId) != UNREGISTERED) {
-                    telegramBot.execute(untrackCommand.untrackURL(update));
-
-                    DBChatStates.setChatState(chatId, UNTRACKED);
-                    DBChatStates.saveChatStateToCache(chatId);
-                } else {
-                    telegramBot.execute(new SendMessage(chatId, ANSWER_TO_UNREGISTERED_USER));
-                }
+                telegramBot.execute(untrackCommand.untrackURL(update));
+                DBChatStates.setChatState(chatId, UNTRACKED);
+                DBChatStates.saveChatStateToCache(chatId);
                 return;
         }
 
-        // 2-3.
+        // 6.
         if (!isValidURL(chatMessage)) {
             log.error("Invalid command at chat " + chatId);
             telegramBot.execute(new SendMessage(chatId, INVALID_COMMAND));
@@ -136,7 +134,7 @@ public class MessageService {
             return;
         }
 
-        // 4.
+        // 7.
         if (DBChatStates.getChatState(chatId) == TRACK) {
             try {
                 scrapperResponse = scrapperClient.addLink(
@@ -153,7 +151,7 @@ public class MessageService {
             return;
         }
 
-        // 5.
+        // 8.
         if (DBChatStates.getChatState(chatId) == UNTRACKED) {
             try {
                 scrapperResponse = scrapperClient.deleteLink(
@@ -170,6 +168,7 @@ public class MessageService {
             return;
         }
 
+        // 9.
         telegramBot.execute(new SendMessage(chatId, USE_TRACK_OR_UNTRACK));
     }
 

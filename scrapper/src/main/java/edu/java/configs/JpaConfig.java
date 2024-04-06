@@ -1,13 +1,10 @@
 package edu.java.configs;
 
-import edu.java.domain.repository.jpa.chatsRepository.JpaChatsRepository;
-import edu.java.domain.repository.jpa.chatsToLinksRepository.JpaChatsToLinksRepository;
-import edu.java.domain.repository.jpa.linksRepository.JpaLinksRepository;
+import edu.java.domain.repository.jpa.JpaChatsRepository;
+import edu.java.domain.repository.jpa.JpaChatsToLinksRepository;
+import edu.java.domain.repository.jpa.JpaLinksRepository;
 import edu.java.services.ChatService;
 import edu.java.services.LinkService;
-import edu.java.services.jpa.JpaChatService;
-import edu.java.services.jpa.JpaLinkService;
-import jakarta.persistence.EntityManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +18,7 @@ public class JpaConfig {
         JpaChatsRepository jpaChatsRepository,
         JpaChatsToLinksRepository jpaChatsToLinksRepository
     ) {
-        return new JpaChatService(
+        return new ChatService(
             jpaChatsRepository,
             jpaChatsToLinksRepository
         );
@@ -33,7 +30,7 @@ public class JpaConfig {
         JpaChatsRepository jpaChatsRepository,
         JpaChatsToLinksRepository jpaChatsToLinksRepository
     ) {
-        return new JpaLinkService(
+        return new LinkService(
             jpaLinksRepository,
             jpaChatsRepository,
             jpaChatsToLinksRepository

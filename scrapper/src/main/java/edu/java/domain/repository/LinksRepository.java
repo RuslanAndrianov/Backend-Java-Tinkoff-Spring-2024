@@ -4,6 +4,9 @@ import edu.java.domain.dto.Link;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+
+// TODO : поправить все логи и названия методов
+
 public interface LinksRepository {
     boolean addLink(Link link);
 
