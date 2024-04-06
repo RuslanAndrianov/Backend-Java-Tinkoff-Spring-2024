@@ -1,24 +1,24 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Link;
-import edu.java.scrapper.repositoryTest.JdbcIntegrationTest;
+import edu.java.scrapper.repositoryTest.JpaIntegrationTest;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import static edu.java.utils.TimeCorrecter.getCorrectedTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jdbc")
-public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
+@SpringBootTest(properties = "app.database-access-type=jpa")
+public class JpaLinksRepositoryTest extends JpaIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void addLinkTest() {
 
         // Arrange
@@ -35,20 +35,22 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isLinkAdded;
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        isLinkAdded = jdbcLinksRepository.addLink(link);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        isLinkAdded = jpaLinksRepository.addLink(link);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertTrue(isLinkAdded);
         assertEquals(linksAfter.size() - linksBefore.size(), 1);
         assertEquals(linksAfter.getLast().getLinkId(), link_id);
         assertEquals(linksAfter.getLast().getUrl(), url);
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void deleteLinkTest() {
 
         // Arrange
@@ -65,10 +67,10 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isLinkDeleted;
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        jdbcLinksRepository.addLink(link);
-        isLinkDeleted = jdbcLinksRepository.deleteLink(link);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        jpaLinksRepository.addLink(link);
+        isLinkDeleted = jpaLinksRepository.deleteLink(link);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertTrue(isLinkDeleted);
@@ -92,17 +94,19 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link);
-        Link foundLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link foundLink = jpaLinksRepository.getLinkById(link_id);
 
         // Assert
         assertEquals(foundLink.getLinkId(), link.getLinkId());
         assertEquals(foundLink.getUrl(), link.getUrl());
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void getLinkByUrlTest() {
 
         // Arrange
@@ -117,17 +121,19 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link);
-        Link foundLink = jdbcLinksRepository.getLinkByUrl(url);
+        jpaLinksRepository.addLink(link);
+        Link foundLink = jpaLinksRepository.getLinkByUrl(url);
 
         // Assert
         assertEquals(foundLink.getLinkId(), link.getLinkId());
         assertEquals(foundLink.getUrl(), link.getUrl());
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void getAllLinksTest() {
 
         // Arrange
@@ -135,7 +141,7 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         long link_id2 = 6L;
         long link_id3 = 7L;
         String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+        String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link1 = new Link();
@@ -160,19 +166,23 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link3.setZoneOffset(0);
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertEquals(linksAfter.size() - linksBefore.size(), 3);
+
+        // After
+        jpaLinksRepository.deleteLink(link1);
+        jpaLinksRepository.deleteLink(link2);
+        jpaLinksRepository.deleteLink(link3);
     }
 
     @Test
     @Transactional
-    @Rollback
     void getOldestCheckedLinksTest() {
 
         // Arrange
@@ -182,7 +192,7 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link1 = new Link();
@@ -207,16 +217,16 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link3.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
 
-        List<Long> linkIds5min = jdbcLinksRepository
+        List<Long> linkIds5min = jpaLinksRepository
             .getOldestCheckedLinks("5 minutes")
             .stream()
             .map(Link::getLinkId)
             .toList();
-        List<Long> linkIds1hour = jdbcLinksRepository
+        List<Long> linkIds1hour = jpaLinksRepository
             .getOldestCheckedLinks("1 hour")
             .stream()
             .map(Link::getLinkId)
@@ -227,18 +237,22 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
             link2.getLinkId(), link3.getLinkId()
         )));
         assertTrue(linkIds1hour.contains(link3.getLinkId()));
+
+        // After
+        jpaLinksRepository.deleteLink(link1);
+        jpaLinksRepository.deleteLink(link2);
+        jpaLinksRepository.deleteLink(link3);
     }
 
     @Test
     @Transactional
-    @Rollback
     void setLastCheckedTimeToLinkTest() {
 
         // Arrange
         long link_id = 11L;
         String url =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        OffsetDateTime initTime = OffsetDateTime.now();
+        OffsetDateTime initTime = getCorrectedTime(OffsetDateTime.now(), ZoneOffset.UTC.getTotalSeconds());
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -248,39 +262,34 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link.setZoneOffset(0);
 
         // Act && Assert
-        jdbcLinksRepository.addLink(link);
-        Link initLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link initLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(
-            initLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            initLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1);
 
-        jdbcLinksRepository.setLastCheckedTimeToLink(
+        jpaLinksRepository.setLastCheckedTimeToLink(
             link, initTime.plusMinutes(10));
 
-        Link modifiedLink = jdbcLinksRepository.getLinkById(link_id);
+        Link modifiedLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(
-            modifiedLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime.plusMinutes(10)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            modifiedLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1 + 60 * 10);
+
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void setLastUpdatedTimeToLinkTest() {
 
         // Arrange
         long link_id = 12L;
         String url =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        OffsetDateTime initTime = OffsetDateTime.now();
+        OffsetDateTime initTime = getCorrectedTime(OffsetDateTime.now(), ZoneOffset.UTC.getTotalSeconds());
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -290,29 +299,27 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
         link.setZoneOffset(0);
 
         // Act && Assert
-        jdbcLinksRepository.addLink(link);
-        Link initLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link initLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(initLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            initLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1);
 
-        jdbcLinksRepository.setLastUpdatedTimeToLink(
+
+        jpaLinksRepository.setLastUpdatedTimeToLink(
             link, initTime.plusMinutes(10));
 
-        Link modifiedLink = jdbcLinksRepository.getLinkById(link_id);
+        Link modifiedLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(modifiedLink.getLastUpdated()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime.plusMinutes(10)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        assertTrue(Math.abs(
+            modifiedLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1 + 60 * 10);
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void duplicateKeyTest() {
         long link_id = 13L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
@@ -326,9 +333,12 @@ public class JdbcLinksRepositoryTest extends JdbcIntegrationTest {
 
         boolean isLinkAdded;
 
-        isLinkAdded = jdbcLinksRepository.addLink(link);
+        isLinkAdded = jpaLinksRepository.addLink(link);
         assertTrue(isLinkAdded);
-        isLinkAdded = jdbcLinksRepository.addLink(link);
+        isLinkAdded = jpaLinksRepository.addLink(link);
         assertFalse(isLinkAdded);
+
+        // After
+        jpaLinksRepository.deleteLink(link);
     }
 }

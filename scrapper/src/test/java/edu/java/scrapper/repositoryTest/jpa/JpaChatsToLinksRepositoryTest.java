@@ -1,8 +1,8 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
-import edu.java.scrapper.repositoryTest.JdbcIntegrationTest;
+import edu.java.scrapper.repositoryTest.JpaIntegrationTest;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -12,11 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
+public class JpaChatsToLinksRepositoryTest extends JpaIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void addLinkToChatTest() {
 
         // Arrange
@@ -37,20 +36,24 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isLinkAdded;
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        List<Link> linksBefore = jpaChatsToLinksRepository.getAllLinksByChat(chat);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
+        List<Link> linksAfter = jpaChatsToLinksRepository.getAllLinksByChat(chat);
 
         // Assert
         assertTrue(isLinkAdded);
         assertEquals(linksAfter.size() - linksBefore.size(), 1);
+
+        // After
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat, link);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void deleteLinkFromChatTest() {
 
         // Arrange
@@ -71,17 +74,17 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isLinkDeleted;
 
         // Act
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksBefore = jpaChatsToLinksRepository.getAllLinksByChat(chat);
 
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isLinkDeleted = jdbcChatsToLinksRepository.deleteLinkFromChat(chat, link);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link);
+        isLinkDeleted = jpaChatsToLinksRepository.deleteLinkFromChat(chat, link);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
 
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Link> linksAfter = jpaChatsToLinksRepository.getAllLinksByChat(chat);
 
         // Assert
         assertTrue(isLinkDeleted);
@@ -90,7 +93,6 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void deleteChatTest() {
 
         // Arrange
@@ -100,7 +102,7 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         Chat chat = new Chat();
         chat.setChatId(chat_id);
 
@@ -121,19 +123,19 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isChatDeleted;
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
 
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link1);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link2);
+        List<Link> linksBefore = jpaChatsToLinksRepository.getAllLinksByChat(chat);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link1);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link2);
 
-        isChatDeleted = jdbcChatsToLinksRepository.deleteChat(chat);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link1);
-        jdbcLinksRepository.deleteLink(link2);
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        isChatDeleted = jpaChatsToLinksRepository.deleteChat(chat);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link1);
+        jpaLinksRepository.deleteLink(link2);
+        List<Link> linksAfter = jpaChatsToLinksRepository.getAllLinksByChat(chat);
 
         // Assert
         assertTrue(isChatDeleted);
@@ -142,7 +144,6 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void isChatExistTest() {
 
         // Arrange
@@ -163,26 +164,25 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isChatExist;
 
         // Act && Assert
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
 
         assertTrue(isChatExist);
 
-        jdbcChatsToLinksRepository.deleteChat(chat);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link);
+        jpaChatsToLinksRepository.deleteChat(chat);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
 
         assertFalse(isChatExist);
     }
 
     @Test
     @Transactional
-    @Rollback
     void getAllLinksByChatTest() {
 
         // Arrange
@@ -194,7 +194,7 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat1 = new Chat();
@@ -225,17 +225,17 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         link3.setZoneOffset(0);
 
         // Act
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link1);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link2);
-        jdbcChatsToLinksRepository.addLinkToChat(chat2, link3);
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link1);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link2);
+        jpaChatsToLinksRepository.addLinkToChat(chat2, link3);
 
-        List<Link> links1 = jdbcChatsToLinksRepository.getAllLinksByChat(chat1);
-        List<Link> links2 = jdbcChatsToLinksRepository.getAllLinksByChat(chat2);
+        List<Link> links1 = jpaChatsToLinksRepository.getAllLinksByChat(chat1);
+        List<Link> links2 = jpaChatsToLinksRepository.getAllLinksByChat(chat2);
 
         // Assert
         assertEquals(links1.size(), 2);
@@ -247,6 +247,16 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         assertEquals(links2.size(), 1);
         assertEquals(links2.getFirst().getLinkId(), link_id3);
         assertEquals(links2.getFirst().getUrl(), url3);
+
+        // After
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat1, link1);
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat1, link2);
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat2, link3);
+        jpaChatsRepository.deleteChat(chat1);
+        jpaChatsRepository.deleteChat(chat2);
+        jpaLinksRepository.deleteLink(link1);
+        jpaLinksRepository.deleteLink(link2);
+        jpaLinksRepository.deleteLink(link3);
     }
 
     @Test
@@ -279,25 +289,32 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         link.setZoneOffset(0);
 
         // Act
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcChatsRepository.addChat(chat3);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat2, link);
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaChatsRepository.addChat(chat3);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link);
+        jpaChatsToLinksRepository.addLinkToChat(chat2, link);
 
-        List<Long> chatIds = jdbcChatsToLinksRepository.getAllChatsByLink(link);
+        List<Long> chatIds = jpaChatsToLinksRepository.getAllChatsByLink(link);
 
         // Assert
         assertEquals(chatIds.size(), 2);
         assertTrue(chatIds.containsAll(List.of(
             chat1.getChatId(),
             chat2.getChatId())));
+
+        // After
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat1, link);
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat2, link);
+        jpaChatsRepository.deleteChat(chat1);
+        jpaChatsRepository.deleteChat(chat2);
+        jpaChatsRepository.deleteChat(chat3);
+        jpaLinksRepository.deleteLink(link);
     }
 
     @Test
     @Transactional
-    @Rollback
     void duplicateKeyTest() {
 
         // Arrange
@@ -318,12 +335,17 @@ public class JdbcChatsToLinksRepositoryTest extends JdbcIntegrationTest {
         boolean isLinkAdded;
 
         // Act && Assert
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
 
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
         assertTrue(isLinkAdded);
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
         assertFalse(isLinkAdded);
+
+        // After
+        jpaChatsToLinksRepository.deleteLinkFromChat(chat, link);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
     }
 }

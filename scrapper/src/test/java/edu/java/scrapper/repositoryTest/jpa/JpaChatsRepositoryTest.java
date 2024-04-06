@@ -1,7 +1,7 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Chat;
-import edu.java.scrapper.repositoryTest.JdbcIntegrationTest;
+import edu.java.scrapper.repositoryTest.JpaIntegrationTest;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.Rollback;
@@ -10,11 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
+public class JpaChatsRepositoryTest extends JpaIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void addChatTest() {
 
         // Arrange
@@ -24,18 +23,21 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
         boolean isChatAdded;
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        isChatAdded = jdbcChatsRepository.addChat(chat);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        isChatAdded = jpaChatsRepository.addChat(chat);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertTrue(isChatAdded);
         assertEquals(chatsAfter.size() - chatsBefore.size(), 1);
+
+        // After
+        // TODO : @Rollback почему-то не работает во всех JPA-тестах
+        jpaChatsRepository.deleteChat(chat);
     }
 
     @Test
     @Transactional
-    @Rollback
     void deleteChatTest() {
 
         // Arrange
@@ -45,10 +47,10 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
         boolean isChatDeleted;
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        jdbcChatsRepository.addChat(chat);
-        isChatDeleted = jdbcChatsRepository.deleteChat(chat);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        jpaChatsRepository.addChat(chat);
+        isChatDeleted = jpaChatsRepository.deleteChat(chat);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertTrue(isChatDeleted);
@@ -57,7 +59,6 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
 
     @Test
     @Transactional
-    @Rollback
     void getChatByIdTest() {
 
         // Arrange
@@ -66,11 +67,14 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
         chat.setChatId(chat_id);
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        Chat foundChat = jdbcChatsRepository.getChatById(chat_id);
+        jpaChatsRepository.addChat(chat);
+        Chat foundChat = jpaChatsRepository.getChatById(chat_id);
 
         // Assert
         assertEquals(foundChat.getChatId(), chat.getChatId());
+
+        // After
+        jpaChatsRepository.deleteChat(chat);
     }
 
     @Test
@@ -91,14 +95,19 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
         chat3.setChatId(chat_id3);
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcChatsRepository.addChat(chat3);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaChatsRepository.addChat(chat3);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertEquals(chatsAfter.size() - chatsBefore.size(), 3);
+
+        // After
+        jpaChatsRepository.deleteChat(chat1);
+        jpaChatsRepository.deleteChat(chat2);
+        jpaChatsRepository.deleteChat(chat3);
     }
 
     @Test
@@ -113,9 +122,12 @@ public class JdbcChatsRepositoryTest extends JdbcIntegrationTest {
         boolean isChatAdded;
 
         // Act && Assert
-        isChatAdded = jdbcChatsRepository.addChat(chat);
+        isChatAdded = jpaChatsRepository.addChat(chat);
         assertTrue(isChatAdded);
-        isChatAdded = jdbcChatsRepository.addChat(chat);
+        isChatAdded = jpaChatsRepository.addChat(chat);
         assertFalse(isChatAdded);
+
+        // After
+        jpaChatsRepository.deleteChat(chat);
     }
 }
