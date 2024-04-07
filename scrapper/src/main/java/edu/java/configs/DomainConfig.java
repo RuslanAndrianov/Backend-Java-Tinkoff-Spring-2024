@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import javax.sql.DataSource;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 @Configuration
 @SuppressWarnings("MultipleStringLiterals")
-@Slf4j
 public class DomainConfig {
 
     @Bean
@@ -25,7 +23,7 @@ public class DomainConfig {
         return DataSourceBuilder
             .create()
             .driverClassName("org.postgresql.Driver")
-            .url("jdbc:postgresql://localhost:5432/scrapper")
+            .url("jdbc:postgresql://localhost:5437/scrapper")
             .username(postgres)
             .password(postgres)
             .build();

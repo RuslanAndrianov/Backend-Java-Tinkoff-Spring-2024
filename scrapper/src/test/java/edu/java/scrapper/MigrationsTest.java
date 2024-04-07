@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MigrationsTest extends IntegrationTest {
 
+    public JdbcTemplate jdbcTemplate;
+
     @Test
     public void testScenario() {
 
@@ -16,7 +18,7 @@ public class MigrationsTest extends IntegrationTest {
         long expectedLinkId = 200L;
         String expectedUrl = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
+        jdbcTemplate = new JdbcTemplate(DataSourceBuilder
             .create()
             .url(POSTGRES.getJdbcUrl())
             .username(POSTGRES.getUsername())

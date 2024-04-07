@@ -79,9 +79,9 @@ public class JpaChatsRepository implements ChatsRepository {
     @Override
     public List<Chat> getAllChats() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        String sql = "FROM Chat";
+        String hql = "FROM Chat";
         entityManager.getTransaction().begin();
-        Query query = entityManager.createNativeQuery(sql, Chat.class);
+        Query query = entityManager.createQuery(hql, Chat.class);
         List<Chat> list = (List<Chat>) query.getResultList();
         entityManager.getTransaction().commit();
         entityManager.close();

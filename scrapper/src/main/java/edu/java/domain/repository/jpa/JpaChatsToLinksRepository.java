@@ -33,8 +33,8 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
             String sql = "INSERT INTO chats_to_links VALUES (" + chat.getChatId() + ", " + link.getLinkId() + ")";
             Query query = entityManager.createNativeQuery(sql);
             result = query.executeUpdate() != 0;
-        } catch (NullPointerException e) {
-            log.error("Link addition error!");
+        } catch (Exception e) {
+            log.error("Error of addition link to chat!");
         }
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -52,7 +52,7 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
             Query query = entityManager.createNativeQuery(sql);
             result = query.executeUpdate() != 0;
         } catch (NullPointerException e) {
-            log.error("Link deletion error!");
+            log.error("Error of deletion link from chat!");
         }
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -69,7 +69,7 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
             Query query = entityManager.createNativeQuery(sql);
             result = query.executeUpdate() != 0;
         } catch (NullPointerException e) {
-            log.error("Chat deletion error!");
+            log.error("Error of deletion chat!");
         }
         entityManager.getTransaction().commit();
         entityManager.close();
