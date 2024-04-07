@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JdbcChatsRepositoryTest extends IntegrationTest {
 
-    private static final JdbcChatsRepository JDBC_CHATS_REPOSITORY;
+    private static final JdbcChatsRepository jdbcChatsRepository;
     private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
         Chat chat = new Chat();
         chat.setChatId(resultSet.getLong("chat_id"));
@@ -32,44 +32,48 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
             .build()
         );
 
-        JDBC_CHATS_REPOSITORY = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
+        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
     }
 
     @Test
     @Transactional
     @Rollback
     void addChatTest() {
+
+        // Arrange
         long chat_id = 1L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
-
         boolean isChatAdded;
 
-        List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
-        isChatAdded = JDBC_CHATS_REPOSITORY.addChat(chat);
-        List<Chat> chatsAfter = JDBC_CHATS_REPOSITORY.getAllChats();
+        // Act
+        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
+        isChatAdded = jdbcChatsRepository.addChat(chat);
+        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
 
+        // Assert
         assertTrue(isChatAdded);
         assertEquals(chatsAfter.size() - chatsBefore.size(), 1);
-
-        JDBC_CHATS_REPOSITORY.deleteChat(chat);
     }
 
     @Test
     @Transactional
     @Rollback
     void deleteChatTest() {
+
+        // Arrange
         long chat_id = 2L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
-
         boolean isChatDeleted;
 
-        List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
-        JDBC_CHATS_REPOSITORY.addChat(chat);
-        isChatDeleted = JDBC_CHATS_REPOSITORY.deleteChat(chat);
-        List<Chat> chatsAfter = JDBC_CHATS_REPOSITORY.getAllChats();
+        // Act
+        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
+        jdbcChatsRepository.addChat(chat);
+        isChatDeleted = jdbcChatsRepository.deleteChat(chat);
+        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
 
+        // Assert
         assertTrue(isChatDeleted);
         assertEquals(chatsBefore.size(), chatsAfter.size());
     }
@@ -78,25 +82,30 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getChatByIdTest() {
+
+        // Arrange
         long chat_id = 3L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
 
-        JDBC_CHATS_REPOSITORY.addChat(chat);
+        // Act
+        jdbcChatsRepository.addChat(chat);
+        Chat foundChat = jdbcChatsRepository.getChatById(chat_id);
 
-        Chat foundChat = JDBC_CHATS_REPOSITORY.getChatById(chat_id);
+        // Assert
         assertEquals(foundChat.getChatId(), chat.getChatId());
-
-        JDBC_CHATS_REPOSITORY.deleteChat(chat);
     }
 
     @Test
     @Transactional
     @Rollback
     void getAllChatsTest() {
+
+        // Arrange
         long chat_id1 = 4L;
         long chat_id2 = 5L;
         long chat_id3 = 6L;
+
         Chat chat1 = new Chat();
         chat1.setChatId(chat_id1);
         Chat chat2 = new Chat();
@@ -104,33 +113,32 @@ public class JdbcChatsRepositoryTest extends IntegrationTest {
         Chat chat3 = new Chat();
         chat3.setChatId(chat_id3);
 
-        List<Chat> chatsBefore = JDBC_CHATS_REPOSITORY.getAllChats();
-        JDBC_CHATS_REPOSITORY.addChat(chat1);
-        JDBC_CHATS_REPOSITORY.addChat(chat2);
-        JDBC_CHATS_REPOSITORY.addChat(chat3);
-        List<Chat> chatsAfter = JDBC_CHATS_REPOSITORY.getAllChats();
+        // Act
+        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
+        jdbcChatsRepository.addChat(chat1);
+        jdbcChatsRepository.addChat(chat2);
+        jdbcChatsRepository.addChat(chat3);
+        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
 
+        // Assert
         assertEquals(chatsAfter.size() - chatsBefore.size(), 3);
-
-        JDBC_CHATS_REPOSITORY.deleteChat(chat1);
-        JDBC_CHATS_REPOSITORY.deleteChat(chat2);
-        JDBC_CHATS_REPOSITORY.deleteChat(chat3);
     }
 
     @Test
     @Transactional
     @Rollback
     void duplicateKeyTest() {
+
+        // Arrange
         long chat_id = 7L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
         boolean isChatAdded;
 
-        isChatAdded = JDBC_CHATS_REPOSITORY.addChat(chat);
+        // Act && Assert
+        isChatAdded = jdbcChatsRepository.addChat(chat);
         assertTrue(isChatAdded);
-        isChatAdded = JDBC_CHATS_REPOSITORY.addChat(chat);
+        isChatAdded = jdbcChatsRepository.addChat(chat);
         assertFalse(isChatAdded);
-
-        JDBC_CHATS_REPOSITORY.deleteChat(chat);
     }
 }
