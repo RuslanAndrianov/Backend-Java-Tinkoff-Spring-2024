@@ -1,9 +1,9 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Chat;
-import edu.java.domain.repository.jdbc.JdbcChatsRepository;
-import edu.java.scrapper.IntegrationEnvironment;
 import java.util.List;
+import edu.java.domain.repository.jpa.JpaChatsRepository;
+import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jdbc")
-public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
+@SpringBootTest(properties = "app.database-access-type=jpa")
+public class JpaChatsRepositoryTest extends IntegrationEnvironment {
 
     @Autowired
-    private JdbcChatsRepository jdbcChatsRepository;
+    private JpaChatsRepository jpaChatsRepository;
 
     @Test
     @Transactional
@@ -25,15 +25,15 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     void addChatTest() {
 
         // Arrange
-        long chat_id = 1L;
+        long chat_id = 30L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
         boolean isChatAdded;
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        isChatAdded = jdbcChatsRepository.addChat(chat);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        isChatAdded = jpaChatsRepository.addChat(chat);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertTrue(isChatAdded);
@@ -46,16 +46,16 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     void deleteChatTest() {
 
         // Arrange
-        long chat_id = 2L;
+        long chat_id = 31L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
         boolean isChatDeleted;
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        jdbcChatsRepository.addChat(chat);
-        isChatDeleted = jdbcChatsRepository.deleteChat(chat);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        jpaChatsRepository.addChat(chat);
+        isChatDeleted = jpaChatsRepository.deleteChat(chat);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertTrue(isChatDeleted);
@@ -68,13 +68,13 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     void getChatByIdTest() {
 
         // Arrange
-        long chat_id = 3L;
+        long chat_id = 32L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        Chat foundChat = jdbcChatsRepository.getChatById(chat_id);
+        jpaChatsRepository.addChat(chat);
+        Chat foundChat = jpaChatsRepository.getChatById(chat_id);
 
         // Assert
         assertEquals(foundChat.getChatId(), chat.getChatId());
@@ -86,9 +86,9 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     void getAllChatsTest() {
 
         // Arrange
-        long chat_id1 = 4L;
-        long chat_id2 = 5L;
-        long chat_id3 = 6L;
+        long chat_id1 = 33L;
+        long chat_id2 = 34L;
+        long chat_id3 = 35L;
 
         Chat chat1 = new Chat();
         chat1.setChatId(chat_id1);
@@ -98,11 +98,11 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
         chat3.setChatId(chat_id3);
 
         // Act
-        List<Chat> chatsBefore = jdbcChatsRepository.getAllChats();
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcChatsRepository.addChat(chat3);
-        List<Chat> chatsAfter = jdbcChatsRepository.getAllChats();
+        List<Chat> chatsBefore = jpaChatsRepository.getAllChats();
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaChatsRepository.addChat(chat3);
+        List<Chat> chatsAfter = jpaChatsRepository.getAllChats();
 
         // Assert
         assertEquals(chatsAfter.size() - chatsBefore.size(), 3);
@@ -114,15 +114,15 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     void duplicateKeyTest() {
 
         // Arrange
-        long chat_id = 7L;
+        long chat_id = 36L;
         Chat chat = new Chat();
         chat.setChatId(chat_id);
         boolean isChatAdded;
 
         // Act && Assert
-        isChatAdded = jdbcChatsRepository.addChat(chat);
+        isChatAdded = jpaChatsRepository.addChat(chat);
         assertTrue(isChatAdded);
-        isChatAdded = jdbcChatsRepository.addChat(chat);
+        isChatAdded = jpaChatsRepository.addChat(chat);
         assertFalse(isChatAdded);
     }
 }

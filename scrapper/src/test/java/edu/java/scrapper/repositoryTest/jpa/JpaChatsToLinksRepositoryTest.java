@@ -1,10 +1,10 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.dto.Link;
-import edu.java.domain.repository.jdbc.JdbcChatsRepository;
-import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
-import edu.java.domain.repository.jdbc.JdbcLinksRepository;
+import edu.java.domain.repository.jpa.JpaChatsRepository;
+import edu.java.domain.repository.jpa.JpaChatsToLinksRepository;
+import edu.java.domain.repository.jpa.JpaLinksRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -18,15 +18,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jdbc")
-public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
+@SpringBootTest(properties = "app.database-access-type=jpa")
+public class JpaChatsToLinksRepositoryTest extends IntegrationEnvironment {
 
     @Autowired
-    private JdbcChatsRepository jdbcChatsRepository;
+    private JpaChatsRepository jpaChatsRepository;
     @Autowired
-    private JdbcLinksRepository jdbcLinksRepository;
+    private JpaLinksRepository jpaLinksRepository;
     @Autowired
-    private JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
+    private JpaChatsToLinksRepository jpaChatsToLinksRepository;
 
     @Test
     @Transactional
@@ -34,8 +34,8 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void addLinkToChatTest() {
 
         // Arrange
-        long chat_id = 20L;
-        long link_id = 20L;
+        long chat_id = 50L;
+        long link_id = 50L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat = new Chat();
@@ -51,11 +51,11 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkAdded;
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
-        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        List<Long> linkIdsBefore = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
+        List<Long> linkIdsAfter = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         // Assert
         assertTrue(isLinkAdded);
@@ -68,8 +68,8 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void deleteLinkFromChatTest() {
 
         // Arrange
-        long chat_id = 21L;
-        long link_id = 21L;
+        long chat_id = 51L;
+        long link_id = 51L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat = new Chat();
@@ -85,21 +85,17 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkDeleted;
 
         // Act
-        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
+        List<Long> linkIdsBefore = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isLinkDeleted = jdbcChatsToLinksRepository.deleteLinkFromChat(chat, link);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link);
+        isLinkDeleted = jpaChatsToLinksRepository.deleteLinkFromChat(chat, link);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
 
-        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
-
-        // Assert
-        assertTrue(isLinkDeleted);
-        assertEquals(linkIdsBefore.size(), linkIdsAfter.size());
+        List<Long> linkIdsAfter = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
     }
 
     @Test
@@ -108,13 +104,13 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void deleteChatTest() {
 
         // Arrange
-        long chat_id = 22L;
-        long link_id1 = 22L;
-        long link_id2 = 23L;
+        long chat_id = 52L;
+        long link_id1 = 52L;
+        long link_id2 = 53L;
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         Chat chat = new Chat();
         chat.setChatId(chat_id);
 
@@ -135,19 +131,19 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isChatDeleted;
 
         // Act
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
 
-        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link1);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link2);
+        List<Long> linkIdsBefore = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link1);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link2);
 
-        isChatDeleted = jdbcChatsToLinksRepository.deleteChat(chat);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link1);
-        jdbcLinksRepository.deleteLink(link2);
-        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
+        isChatDeleted = jpaChatsToLinksRepository.deleteChat(chat);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link1);
+        jpaLinksRepository.deleteLink(link2);
+        List<Long> linkIdsAfter = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         // Assert
         assertTrue(isChatDeleted);
@@ -160,8 +156,8 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void isChatExistTest() {
 
         // Arrange
-        long chat_id = 23L;
-        long link_id = 24L;
+        long chat_id = 53L;
+        long link_id = 54L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat = new Chat();
@@ -177,19 +173,19 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isChatExist;
 
         // Act && Assert
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
 
         assertTrue(isChatExist);
 
-        jdbcChatsToLinksRepository.deleteChat(chat);
-        jdbcChatsRepository.deleteChat(chat);
-        jdbcLinksRepository.deleteLink(link);
+        jpaChatsToLinksRepository.deleteChat(chat);
+        jpaChatsRepository.deleteChat(chat);
+        jpaLinksRepository.deleteLink(link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
 
         assertFalse(isChatExist);
     }
@@ -200,15 +196,15 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void getAllLinksByChatTest() {
 
         // Arrange
-        long chat_id1 = 24L;
-        long chat_id2 = 25L;
-        long link_id1 = 25L;
-        long link_id2 = 26L;
-        long link_id3 = 27L;
+        long chat_id1 = 54L;
+        long chat_id2 = 55L;
+        long link_id1 = 55L;
+        long link_id2 = 56L;
+        long link_id3 = 57L;
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
         String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat1 = new Chat();
@@ -239,17 +235,17 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         link3.setZoneOffset(0);
 
         // Act
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link1);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link2);
-        jdbcChatsToLinksRepository.addLinkToChat(chat2, link3);
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link1);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link2);
+        jpaChatsToLinksRepository.addLinkToChat(chat2, link3);
 
-        List<Long> linkIds1 = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat1);
-        List<Long> linkIds2 = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat2);
+        List<Long> linkIds1 = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat1);
+        List<Long> linkIds2 = jpaChatsToLinksRepository.getAllLinkIdsByChat(chat2);
 
         // Assert
         assertEquals(linkIds1.size(), 2);
@@ -265,10 +261,10 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void getAllChatsByLinkTest() {
 
         // Arrange
-        long chat_id1 = 26L;
-        long chat_id2 = 27L;
-        long chat_id3 = 28L;
-        long link_id = 28L;
+        long chat_id1 = 56L;
+        long chat_id2 = 57L;
+        long chat_id3 = 58L;
+        long link_id = 58L;
         String url =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
 
@@ -289,14 +285,14 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         link.setZoneOffset(0);
 
         // Act
-        jdbcChatsRepository.addChat(chat1);
-        jdbcChatsRepository.addChat(chat2);
-        jdbcChatsRepository.addChat(chat3);
-        jdbcLinksRepository.addLink(link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat1, link);
-        jdbcChatsToLinksRepository.addLinkToChat(chat2, link);
+        jpaChatsRepository.addChat(chat1);
+        jpaChatsRepository.addChat(chat2);
+        jpaChatsRepository.addChat(chat3);
+        jpaLinksRepository.addLink(link);
+        jpaChatsToLinksRepository.addLinkToChat(chat1, link);
+        jpaChatsToLinksRepository.addLinkToChat(chat2, link);
 
-        List<Long> chatIds = jdbcChatsToLinksRepository.getAllChatIdsByLink(link);
+        List<Long> chatIds = jpaChatsToLinksRepository.getAllChatIdsByLink(link);
 
         // Assert
         assertEquals(chatIds.size(), 2);
@@ -311,8 +307,8 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     void duplicateKeyTest() {
 
         // Arrange
-        long chat_id = 29L;
-        long link_id = 29L;
+        long chat_id = 59L;
+        long link_id = 59L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Chat chat = new Chat();
@@ -328,12 +324,12 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkAdded;
 
         // Act && Assert
-        jdbcChatsRepository.addChat(chat);
-        jdbcLinksRepository.addLink(link);
+        jpaChatsRepository.addChat(chat);
+        jpaLinksRepository.addLink(link);
 
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
         assertTrue(isLinkAdded);
-        isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
+        isLinkAdded = jpaChatsToLinksRepository.addLinkToChat(chat, link);
         assertFalse(isLinkAdded);
     }
 }

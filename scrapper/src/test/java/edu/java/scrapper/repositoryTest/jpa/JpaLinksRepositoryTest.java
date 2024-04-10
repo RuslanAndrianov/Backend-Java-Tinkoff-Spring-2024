@@ -1,25 +1,26 @@
-package edu.java.scrapper.repositoryTest.jdbc;
+package edu.java.scrapper.repositoryTest.jpa;
 
 import edu.java.domain.dto.Link;
-import edu.java.domain.repository.jdbc.JdbcLinksRepository;
+import edu.java.domain.repository.jpa.JpaLinksRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import static edu.java.utils.TimeCorrecter.getCorrectedTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jdbc")
-public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
+@SpringBootTest(properties = "app.database-access-type=jpa")
+public class JpaLinksRepositoryTest extends IntegrationEnvironment {
 
     @Autowired
-    private JdbcLinksRepository jdbcLinksRepository;
+    private JpaLinksRepository jpaLinksRepository;
 
     @Test
     @Transactional
@@ -27,7 +28,7 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void addLinkTest() {
 
         // Arrange
-        long link_id = 1L;
+        long link_id = 30L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
 
         Link link = new Link();
@@ -40,9 +41,9 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkAdded;
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        isLinkAdded = jdbcLinksRepository.addLink(link);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        isLinkAdded = jpaLinksRepository.addLink(link);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertTrue(isLinkAdded);
@@ -57,7 +58,7 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void deleteLinkTest() {
 
         // Arrange
-        long link_id = 2L;
+        long link_id = 31L;
         String url = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
 
         Link link = new Link();
@@ -70,16 +71,15 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkDeleted;
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        jdbcLinksRepository.addLink(link);
-        isLinkDeleted = jdbcLinksRepository.deleteLink(link);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        jpaLinksRepository.addLink(link);
+        isLinkDeleted = jpaLinksRepository.deleteLink(link);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertTrue(isLinkDeleted);
         assertEquals(linksBefore.size(), linksAfter.size());
     }
-
 
     @Test
     @Transactional
@@ -87,8 +87,8 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void getLinkByIdTest() {
 
         // Arrange
-        long link_id = 3L;
-        String url = "https://vk.com";
+        long link_id = 32L;
+        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -98,8 +98,8 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link);
-        Link foundLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link foundLink = jpaLinksRepository.getLinkById(link_id);
 
         // Assert
         assertEquals(foundLink.getLinkId(), link.getLinkId());
@@ -112,8 +112,8 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void getLinkByUrlTest() {
 
         // Arrange
-        long link_id = 4L;
-        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        long link_id = 33L;
+        String url = "https://github.com/arhostcode/linktracker";
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -123,14 +123,13 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link);
-        Link foundLink = jdbcLinksRepository.getLinkByUrl(url);
+        jpaLinksRepository.addLink(link);
+        Link foundLink = jpaLinksRepository.getLinkByUrl(url);
 
         // Assert
         assertEquals(foundLink.getLinkId(), link.getLinkId());
         assertEquals(foundLink.getUrl(), link.getUrl());
     }
-
 
     @Test
     @Transactional
@@ -138,12 +137,12 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void getAllLinksTest() {
 
         // Arrange
-        long link_id1 = 5L;
-        long link_id2 = 6L;
-        long link_id3 = 7L;
+        long link_id1 = 34L;
+        long link_id2 = 35L;
+        long link_id3 = 36L;
         String url1 = "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
-        String url3 = "https://vk.com";
+        String url2 = "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
+        String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link1 = new Link();
         link1.setLinkId(link_id1);
@@ -167,11 +166,11 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link3.setZoneOffset(0);
 
         // Act
-        List<Link> linksBefore = jdbcLinksRepository.getAllLinks();
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
-        List<Link> linksAfter = jdbcLinksRepository.getAllLinks();
+        List<Link> linksBefore = jpaLinksRepository.getAllLinks();
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
+        List<Link> linksAfter = jpaLinksRepository.getAllLinks();
 
         // Assert
         assertEquals(linksAfter.size() - linksBefore.size(), 3);
@@ -183,15 +182,14 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void getOldestCheckedLinksTest() {
 
         // Arrange
-        long link_id1 = 8L;
-        long link_id2 = 9L;
-        long link_id3 = 10L;
+        long link_id1 = 37L;
+        long link_id2 = 38L;
+        long link_id3 = 39L;
         String url1 =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
         String url2 =
-            "https://stackoverflow.com/questions/50145552/error-org-springframework-jdbc-badsqlgrammarexception-statementcallback-bad-s";
-        String url3 =
-            "https://github.com/unlessiamwrong/Tinkoff-Java-course-2";
+            "https://stackoverflow.com/questions/50145552/error-org-springframework-jpa-badsqlgrammarexception-statementcallback-bad-s";
+        String url3 = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link1 = new Link();
         link1.setLinkId(link_id1);
@@ -215,16 +213,16 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link3.setZoneOffset(0);
 
         // Act
-        jdbcLinksRepository.addLink(link1);
-        jdbcLinksRepository.addLink(link2);
-        jdbcLinksRepository.addLink(link3);
+        jpaLinksRepository.addLink(link1);
+        jpaLinksRepository.addLink(link2);
+        jpaLinksRepository.addLink(link3);
 
-        List<Long> linkIds5min = jdbcLinksRepository
+        List<Long> linkIds5min = jpaLinksRepository
             .getOldestCheckedLinks("5 minutes")
             .stream()
             .map(Link::getLinkId)
             .toList();
-        List<Long> linkIds1hour = jdbcLinksRepository
+        List<Long> linkIds1hour = jpaLinksRepository
             .getOldestCheckedLinks("1 hour")
             .stream()
             .map(Link::getLinkId)
@@ -243,10 +241,10 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void setLastCheckedTimeToLinkTest() {
 
         // Arrange
-        long link_id = 11L;
+        long link_id = 40L;
         String url =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        OffsetDateTime initTime = OffsetDateTime.now();
+        OffsetDateTime initTime = getCorrectedTime(OffsetDateTime.now(), ZoneOffset.UTC.getTotalSeconds());
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -256,27 +254,19 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link.setZoneOffset(0);
 
         // Act && Assert
-        jdbcLinksRepository.addLink(link);
-        Link initLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link initLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(
-            initLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            initLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1);
 
-        jdbcLinksRepository.setLastCheckedTimeToLink(
+        jpaLinksRepository.setLastCheckedTimeToLink(
             link, initTime.plusMinutes(10));
 
-        Link modifiedLink = jdbcLinksRepository.getLinkById(link_id);
+        Link modifiedLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(
-            modifiedLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime.plusMinutes(10)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            modifiedLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1 + 60 * 10);
     }
 
     @Test
@@ -285,10 +275,10 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     void setLastUpdatedTimeToLinkTest() {
 
         // Arrange
-        long link_id = 12L;
+        long link_id = 41L;
         String url =
             "https://stackoverflow.com/questions/54378414/how-to-fix-cant-infer-the-sql-type-to-use-for-an-instance-of-enum-error-when";
-        OffsetDateTime initTime = OffsetDateTime.now();
+        OffsetDateTime initTime = getCorrectedTime(OffsetDateTime.now(), ZoneOffset.UTC.getTotalSeconds());
 
         Link link = new Link();
         link.setLinkId(link_id);
@@ -298,31 +288,27 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
         link.setZoneOffset(0);
 
         // Act && Assert
-        jdbcLinksRepository.addLink(link);
-        Link initLink = jdbcLinksRepository.getLinkById(link_id);
+        jpaLinksRepository.addLink(link);
+        Link initLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(initLink.getLastChecked()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+        assertTrue(Math.abs(
+            initLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1);
 
-        jdbcLinksRepository.setLastUpdatedTimeToLink(
+
+        jpaLinksRepository.setLastUpdatedTimeToLink(
             link, initTime.plusMinutes(10));
 
-        Link modifiedLink = jdbcLinksRepository.getLinkById(link_id);
+        Link modifiedLink = jpaLinksRepository.getLinkById(link_id);
 
-        assertEquals(modifiedLink.getLastUpdated()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            initTime.plusMinutes(10)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        assertTrue(Math.abs(
+            modifiedLink.getLastChecked().toEpochSecond() - initTime.toEpochSecond()) <= 1 + 60 * 10);
     }
 
     @Test
     @Transactional
     @Rollback
     void duplicateKeyTest() {
-        long link_id = 13L;
+        long link_id = 42L;
         String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
         Link link = new Link();
@@ -334,9 +320,9 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
         boolean isLinkAdded;
 
-        isLinkAdded = jdbcLinksRepository.addLink(link);
+        isLinkAdded = jpaLinksRepository.addLink(link);
         assertTrue(isLinkAdded);
-        isLinkAdded = jdbcLinksRepository.addLink(link);
+        isLinkAdded = jpaLinksRepository.addLink(link);
         assertFalse(isLinkAdded);
     }
 }
