@@ -2,38 +2,41 @@ package edu.java.scrapper.repositoryTest.jdbc;
 
 import edu.java.domain.dto.Chat;
 import edu.java.domain.repository.jdbc.JdbcChatsRepository;
-import edu.java.scrapper.IntegrationTest;
+import edu.java.scrapper.IntegrationEnvironment;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcChatsRepositoryTest extends IntegrationTest {
+@SpringBootTest
+public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
 
-    private static final JdbcChatsRepository jdbcChatsRepository;
-    private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
-        Chat chat = new Chat();
-        chat.setChatId(resultSet.getLong("chat_id"));
-        return chat;
-    };
+    @Autowired
+    private JdbcChatsRepository jdbcChatsRepository;
 
-    static {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
-            .create()
-            .url(POSTGRES.getJdbcUrl())
-            .username(POSTGRES.getUsername())
-            .password(POSTGRES.getPassword())
-            .build()
-        );
-
-        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
-    }
+//    private static final JdbcChatsRepository jdbcChatsRepository;
+//    private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
+//        Chat chat = new Chat();
+//        chat.setChatId(resultSet.getLong("chat_id"));
+//        return chat;
+//    };
+//
+//    static {
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
+//            .create()
+//            .url(POSTGRES.getJdbcUrl())
+//            .username(POSTGRES.getUsername())
+//            .password(POSTGRES.getPassword())
+//            .build()
+//        );
+//
+//        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
+//    }
 
     @Test
     @Transactional

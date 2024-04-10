@@ -7,7 +7,7 @@ import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import edu.java.scrapper.IntegrationTest;
+import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-public class StackOverflowClientTest extends IntegrationTest {
+public class StackOverflowClientTest extends IntegrationEnvironment {
     private static WireMockServer wireMockServer;
     private final WebClient.Builder webClientBuilder;
 

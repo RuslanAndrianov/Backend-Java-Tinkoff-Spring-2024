@@ -5,67 +5,71 @@ import edu.java.domain.dto.Link;
 import edu.java.domain.repository.jdbc.JdbcChatsRepository;
 import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
 import edu.java.domain.repository.jdbc.JdbcLinksRepository;
-import edu.java.scrapper.IntegrationTest;
-import java.sql.Timestamp;
+import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcChatsToLinksRepositoryTest extends IntegrationTest {
+@SpringBootTest
+public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
 
-    private static final JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
-    private static final JdbcChatsRepository jdbcChatsRepository;
-    private static final JdbcLinksRepository jdbcLinksRepository;
+    @Autowired
+    private JdbcChatsRepository jdbcChatsRepository;
+    @Autowired
+    private JdbcLinksRepository jdbcLinksRepository;
+    @Autowired
+    private JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
 
-    private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
-        Chat chat = new Chat();
-        chat.setChatId(resultSet.getLong("chat_id"));
-        return chat;
-    };
-
-    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
-        Link link = new Link();
-        link.setLinkId(resultSet.getLong("link_id"));
-        link.setUrl(resultSet.getString("url"));
-        link.setLastUpdated(
-            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
-        link.setLastChecked(
-            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
-        link.setZoneOffset(resultSet.getInt("zone_offset"));
-        return link;
-    };
-
-    private static final RowMapper<Long> chatLinkRowMapper = (resultSet, rowNum) ->
-        resultSet.getLong("chat_id");
-
-    private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
-        return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
-    }
-
-    static {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
-            .create()
-            .url(POSTGRES.getJdbcUrl())
-            .username(POSTGRES.getUsername())
-            .password(POSTGRES.getPassword())
-            .build()
-        );
-
-        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
-        jdbcLinksRepository = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
-        jdbcChatsToLinksRepository = new JdbcChatsToLinksRepository(
-            jdbcTemplate, chatLinkRowMapper, linkRowMapper);
-    }
+//    private static final JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
+//    private static final JdbcChatsRepository jdbcChatsRepository;
+//    private static final JdbcLinksRepository jdbcLinksRepository;
+//
+//    private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
+//        Chat chat = new Chat();
+//        chat.setChatId(resultSet.getLong("chat_id"));
+//        return chat;
+//    };
+//
+//    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
+//        Link link = new Link();
+//        link.setLinkId(resultSet.getLong("link_id"));
+//        link.setUrl(resultSet.getString("url"));
+//        link.setLastUpdated(
+//            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
+//        link.setLastChecked(
+//            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
+//        link.setZoneOffset(resultSet.getInt("zone_offset"));
+//        return link;
+//    };
+//
+//    private static final RowMapper<Long> chatLinkRowMapper = (resultSet, rowNum) ->
+//        resultSet.getLong("chat_id");
+//
+//    private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
+//        return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
+//    }
+//
+//    static {
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
+//            .create()
+//            .url(POSTGRES.getJdbcUrl())
+//            .username(POSTGRES.getUsername())
+//            .password(POSTGRES.getPassword())
+//            .build()
+//        );
+//
+//        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
+//        jdbcLinksRepository = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
+//        jdbcChatsToLinksRepository = new JdbcChatsToLinksRepository(
+//            jdbcTemplate, chatLinkRowMapper, linkRowMapper);
+//    }
 
     @Test
     @Transactional

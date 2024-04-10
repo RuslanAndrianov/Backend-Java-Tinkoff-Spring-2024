@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MigrationsTest extends IntegrationTest {
+public class MigrationsTest extends IntegrationEnvironment {
 
     public JdbcTemplate jdbcTemplate;
 

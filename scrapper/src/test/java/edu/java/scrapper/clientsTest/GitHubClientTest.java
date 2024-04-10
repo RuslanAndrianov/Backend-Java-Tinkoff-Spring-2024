@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.clients.GitHub.GitHubClientImpl;
 import edu.java.clients.GitHub.GitHubResponse;
 import java.time.OffsetDateTime;
-import edu.java.scrapper.IntegrationTest;
+import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-public class GitHubClientTest extends IntegrationTest {
+public class GitHubClientTest extends IntegrationEnvironment {
 
     private static WireMockServer wireMockServer;
     private final WebClient.Builder webClientBuilder;

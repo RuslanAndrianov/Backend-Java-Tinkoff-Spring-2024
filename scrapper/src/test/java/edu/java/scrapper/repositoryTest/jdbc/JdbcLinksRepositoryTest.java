@@ -2,53 +2,53 @@ package edu.java.scrapper.repositoryTest.jdbc;
 
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.jdbc.JdbcLinksRepository;
-import edu.java.scrapper.IntegrationTest;
-import java.sql.Timestamp;
+import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JdbcLinksRepositoryTest extends IntegrationTest {
+@SpringBootTest
+public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
-    private static final JdbcLinksRepository jdbcLinksRepository;
-    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
-        Link link = new Link();
-        link.setLinkId(resultSet.getLong("link_id"));
-        link.setUrl(resultSet.getString("url"));
-        link.setLastUpdated(
-            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
-        link.setLastChecked(
-            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
-        link.setZoneOffset(resultSet.getInt("zone_offset"));
-        return link;
-    };
+    @Autowired
+    private JdbcLinksRepository jdbcLinksRepository;
 
-    private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
-        return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
-    }
-
-    static {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
-            .create()
-            .url(POSTGRES.getJdbcUrl())
-            .username(POSTGRES.getUsername())
-            .password(POSTGRES.getPassword())
-            .build()
-        );
-
-        jdbcLinksRepository = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
-    }
+//    private static final JdbcLinksRepository jdbcLinksRepository;
+//    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
+//        Link link = new Link();
+//        link.setLinkId(resultSet.getLong("link_id"));
+//        link.setUrl(resultSet.getString("url"));
+//        link.setLastUpdated(
+//            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
+//        link.setLastChecked(
+//            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
+//        link.setZoneOffset(resultSet.getInt("zone_offset"));
+//        return link;
+//    };
+//
+//    private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
+//        return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
+//    }
+//
+//    static {
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
+//            .create()
+//            .url(POSTGRES.getJdbcUrl())
+//            .username(POSTGRES.getUsername())
+//            .password(POSTGRES.getPassword())
+//            .build()
+//        );
+//
+//        jdbcLinksRepository = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
+//    }
 
     @Test
     @Transactional

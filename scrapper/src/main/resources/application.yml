@@ -11,6 +11,10 @@ spring:
     name: scrapper
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:

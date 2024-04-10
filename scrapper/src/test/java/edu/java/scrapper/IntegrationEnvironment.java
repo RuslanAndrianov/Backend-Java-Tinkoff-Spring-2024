@@ -20,7 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @Slf4j
-public abstract class IntegrationTest {
+public abstract class IntegrationEnvironment {
 
     public static PostgreSQLContainer<?> POSTGRES;
 
