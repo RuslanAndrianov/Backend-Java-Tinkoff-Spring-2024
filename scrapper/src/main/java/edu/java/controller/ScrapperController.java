@@ -98,12 +98,13 @@ public class ScrapperController {
     })
     public ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
         if (chatService.findChatById(chatId) != null) {
-            List<Link> linksOfChat = linkService.getAllLinksByChat(chatId);
+            List<Long> chatLinkIds = linkService.getAllLinkIdsByChat(chatId);
             List<LinkResponse> linkResponses = new ArrayList<>();
 
             try {
-                for (Link linkOfChat : linksOfChat) {
-                    linkResponses.add(new LinkResponse(linkOfChat.getLinkId(), new URI(linkOfChat.getUrl())));
+                for (long chatLinkId : chatLinkIds) {
+                    Link link = linkService.getLinkById(chatLinkId);
+                    linkResponses.add(new LinkResponse(link.getLinkId(), new URI(link.getUrl())));
                 }
                 log.info("Get all links of chat " + chatId);
                 return new ResponseEntity<>(

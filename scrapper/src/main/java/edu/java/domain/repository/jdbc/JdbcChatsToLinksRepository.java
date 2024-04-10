@@ -7,22 +7,19 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc")
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Long> chatLinkRowMapper;
-    private final RowMapper<Link> linkRowMapper;
+    @Autowired
+    private final JdbcClient jdbcClient;
 
     @Override
     @Transactional
@@ -30,7 +27,11 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "INSERT INTO chats_to_links VALUES (?, ?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.getChatId(), link.getLinkId()) != 0);
+            result = (jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .param(link.getLinkId())
+                .update() != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of addition link to chat!");
         }
@@ -43,7 +44,11 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ? AND link_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.getChatId(), link.getLinkId()) != 0);
+            result = (jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .param(link.getLinkId())
+                .update() != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of deletion link from chat!");
         }
@@ -56,7 +61,10 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "DELETE FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
+            result = (jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .update() != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Error of deletion chat!");
         }
@@ -69,8 +77,13 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
         String sql = "SELECT DISTINCT chat_id FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.queryForObject(sql, chatLinkRowMapper, chat.getChatId()) != 0);
-        } catch (DataAccessException | NullPointerException e) {
+            result = jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .query(Chat.class)
+                .optional()
+                .isPresent();
+        } catch (NullPointerException e) {
             log.error("Chat is not exist in table!");
         }
         return result;
@@ -78,15 +91,23 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
 
     @Override
     @Transactional
-    public List<Link> getAllLinksByChat(@NotNull Chat chat) {
-        String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = ?";
-        return jdbcTemplate.query(sql, linkRowMapper, chat.getChatId());
+    public List<Long> getAllLinkIdsByChat(@NotNull Chat chat) {
+        String sql = "SELECT link_id FROM chats_to_links WHERE chat_id = ?";
+        return jdbcClient
+            .sql(sql)
+            .param(chat.getChatId())
+            .query(Long.class)
+            .list();
     }
 
     @Override
     @Transactional
-    public List<Long> getAllChatsByLink(@NotNull Link link) {
+    public List<Long> getAllChatIdsByLink(@NotNull Link link) {
         String sql = "SELECT chat_id FROM chats_to_links WHERE link_id = ?";
-        return jdbcTemplate.query(sql, chatLinkRowMapper, link.getLinkId());
+        return jdbcClient
+            .sql(sql)
+            .param(link.getLinkId())
+            .query(Long.class)
+            .list();
     }
 }

@@ -34,9 +34,10 @@ public class LinkService {
             return -1;
         }
 
-        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
-        for (Link chatLink : chatLinks) {
-            if (chatLink.getUrl().equals(url)) {
+        List<Long> chatLinkIds = chatsToLinksRepository.getAllLinkIdsByChat(chat);
+        for (long chatLinkId : chatLinkIds) {
+            Link link = linksRepository.getLinkById(chatLinkId);
+            if (link.getUrl().equals(url)) {
                 return 0;
             }
         }
@@ -73,10 +74,11 @@ public class LinkService {
             return -1;
         }
 
-        List<Link> chatLinks = chatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> chatLinkIds = chatsToLinksRepository.getAllLinkIdsByChat(chat);
         boolean isLinkAddedToChat = false;
-        for (Link chatLink : chatLinks) {
-            if (chatLink.getUrl().equals(url)) {
+        for (long chatLinkId : chatLinkIds) {
+            Link link = linksRepository.getLinkById(chatLinkId);
+            if (link.getUrl().equals(url)) {
                 isLinkAddedToChat = true;
                 break;
             }
@@ -92,13 +94,17 @@ public class LinkService {
         return result ? 1 : -2;
     }
 
+    public Link getLinkById(long linkId) {
+        return linksRepository.getLinkById(linkId);
+    }
+
     public Link getLinkByUrl(String url) {
         return linksRepository.getLinkByUrl(url);
     }
 
-    public List<Link> getAllLinksByChat(long tgChatId) {
+    public List<Long> getAllLinkIdsByChat(long tgChatId) {
         Chat chat = chatsRepository.getChatById(tgChatId);
-        return chatsToLinksRepository.getAllLinksByChat(chat);
+        return chatsToLinksRepository.getAllLinkIdsByChat(chat);
     }
 
     public List<Link> getOldestCheckedLinks() {

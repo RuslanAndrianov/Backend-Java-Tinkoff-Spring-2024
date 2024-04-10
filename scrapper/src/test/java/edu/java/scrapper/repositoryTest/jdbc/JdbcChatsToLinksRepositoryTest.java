@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,50 +27,6 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
     private JdbcLinksRepository jdbcLinksRepository;
     @Autowired
     private JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
-
-//    private static final JdbcChatsToLinksRepository jdbcChatsToLinksRepository;
-//    private static final JdbcChatsRepository jdbcChatsRepository;
-//    private static final JdbcLinksRepository jdbcLinksRepository;
-//
-//    private static final RowMapper<Chat> chatRowMapper = (resultSet, rowNum) -> {
-//        Chat chat = new Chat();
-//        chat.setChatId(resultSet.getLong("chat_id"));
-//        return chat;
-//    };
-//
-//    private static final RowMapper<Link> linkRowMapper = (resultSet, rowNum) -> {
-//        Link link = new Link();
-//        link.setLinkId(resultSet.getLong("link_id"));
-//        link.setUrl(resultSet.getString("url"));
-//        link.setLastUpdated(
-//            timestampToOffsetDate(resultSet.getTimestamp("last_updated")));
-//        link.setLastChecked(
-//            timestampToOffsetDate(resultSet.getTimestamp("last_checked")));
-//        link.setZoneOffset(resultSet.getInt("zone_offset"));
-//        return link;
-//    };
-//
-//    private static final RowMapper<Long> chatLinkRowMapper = (resultSet, rowNum) ->
-//        resultSet.getLong("chat_id");
-//
-//    private static OffsetDateTime timestampToOffsetDate(@NotNull Timestamp timestamp) {
-//        return OffsetDateTime.of(timestamp.toLocalDateTime(), ZoneOffset.of("Z"));
-//    }
-//
-//    static {
-//        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
-//            .create()
-//            .url(POSTGRES.getJdbcUrl())
-//            .username(POSTGRES.getUsername())
-//            .password(POSTGRES.getPassword())
-//            .build()
-//        );
-//
-//        jdbcChatsRepository = new JdbcChatsRepository(jdbcTemplate, chatRowMapper);
-//        jdbcLinksRepository = new JdbcLinksRepository(jdbcTemplate, linkRowMapper);
-//        jdbcChatsToLinksRepository = new JdbcChatsToLinksRepository(
-//            jdbcTemplate, chatLinkRowMapper, linkRowMapper);
-//    }
 
     @Test
     @Transactional
@@ -96,13 +53,13 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         // Act
         jdbcChatsRepository.addChat(chat);
         jdbcLinksRepository.addLink(link);
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
         isLinkAdded = jdbcChatsToLinksRepository.addLinkToChat(chat, link);
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         // Assert
         assertTrue(isLinkAdded);
-        assertEquals(linksAfter.size() - linksBefore.size(), 1);
+        assertEquals(linkIdsAfter.size() - linkIdsBefore.size(), 1);
     }
 
     @Test
@@ -128,7 +85,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         boolean isLinkDeleted;
 
         // Act
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         jdbcChatsRepository.addChat(chat);
         jdbcLinksRepository.addLink(link);
@@ -138,11 +95,11 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsRepository.deleteChat(chat);
         jdbcLinksRepository.deleteLink(link);
 
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         // Assert
         assertTrue(isLinkDeleted);
-        assertEquals(linksBefore.size(), linksAfter.size());
+        assertEquals(linkIdsBefore.size(), linkIdsAfter.size());
     }
 
     @Test
@@ -182,7 +139,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcLinksRepository.addLink(link1);
         jdbcLinksRepository.addLink(link2);
 
-        List<Link> linksBefore = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsBefore = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
         jdbcChatsToLinksRepository.addLinkToChat(chat, link1);
         jdbcChatsToLinksRepository.addLinkToChat(chat, link2);
 
@@ -190,11 +147,11 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsRepository.deleteChat(chat);
         jdbcLinksRepository.deleteLink(link1);
         jdbcLinksRepository.deleteLink(link2);
-        List<Link> linksAfter = jdbcChatsToLinksRepository.getAllLinksByChat(chat);
+        List<Long> linkIdsAfter = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat);
 
         // Assert
         assertTrue(isChatDeleted);
-        assertEquals(linksBefore.size(), linksAfter.size());
+        assertEquals(linkIdsBefore.size(), linkIdsAfter.size());
     }
 
     @Test
@@ -291,19 +248,15 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsToLinksRepository.addLinkToChat(chat1, link2);
         jdbcChatsToLinksRepository.addLinkToChat(chat2, link3);
 
-        List<Link> links1 = jdbcChatsToLinksRepository.getAllLinksByChat(chat1);
-        List<Link> links2 = jdbcChatsToLinksRepository.getAllLinksByChat(chat2);
+        List<Long> linkIds1 = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat1);
+        List<Long> linkIds2 = jdbcChatsToLinksRepository.getAllLinkIdsByChat(chat2);
 
         // Assert
-        assertEquals(links1.size(), 2);
-        assertEquals(links1.getFirst().getLinkId(), link_id1);
-        assertEquals(links1.getFirst().getUrl(), url1);
-        assertEquals(links1.getLast().getLinkId(), link_id2);
-        assertEquals(links1.getLast().getUrl(), url2);
+        assertEquals(linkIds1.size(), 2);
+        assertThat(linkIds1).contains(link_id1, link_id2);
 
-        assertEquals(links2.size(), 1);
-        assertEquals(links2.getFirst().getLinkId(), link_id3);
-        assertEquals(links2.getFirst().getUrl(), url3);
+        assertEquals(linkIds2.size(), 1);
+        assertThat(linkIds2).contains(link_id3);
     }
 
     @Test
@@ -343,7 +296,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsToLinksRepository.addLinkToChat(chat1, link);
         jdbcChatsToLinksRepository.addLinkToChat(chat2, link);
 
-        List<Long> chatIds = jdbcChatsToLinksRepository.getAllChatsByLink(link);
+        List<Long> chatIds = jdbcChatsToLinksRepository.getAllChatIdsByLink(link);
 
         // Assert
         assertEquals(chatIds.size(), 2);

@@ -64,7 +64,7 @@ public class LinkUpdater {
                     link.getLinkId(),
                     new URI(link.getUrl()),
                     "Repository: " + repo + "\n" + "Owner: " + owner,
-                    chatsToLinksRepository.getAllChatsByLink(link)
+                    chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {
                 log.error("Error updateGitHubLink");
@@ -85,7 +85,7 @@ public class LinkUpdater {
                     link.getLinkId(),
                     new URI(link.getUrl()),
                     "Question id: " + questionId,
-                    chatsToLinksRepository.getAllChatsByLink(link)
+                    chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {
                 log.error("Error updateStackOverflowLink");

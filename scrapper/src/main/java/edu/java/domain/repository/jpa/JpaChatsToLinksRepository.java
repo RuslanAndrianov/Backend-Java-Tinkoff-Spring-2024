@@ -94,19 +94,19 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
     }
 
     @Override
-    public List<Link> getAllLinksByChat(@NotNull Chat chat) {
+    public List<Long> getAllLinkIdsByChat(@NotNull Chat chat) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        String sql = "SELECT * FROM chats_to_links JOIN links USING (link_id) WHERE chat_id = " + chat.getChatId();
-        Query query = entityManager.createNativeQuery(sql, Link.class);
-        List<Link> result = (List<Link>) query.getResultList();
+        String sql = "SELECT link_id FROM chats_to_links WHERE chat_id = " + chat.getChatId();
+        Query query = entityManager.createNativeQuery(sql, Long.class);
+        List<Long> result = (List<Long>) query.getResultList();
         entityManager.getTransaction().commit();
         entityManager.close();
         return result;
     }
 
     @Override
-    public List<Long> getAllChatsByLink(@NotNull Link link) {
+    public List<Long> getAllChatIdsByLink(@NotNull Link link) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         String sql = "SELECT chat_id FROM chats_to_links WHERE link_id = " + link.getLinkId();

@@ -9,11 +9,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jpa")
 @Configuration
 public class JpaConfig {
 
     @Bean
+    @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jpa")
     ChatService chatService(
         JpaChatsRepository jpaChatsRepository,
         JpaChatsToLinksRepository jpaChatsToLinksRepository
@@ -25,6 +25,7 @@ public class JpaConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jpa")
     LinkService linkService(
         JpaLinksRepository jpaLinksRepository,
         JpaChatsRepository jpaChatsRepository,

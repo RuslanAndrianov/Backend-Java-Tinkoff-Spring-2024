@@ -13,7 +13,7 @@ public interface ChatsToLinksRepository {
 
     boolean isChatExist(Chat chat);
 
-    List<Link> getAllLinksByChat(Chat chat);
+    List<Long> getAllLinkIdsByChat(Chat chat);
 
-    List<Long> getAllChatsByLink(Link link);
+    List<Long> getAllChatIdsByLink(Link link);
 }

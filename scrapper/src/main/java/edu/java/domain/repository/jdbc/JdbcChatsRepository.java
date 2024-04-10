@@ -5,21 +5,19 @@ import edu.java.domain.repository.ChatsRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc")
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcChatsRepository implements ChatsRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Chat> chatsRowMapper;
+    @Autowired
+    private final JdbcClient jdbcClient;
 
     @Override
     @Transactional
@@ -27,7 +25,10 @@ public class JdbcChatsRepository implements ChatsRepository {
         String sql = "INSERT INTO chats VALUES (?)";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
+            result = (jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .update() != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat addition error!");
         }
@@ -40,7 +41,10 @@ public class JdbcChatsRepository implements ChatsRepository {
         String sql = "DELETE FROM chats WHERE chat_id = ?";
         boolean result = false;
         try {
-            result = (jdbcTemplate.update(sql, chat.getChatId()) != 0);
+            result = (jdbcClient
+                .sql(sql)
+                .param(chat.getChatId())
+                .update() != 0);
         } catch (DataAccessException | NullPointerException e) {
             log.error("Chat deletion error!");
         }
@@ -53,8 +57,12 @@ public class JdbcChatsRepository implements ChatsRepository {
         String sql = "SELECT * FROM chats WHERE chat_id = ?";
         Chat chat = null;
         try {
-            chat = jdbcTemplate.queryForObject(sql, chatsRowMapper, chatId);
-        } catch (DataAccessException | NullPointerException e) {
+            chat = jdbcClient
+                .sql(sql)
+                .param(chatId)
+                .query(Chat.class)
+                .single();
+        } catch (DataAccessException e) {
             log.error("Chat with id " + chatId + " is not found!");
         }
         return chat;
@@ -64,6 +72,9 @@ public class JdbcChatsRepository implements ChatsRepository {
     @Transactional
     public List<Chat> getAllChats() {
         String sql = "SELECT * FROM chats";
-        return jdbcTemplate.query(sql, chatsRowMapper);
+        return jdbcClient
+            .sql(sql)
+            .query(Chat.class)
+            .list();
     }
 }
