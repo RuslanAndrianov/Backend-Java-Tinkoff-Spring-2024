@@ -1,5 +1,7 @@
 package edu.java.clients.GitHub;
 
+import edu.java.configs.RetryPolicyConfig;
+import edu.java.services.RetryService.RetryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -7,19 +9,22 @@ public class GitHubClientImpl implements GitHubClient {
 
     @Value(value = "${api.github.defaultUrl}")
     private String defaultUrl;
+    private final String github = "github";
     private final WebClient webClient;
 
-    public GitHubClientImpl() {
+    public GitHubClientImpl(RetryPolicyConfig retryPolicyConfig) {
         this.webClient = WebClient
             .builder()
             .baseUrl(defaultUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, github))
             .build();
     }
 
-    public GitHubClientImpl(String baseUrl) {
+    public GitHubClientImpl(RetryPolicyConfig retryPolicyConfig, String baseUrl) {
         this.webClient = WebClient
             .builder()
             .baseUrl(baseUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, github))
             .build();
         this.defaultUrl = baseUrl;
     }

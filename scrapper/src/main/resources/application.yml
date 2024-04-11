@@ -1,10 +1,49 @@
+api:
+  bot:
+    defaultUrl: http://localhost:8090
+  github:
+    defaultUrl: https://api.github.com/
+  stackoverflow:
+    defaultUrl: https://api.stackexchange.com/2.3/
+
 app:
-  database-access-type: jpa  # jdbc / jpa / jooq
+  database-access-type: jpa # jdbc / jpa / jooq
   scheduler:
     enable: true
-    interval: 10000           # Задержка в миллисекундах
+    interval: 10000 # Задержка в миллисекундах
     # TODO : в будущем внедрить force-check-delay
-    force-check-delay: 15000  # Задержка в миллисекундах
+    force-check-delay: 15000 # Задержка в миллисекундах
+
+logging:
+  config: classpath:log4j2-plain.xml
+
+resilience4j:
+  retry:
+    instances:
+      bot:
+        type: linear # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+      github:
+        type: exponential # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+      stackoverflow:
+        type: fixed # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+
+server:
+  port: 8080
 
 spring:
   application:
@@ -17,20 +56,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     enabled: false
-
-server:
-  port: 8080
-
-logging:
-  config: classpath:log4j2-plain.xml
-
-api:
-  bot:
-    defaultUrl: http://localhost:8090
-  github:
-    defaultUrl: https://api.github.com/
-  stackoverflow:
-    defaultUrl: https://api.stackexchange.com/2.3/
 
 springdoc:
   swagger-ui:

@@ -1,27 +1,30 @@
 package edu.java.clients.StackOverflow;
 
-import lombok.extern.slf4j.Slf4j;
+import edu.java.configs.RetryPolicyConfig;
+import edu.java.services.RetryService.RetryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Slf4j
 public class StackOverflowClientImpl implements StackOverflowClient {
 
     @Value(value = "${api.stackoverflow.defaultUrl}")
     private String defaultUrl;
+    private final String stackoverflow = "stackoverflow";
     private final WebClient webClient;
 
-    public StackOverflowClientImpl() {
+    public StackOverflowClientImpl(RetryPolicyConfig retryPolicyConfig) {
         this.webClient = WebClient
             .builder()
             .baseUrl(defaultUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, stackoverflow))
             .build();
     }
 
-    public StackOverflowClientImpl(String baseUrl) {
+    public StackOverflowClientImpl(RetryPolicyConfig retryPolicyConfig, String baseUrl) {
         this.webClient = WebClient
             .builder()
             .baseUrl(baseUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, stackoverflow))
             .build();
         this.defaultUrl = baseUrl;
     }

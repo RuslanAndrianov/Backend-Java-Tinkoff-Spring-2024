@@ -1,25 +1,36 @@
+api:
+  scrapper:
+    defaultUrl: http://localhost:8080
+
 app:
   telegram-token: ${TELEGRAM_TOKEN}
 
-spring:
-  config:
-    import: optional:file:.env[.properties]
-  application:
-    name: bot
-  jackson:
-    time-zone: UTC
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-
-server:
-  port: 8090
+resilience4j:
+  retry:
+    instances:
+      scrapper:
+        type: linear # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
 
 logging:
   config: classpath:log4j2-plain.xml
 
-api:
-  scrapper:
-    defaultUrl: http://localhost:8080
+server:
+  port: 8090
+
+spring:
+  application:
+    name: bot
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  config:
+    import: optional:file:.env[.properties]
+  jackson:
+    time-zone: UTC
 
 springdoc:
   swagger-ui:

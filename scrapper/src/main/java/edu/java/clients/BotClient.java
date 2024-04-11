@@ -1,5 +1,7 @@
 package edu.java.clients;
 
+import edu.java.configs.RetryPolicyConfig;
+import edu.java.services.RetryService.RetryService;
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,20 +16,22 @@ public class BotClient {
 
     @Value(value = "${api.bot.defaultUrl}")
     private String defaultUrl;
-
+    private final String bot = "bot";
     private final WebClient webClient;
 
-    public BotClient() {
+    public BotClient(RetryPolicyConfig retryPolicyConfig) {
         this.webClient = WebClient
             .builder()
             .baseUrl(defaultUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, bot))
             .build();
     }
 
-    public BotClient(String baseUrl) {
+    public BotClient(RetryPolicyConfig retryPolicyConfig, String baseUrl) {
         this.webClient = WebClient
             .builder()
             .baseUrl(baseUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, bot))
             .build();
         this.defaultUrl = baseUrl;
     }
