@@ -40,6 +40,37 @@ bucket4j:
 logging:
   config: classpath:log4j2-plain.xml
 
+management:
+  server:
+    port: 8081
+
+  endpoints:
+    web:
+      path-mapping:
+        prometheus: /metrics
+      base-path: /
+      exposure:
+        include: info, health, prometheus
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
+    prometheus:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 1m
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
 rate-limiter:
   whitelist: 127.0.0.1
 
