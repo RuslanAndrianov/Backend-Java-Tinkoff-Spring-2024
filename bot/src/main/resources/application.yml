@@ -1,25 +1,67 @@
+api:
+  scrapper:
+    defaultUrl: http://localhost:8080
+
 app:
   telegram-token: ${TELEGRAM_TOKEN}
 
-spring:
-  config:
-    import: optional:file:.env[.properties]
-  application:
-    name: bot
-  jackson:
-    time-zone: UTC
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-
-server:
-  port: 8090
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit-bucket
+      url: .*
+      http-status-code: 429
+      http-response-headers:
+        Content-Type: "application/json; charset=utf-8"
+      http-response-body: |
+        {
+          "description": "The number of requests from the current IP has been exceeded",
+          "code": 429,
+          "exceptionName": "Rate limit exceeded",
+          "exceptionMessage": "You exceeded the number of available requests, please try again later"
+        }
+      rate-limits:
+        - bandwidths:
+            - capacity: 1
+              time: 1
+              unit: hours
+              refill-speed: interval
+          cache-key: getRemoteAddr()
 
 logging:
   config: classpath:log4j2-plain.xml
 
-api:
-  scrapper:
-    defaultUrl: http://localhost:8080
+rate-limiter:
+  whitelist: 127.0.0.1
+
+resilience4j:
+  retry:
+    instances:
+      scrapper:
+        type: linear # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+
+server:
+  port: 8090
+
+spring:
+  application:
+    name: bot
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  cache:
+    cache-names:
+      - rate-limit-buckets
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+  config:
+    import: optional:file:.env[.properties]
+  jackson:
+    time-zone: UTC
 
 springdoc:
   swagger-ui:

@@ -1,14 +1,86 @@
+api:
+  bot:
+    defaultUrl: http://localhost:8090
+  github:
+    defaultUrl: https://api.github.com/
+  stackoverflow:
+    defaultUrl: https://api.stackexchange.com/2.3/
+
 app:
-  database-access-type: jpa  # jdbc / jpa / jooq
+  database-access-type: jpa # jdbc / jpa / jooq
   scheduler:
     enable: true
-    interval: 10000           # Задержка в миллисекундах
+    interval: 10000 # Задержка в миллисекундах
     # TODO : в будущем внедрить force-check-delay
-    force-check-delay: 15000  # Задержка в миллисекундах
+    force-check-delay: 15000 # Задержка в миллисекундах
+
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit-bucket
+      url: .*
+      http-status-code: 429
+      http-response-headers:
+        Content-Type: "application/json; charset=utf-8"
+      http-response-body: |
+        {
+          "description": "The number of requests from the current IP has been exceeded",
+          "code": 429,
+          "exceptionName": "Rate limit exceeded",
+          "exceptionMessage": "You exceeded the number of available requests, please try again later"
+        }
+      rate-limits:
+        - bandwidths:
+            - capacity: 1
+              time: 1
+              unit: hours
+              refill-speed: interval
+          cache-key: getRemoteAddr()
+
+logging:
+  config: classpath:log4j2-plain.xml
+
+rate-limiter:
+  whitelist: 127.0.0.1
+
+resilience4j:
+  retry:
+    instances:
+      bot:
+        type: linear # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+      github:
+        type: exponential # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+      stackoverflow:
+        type: fixed # fixed / linear / exponential
+        factor: 2 # Используется для linear backoff
+        max-attempts: 5
+        min-delay: 1000 # Время в миллисекундах
+        max-delay: 10000 # Время в миллисекундах
+        codes: 500, 502, 503, 504, 507
+
+server:
+  port: 8080
 
 spring:
   application:
     name: scrapper
+  cache:
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    cache-names:
+      - rate-limit-bucket
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
   datasource:
     url: jdbc:postgresql://localhost:5432/scrapper
     username: postgres
@@ -17,20 +89,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     enabled: false
-
-server:
-  port: 8080
-
-logging:
-  config: classpath:log4j2-plain.xml
-
-api:
-  bot:
-    defaultUrl: http://localhost:8090
-  github:
-    defaultUrl: https://api.github.com/
-  stackoverflow:
-    defaultUrl: https://api.stackexchange.com/2.3/
 
 springdoc:
   swagger-ui:

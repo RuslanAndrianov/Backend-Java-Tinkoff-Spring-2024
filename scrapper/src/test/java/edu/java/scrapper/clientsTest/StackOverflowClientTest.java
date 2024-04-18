@@ -1,16 +1,20 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.clients.StackOverflow.StackOverflowResponse;
 import edu.java.clients.StackOverflow.StackOverflowClientImpl;
 import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
+import edu.java.clients.StackOverflow.StackOverflowResponse;
+import edu.java.configs.RetryPolicyConfig;
+import edu.java.scrapper.IntegrationEnvironment;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import edu.java.scrapper.IntegrationEnvironment;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,10 +47,22 @@ public class StackOverflowClientTest extends IntegrationEnvironment {
     }
 
     @Test
-    @DisplayName("test for check the required response body")
     public void testFetchQuestion() {
         // Arrange
-        StackOverflowClientImpl stackOverflowClient = new StackOverflowClientImpl("http://localhost:8080");
+        RetryPolicyConfig config = new RetryPolicyConfig(
+            Map.of("stackoverflow", new RetryPolicyConfig.RetryPolicySettings(
+                    "linear",
+                    5,
+                    Duration.of(1, ChronoUnit.SECONDS),
+                    Duration.of(10, ChronoUnit.SECONDS),
+                    List.of(500, 502, 503, 504, 507),
+                    2
+                )
+            )
+        );
+        StackOverflowClientImpl stackOverflowClient = new StackOverflowClientImpl(
+            config,
+            "http://localhost:8080");
 
         Long questionId = 12345671L;
 

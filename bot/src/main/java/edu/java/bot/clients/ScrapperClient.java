@@ -1,5 +1,7 @@
 package edu.java.bot.clients;
 
+import edu.java.bot.configs.RetryPolicyConfig;
+import edu.java.bot.services.RetryService.RetryService;
 import edu.shared_dto.request_dto.AddLinkRequest;
 import edu.shared_dto.request_dto.RemoveLinkRequest;
 import edu.shared_dto.response_dto.APIErrorResponse;
@@ -26,19 +28,22 @@ public class ScrapperClient {
     private final WebClient webClient;
     private final String tgChat = "/tg-chat/";
     private final String links = "/links";
+    private final String scrapper = "scrapper";
     private final String tgChatIdHeader = "Tg-Chat-Id";
 
-    public ScrapperClient() {
+    public ScrapperClient(RetryPolicyConfig retryPolicyConfig) {
         this.webClient = WebClient
             .builder()
             .baseUrl(defaultUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, scrapper))
             .build();
     }
 
-    public ScrapperClient(String baseUrl) {
+    public ScrapperClient(RetryPolicyConfig retryPolicyConfig, String baseUrl) {
         this.webClient = WebClient
             .builder()
             .baseUrl(baseUrl)
+            .filter(RetryService.createFilter(retryPolicyConfig, scrapper))
             .build();
         this.defaultUrl = baseUrl;
     }
