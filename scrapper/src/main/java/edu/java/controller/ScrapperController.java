@@ -1,5 +1,6 @@
 package edu.java.controller;
 
+import edu.java.domain.dto.Link;
 import edu.java.services.ChatService;
 import edu.java.services.LinkService;
 import edu.shared_dto.request_dto.AddLinkRequest;
@@ -13,9 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})
 public class ScrapperController {
 
+    // TODO : добавить удаление ссылки из links, если 0 чатов отслеживают ссылку
+
     private final ChatService chatService;
     private final LinkService linkService;
 
@@ -45,13 +53,12 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> registerChat(@PathVariable("id") Long id) {
-
         if (chatService.addChat(id)) {
-            log.info("Chat with id " + id + " is registred!");
-            return ResponseEntity.ok().build();
+            log.info("Chat with id " + id + " is registered!");
+            return new ResponseEntity<>(id, HttpStatusCode.valueOf(200));
         }
-        log.error("Request error! Chat with id " + id + " is already registred!");
-        return ResponseEntity.status(400).build();
+        log.error("Error! Chat with id " + id + " is already registered!");
+        return new ResponseEntity<>(HttpStatusCode.valueOf(400));
     }
 
     @DeleteMapping("/tg-chat/{id}")
@@ -60,6 +67,9 @@ public class ScrapperController {
         @ApiResponse(responseCode = "200", description = "Чат успешно удалён",
                      content = @Content(schema = @Schema(implementation = LinkResponse.class),
                                         mediaType = "application/json")),
+
+        // TODO : Пока что не придумано, когда возвращать код 400
+
         @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
                      content = @Content(schema = @Schema(implementation = APIErrorResponse.class),
                                         mediaType = "application/json")),
@@ -68,13 +78,12 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> deleteChat(@PathVariable("id") Long id) {
-
         if (chatService.deleteChat(id)) {
             log.info("Chat with id " + id + " is deleted");
-            return ResponseEntity.ok().build();
+            return new ResponseEntity<>(id, HttpStatusCode.valueOf(200));
         }
-        log.error("Request error! Chat with id " + id + " is not registred!");
-        return ResponseEntity.status(404).build();
+        log.error("Error! Chat with id " + id + " is not registered!");
+        return new ResponseEntity<>(HttpStatusCode.valueOf(404));
     }
 
     @GetMapping("/links")
@@ -88,15 +97,25 @@ public class ScrapperController {
                                         mediaType = "application/json"))
     })
     public ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
-
         if (chatService.findChatById(chatId) != null) {
+            List<Long> chatLinkIds = linkService.getAllLinkIdsByChat(chatId);
+            List<LinkResponse> linkResponses = new ArrayList<>();
 
-            linkService.getAllLinksByChat(chatId);
-            log.info("Get all links of chat " + chatId);
-            return ResponseEntity.ok().build();
+            try {
+                for (long chatLinkId : chatLinkIds) {
+                    Link link = linkService.getLinkById(chatLinkId);
+                    linkResponses.add(new LinkResponse(link.getLinkId(), new URI(link.getUrl())));
+                }
+                log.info("Get all links of chat " + chatId);
+                return new ResponseEntity<>(
+                    new ListLinksResponse(linkResponses, linkResponses.size()),
+                    HttpStatusCode.valueOf(200)
+                );
+            } catch (URISyntaxException ignored) {
+            }
         }
-        log.error("Request error of getting links of chat " + chatId + "!");
-        return ResponseEntity.status(400).build();
+        log.error("Error of getting links of chat " + chatId + "!");
+        return new ResponseEntity<>(HttpStatusCode.valueOf(400));
     }
 
     @PostMapping("/links")
@@ -116,25 +135,24 @@ public class ScrapperController {
         @RequestHeader("Tg-Chat-Id") Long chatId,
         @RequestBody @Valid @NotNull AddLinkRequest request
     ) {
-
-        return switch (linkService.addLinkToChatByUrl(chatId, String.valueOf(request.link()))) {
-            case 1 -> {
-                log.info("Link " + request.link() + " is added to chat " + chatId);
-                yield ResponseEntity.ok().build();
-            }
-            case 0 -> {
-                log.error("Request error! Link " + request.link() + " is already added to chat " + chatId + "!");
-                yield ResponseEntity.status(406).build();
-            }
-            case -1 -> {
-                log.error("Request error! Chat " + chatId + " is not exist!");
-                yield ResponseEntity.status(400).build();
-            }
-            default -> {
-                log.error("Request error! Something went wrong!");
-                yield ResponseEntity.status(400).build();
-            }
-        };
+        String linkUrl = String.valueOf(request.link());
+        switch (linkService.addLinkToChatByUrl(chatId, linkUrl)) {
+            case 1:
+                long linkId = linkService.getLinkByUrl(linkUrl).getLinkId();
+                log.info("Link " + linkUrl + " is added to chat " + chatId);
+                return new ResponseEntity<>(
+                    new LinkResponse(linkId, request.link()),
+                    HttpStatusCode.valueOf(200));
+            case 0:
+                log.error("Error! Link " + linkUrl + " is already added to chat " + chatId + "!");
+                return new ResponseEntity<>(HttpStatusCode.valueOf(406));
+            case -1:
+                log.error("Error! Chat " + chatId + " is not exist!");
+                break;
+            default:
+                log.error("Error! Something went wrong!");
+        }
+        return new ResponseEntity<>(HttpStatusCode.valueOf(400));
     }
 
     @DeleteMapping("/links")
@@ -154,24 +172,23 @@ public class ScrapperController {
         @RequestHeader("Tg-Chat-Id") Long chatId,
         @RequestBody @Valid @NotNull RemoveLinkRequest request
     ) {
-
-        return switch (linkService.deleteLinkFromChatByUrl(chatId, String.valueOf(request.link()))) {
-            case 1 -> {
-                log.info("Link " + request.link() + " is deleted from chat " + chatId);
-                yield ResponseEntity.ok().build();
-            }
-            case 0 -> {
-                log.error("Request error! Link " + request.link() + " is not added to chat " + chatId + "!");
-                yield ResponseEntity.status(404).build();
-            }
-            case -1 -> {
-                log.error("Request error! Chat " + chatId + " is not exist!");
-                yield ResponseEntity.status(400).build();
-            }
-            default -> {
-                log.error("Request error! Something went wrong!");
-                yield ResponseEntity.status(400).build();
-            }
-        };
+        String linkUrl = String.valueOf(request.link());
+        switch (linkService.deleteLinkFromChatByUrl(chatId, linkUrl)) {
+            case 1:
+                log.info("Link " + linkUrl + " is deleted from chat " + chatId);
+                long linkId = linkService.getLinkByUrl(linkUrl).getLinkId();
+                return new ResponseEntity<>(
+                    new LinkResponse(linkId, request.link()),
+                    HttpStatusCode.valueOf(200));
+            case 0:
+                log.error("Error! Link " + linkUrl + " is not added to chat " + chatId + "!");
+                return new ResponseEntity<>(HttpStatusCode.valueOf(404));
+            case -1:
+                log.error("Error! Chat " + chatId + " is not exist!");
+                break;
+            default:
+                log.error("Error! Something went wrong!");
+        }
+        return new ResponseEntity<>(HttpStatusCode.valueOf(400));
     }
 }

@@ -2,5 +2,5 @@ package edu.java.clients.StackOverflow;
 
 public interface StackOverflowClient {
 
-    StackOverflowResponse fetchQuestion(Long questionId);
+    StackOverflowItemsResponse fetchQuestion(Long questionId);
 }

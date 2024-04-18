@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
+@SuppressWarnings("MagicNumber")
 public class BotController {
 
     private final UpdateService updateService;
@@ -26,6 +28,7 @@ public class BotController {
     @Operation(summary = "Отправить обновление")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Обновление обработано"),
+        // TODO : коды 400 и 404 не возвращаются
         @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
                      content = @Content(schema = @Schema(implementation = APIErrorResponse.class),
                                         mediaType = "application/json")),
@@ -36,6 +39,6 @@ public class BotController {
     public ResponseEntity<?> updateLink(@RequestBody LinkUpdateRequest request) {
         log.info("Запрос: " + request);
         updateService.sendNotificationToChats(request);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
 }

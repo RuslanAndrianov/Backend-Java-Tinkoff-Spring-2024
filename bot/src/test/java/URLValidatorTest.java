@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static edu.java.bot.utils.URLValidator.isValidURL;
+import static edu.utils.URLValidator.isValidURL;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

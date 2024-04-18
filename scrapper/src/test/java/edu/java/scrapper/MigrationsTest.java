@@ -1,12 +1,15 @@
 package edu.java.scrapper;
 
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MigrationsTest extends IntegrationTest {
+public class MigrationsTest extends IntegrationEnvironment {
+
+    public JdbcTemplate jdbcTemplate;
 
     @Test
     public void testScenario() {
@@ -15,7 +18,7 @@ public class MigrationsTest extends IntegrationTest {
         long expectedLinkId = 200L;
         String expectedUrl = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceBuilder
+        jdbcTemplate = new JdbcTemplate(DataSourceBuilder
             .create()
             .url(POSTGRES.getJdbcUrl())
             .username(POSTGRES.getUsername())
@@ -30,9 +33,13 @@ public class MigrationsTest extends IntegrationTest {
             expectedChatId);
 
         jdbcTemplate.update(
-            "INSERT INTO links VALUES (?, ?)",
+            "INSERT INTO links VALUES (?, ?, ?, ?, ?)",
             expectedLinkId,
-            expectedUrl);
+            expectedUrl,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            0
+        );
 
         jdbcTemplate.update(
             "INSERT INTO chats_to_links VALUES (?, ?)",

@@ -3,12 +3,12 @@ package edu.java.updater;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHub.GitHubClient;
 import edu.java.clients.GitHub.GitHubResponse;
-import edu.java.clients.StackOverflow.NestedJSONProperties;
 import edu.java.clients.StackOverflow.StackOverflowClient;
+import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
 import edu.java.clients.StackOverflow.StackOverflowResponse;
 import edu.java.domain.dto.Link;
 import edu.java.domain.repository.ChatsToLinksRepository;
-import edu.java.domain.repository.LinksRepository;
+import edu.java.services.LinkService;
 import edu.shared_dto.request_dto.LinkUpdateRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,16 +24,18 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("MagicNumber")
 public class LinkUpdater {
 
-    private final LinksRepository linksRepository;
+    private final LinkService linkService;
     private final ChatsToLinksRepository chatsToLinksRepository;
     private final BotClient botClient;
     private final GitHubClient gitHubClient;
     private final StackOverflowClient stackOverflowClient;
 
     public void updateLink(@NotNull String url) {
-        Link link = linksRepository.getLinkByUrl(url);
+        Link link = linkService.getLinkByUrl(url);
         String[] partsOfUrl = url.split("/");
         String domain = partsOfUrl[2];
+
+        // TODO : возможно стоит переписать с использованием валидаторов URLValidator
 
         switch (domain) {
             case "github.com":
@@ -45,23 +47,24 @@ public class LinkUpdater {
                 Long questionId = Long.valueOf(partsOfUrl[4]);
                 updateStackOverflowLink(link, questionId);
                 break;
-            default: log.error("Inappropriate link!");
+            default:
+                log.error("Inappropriate link!");
         }
     }
 
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
         GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
         OffsetDateTime updatedAt = response.updatedAt();
-        log.info("Response updated_at: " + updatedAt);
-        log.info("Link last_updated: " + link.lastUpdated());
-        if (updatedAt.isAfter(link.lastUpdated())) {
-            linksRepository.setLastUpdatedTimeToLink(link, updatedAt);
+        OffsetDateTime lastUpdated = link.getLastUpdated();
+
+        if (updatedAt.isAfter(lastUpdated)) {
+            linkService.setLastUpdatedTimeToLink(link, updatedAt);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
-                    link.linkId(),
-                    new URI(link.url()),
+                    link.getLinkId(),
+                    new URI(link.getUrl()),
                     "Repository: " + repo + "\n" + "Owner: " + owner,
-                    chatsToLinksRepository.getAllChatsByLink(link)
+                    chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {
                 log.error("Error updateGitHubLink");
@@ -70,17 +73,19 @@ public class LinkUpdater {
     }
 
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
-        StackOverflowResponse response = stackOverflowClient.fetchQuestion(questionId);
-        NestedJSONProperties properties = response.deserialize();
+        StackOverflowItemsResponse response = stackOverflowClient.fetchQuestion(questionId);
+        StackOverflowResponse properties = response.deserialize();
         OffsetDateTime lastActivityDate = properties.lastActivityDate();
-        if (lastActivityDate.isAfter(link.lastUpdated())) {
-            linksRepository.setLastUpdatedTimeToLink(link, lastActivityDate);
+        OffsetDateTime lastUpdated = link.getLastUpdated();
+
+        if (lastActivityDate.isAfter(lastUpdated)) {
+            linkService.setLastUpdatedTimeToLink(link, lastActivityDate);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
-                    link.linkId(),
-                    new URI(link.url()),
+                    link.getLinkId(),
+                    new URI(link.getUrl()),
                     "Question id: " + questionId,
-                    chatsToLinksRepository.getAllChatsByLink(link)
+                    chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {
                 log.error("Error updateStackOverflowLink");

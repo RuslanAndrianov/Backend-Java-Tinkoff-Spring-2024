@@ -12,7 +12,6 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -21,10 +20,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @Slf4j
-public abstract class IntegrationTest {
+public abstract class IntegrationEnvironment {
 
     public static PostgreSQLContainer<?> POSTGRES;
-    public static JdbcTemplate jdbcTemplate;
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:15")
@@ -62,7 +60,7 @@ public abstract class IntegrationTest {
             liquibase.update(new Contexts(), new LabelExpression());
 
         } catch (Exception e) {
-            log.info(String.valueOf(e));
+            log.error(String.valueOf(e));
         }
     }
 
