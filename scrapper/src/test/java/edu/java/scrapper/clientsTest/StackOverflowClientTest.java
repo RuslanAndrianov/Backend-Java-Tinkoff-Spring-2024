@@ -1,10 +1,10 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.clients.StackOverflow.StackOverflowClientImpl;
-import edu.java.clients.StackOverflow.StackOverflowItemsResponse;
-import edu.java.clients.StackOverflow.StackOverflowResponse;
-import edu.java.configs.RetryPolicyConfig;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowClientImpl;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowItemsResponse;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowResponse;
+import edu.java.scrapper.configs.RetryPolicyConfig;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.Duration;
 import java.time.Instant;

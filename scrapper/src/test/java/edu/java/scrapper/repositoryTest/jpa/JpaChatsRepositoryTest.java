@@ -1,8 +1,8 @@
 package edu.java.scrapper.repositoryTest.jpa;
 
-import edu.java.domain.dto.Chat;
+import edu.java.scrapper.domain.dto.Chat;
 import java.util.List;
-import edu.java.domain.repository.jpa.JpaChatsRepository;
+import edu.java.scrapper.domain.repository.jpa.JpaChatsRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

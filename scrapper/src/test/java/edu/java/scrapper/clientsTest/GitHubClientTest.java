@@ -1,14 +1,14 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.clients.GitHub.GitHubClientImpl;
-import edu.java.clients.GitHub.GitHubResponse;
+import edu.java.scrapper.clients.GitHub.GitHubClientImpl;
+import edu.java.scrapper.clients.GitHub.GitHubResponse;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import edu.java.configs.RetryPolicyConfig;
+import edu.java.scrapper.configs.RetryPolicyConfig;
 import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

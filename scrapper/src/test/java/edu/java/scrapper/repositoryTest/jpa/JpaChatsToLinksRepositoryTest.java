@@ -1,10 +1,10 @@
 package edu.java.scrapper.repositoryTest.jpa;
 
-import edu.java.domain.dto.Chat;
-import edu.java.domain.dto.Link;
-import edu.java.domain.repository.jpa.JpaChatsRepository;
-import edu.java.domain.repository.jpa.JpaChatsToLinksRepository;
-import edu.java.domain.repository.jpa.JpaLinksRepository;
+import edu.java.scrapper.domain.dto.Chat;
+import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.repository.jpa.JpaChatsRepository;
+import edu.java.scrapper.domain.repository.jpa.JpaChatsToLinksRepository;
+import edu.java.scrapper.domain.repository.jpa.JpaLinksRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
 import java.util.List;
