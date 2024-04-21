@@ -23,7 +23,7 @@ public class ChatService {
         Chat chat = chatsRepository.getChatById(tgChatId);
         boolean result1 = chatsRepository.deleteChat(chat);
         boolean result2 = false;
-        if (chatsToLinksRepository.isChatExist(chat)) {
+        if (chatsToLinksRepository.isChatHasLinks(chat)) {
             result2 = chatsToLinksRepository.deleteChat(chat);
         }
         return result2 || result1;

@@ -77,7 +77,7 @@ public class JpaChatsToLinksRepository implements ChatsToLinksRepository {
     }
 
     @Override
-    public boolean isChatExist(Chat chat) {
+    public boolean isChatHasLinks(Chat chat) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         boolean result = false;

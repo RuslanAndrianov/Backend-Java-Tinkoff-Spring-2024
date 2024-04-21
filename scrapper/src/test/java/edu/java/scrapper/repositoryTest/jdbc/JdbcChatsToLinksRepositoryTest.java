@@ -181,7 +181,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcLinksRepository.addLink(link);
         jdbcChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jdbcChatsToLinksRepository.isChatHasLinks(chat);
 
         assertTrue(isChatExist);
 
@@ -189,7 +189,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsRepository.deleteChat(chat);
         jdbcLinksRepository.deleteLink(link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jdbcChatsToLinksRepository.isChatHasLinks(chat);
 
         assertFalse(isChatExist);
     }

@@ -7,7 +7,7 @@ api:
     defaultUrl: https://api.stackexchange.com/2.3/
 
 app:
-  database-access-type: jpa # jdbc / jpa / jooq
+  database-access-type: jooq # jdbc / jpa / jooq
   scheduler:
     enable: true
     interval: 10000 # Задержка в миллисекундах

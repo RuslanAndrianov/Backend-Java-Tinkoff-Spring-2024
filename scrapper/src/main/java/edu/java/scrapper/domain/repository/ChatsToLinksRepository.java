@@ -11,7 +11,7 @@ public interface ChatsToLinksRepository {
 
     boolean deleteChat(Chat chat);
 
-    boolean isChatExist(Chat chat);
+    boolean isChatHasLinks(Chat chat);
 
     List<Long> getAllLinkIdsByChat(Chat chat);
 

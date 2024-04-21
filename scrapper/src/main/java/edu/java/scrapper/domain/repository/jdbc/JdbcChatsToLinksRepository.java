@@ -75,7 +75,7 @@ public class JdbcChatsToLinksRepository implements ChatsToLinksRepository {
 
     @Override
     @Transactional
-    public boolean isChatExist(Chat chat) {
+    public boolean isChatHasLinks(Chat chat) {
         String sql = "SELECT DISTINCT chat_id FROM chats_to_links WHERE chat_id = ?";
         boolean result = false;
         try {

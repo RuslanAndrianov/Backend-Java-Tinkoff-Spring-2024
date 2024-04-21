@@ -177,7 +177,7 @@ public class JpaChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jpaLinksRepository.addLink(link);
         jpaChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatHasLinks(chat);
 
         assertTrue(isChatExist);
 
@@ -185,7 +185,7 @@ public class JpaChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jpaChatsRepository.deleteChat(chat);
         jpaLinksRepository.deleteLink(link);
 
-        isChatExist = jpaChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jpaChatsToLinksRepository.isChatHasLinks(chat);
 
         assertFalse(isChatExist);
     }
