@@ -2,6 +2,8 @@ package edu.java.scrapper.domain.repository.jooq;
 
 import edu.java.scrapper.domain.dto.Chat;
 import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.jooq.tables.pojos.Chats;
+import edu.java.scrapper.domain.jooq.tables.pojos.Links;
 import edu.java.scrapper.domain.repository.ChatsToLinksRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +31,11 @@ public class JooqChatsToLinksRepository implements ChatsToLinksRepository {
     public boolean addLinkToChat(Chat chat, Link link) {
         boolean result = false;
         try {
-            log.warn(chat.getChatId() + "");
-            log.warn(link.getLinkId() + "");
             result = (dslContext
                 .insertInto(CHATS_TO_LINKS)
                 .values(chat.getChatId(), link.getLinkId())
                 .execute() != 0);
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("Error of addition link to chat!");
         }
         return result;
@@ -93,9 +92,9 @@ public class JooqChatsToLinksRepository implements ChatsToLinksRepository {
         return dslContext
             .selectFrom(CHATS_TO_LINKS)
             .where(CHATS_TO_LINKS.CHAT_ID.eq(chat.getChatId()))
-            .fetchInto(Chat.class)
+            .fetchInto(Links.class)
             .stream()
-            .map(Chat::getChatId)
+            .map(Links::getLinkId)
             .toList();
     }
 
@@ -103,12 +102,11 @@ public class JooqChatsToLinksRepository implements ChatsToLinksRepository {
     @Transactional
     public List<Long> getAllChatIdsByLink(@NotNull Link link) {
         return dslContext
-            .select()
-            .from(CHATS_TO_LINKS)
+            .selectFrom(CHATS_TO_LINKS)
             .where(CHATS_TO_LINKS.LINK_ID.eq(link.getLinkId()))
-            .fetchInto(Link.class)
+            .fetchInto(Chats.class)
             .stream()
-            .map(Link::getLinkId)
+            .map(Chats::getChatId)
             .toList();
     }
 }

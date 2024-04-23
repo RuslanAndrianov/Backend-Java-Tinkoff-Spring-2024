@@ -1,18 +1,21 @@
 package edu.java.scrapper.domain.repository.jooq;
 
 import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.jooq.tables.pojos.Links;
 import edu.java.scrapper.domain.repository.LinksRepository;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import static edu.java.scrapper.domain.jooq.Tables.LINKS;
-import static edu.java.scrapper.utils.TimeCorrecter.getCorrectedTime;
 
 @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jooq")
 @Repository
@@ -34,10 +37,9 @@ public class JooqLinksRepository implements LinksRepository {
                 .values(
                     link.getLinkId(),
                     link.getUrl(),
-                    link.getLastUpdated(),
-                    link.getLastChecked(),
-                    link.getZoneOffset()
-                )
+                    link.getLastUpdated().minusSeconds(link.getZoneOffset()),
+                    link.getLastChecked().minusSeconds(link.getZoneOffset()),
+                    link.getZoneOffset())
                 .execute() != 0);
         } catch (Exception e) {
             log.error("Link addition error!");
@@ -68,7 +70,19 @@ public class JooqLinksRepository implements LinksRepository {
             link = dslContext
                 .selectFrom(LINKS)
                 .where(LINKS.LINK_ID.eq(linkId))
-                .fetchSingleInto(Link.class);
+                .fetchInto(Links.class)
+                .stream()
+                .map(jooqPOJO -> {
+                    Link listLink = new Link();
+                    listLink.setLinkId(jooqPOJO.getLinkId());
+                    listLink.setUrl(jooqPOJO.getUrl());
+                    listLink.setLastUpdated(jooqPOJO.getLastUpdated().atOffset(ZoneOffset.of("Z")));
+                    listLink.setLastChecked(jooqPOJO.getLastChecked().atOffset(ZoneOffset.of("Z")));
+                    listLink.setZoneOffset(jooqPOJO.getZoneOffset());
+                    return listLink;
+                })
+                .toList()
+                .getFirst();
         } catch (Exception e) {
             log.error("Link with id " + linkId + " is not found!");
         }
@@ -83,7 +97,19 @@ public class JooqLinksRepository implements LinksRepository {
             link = dslContext
                 .selectFrom(LINKS)
                 .where(LINKS.URL.eq(url))
-                .fetchSingleInto(Link.class);
+                .fetchInto(Links.class)
+                .stream()
+                .map(jooqPOJO -> {
+                    Link listLink = new Link();
+                    listLink.setLinkId(jooqPOJO.getLinkId());
+                    listLink.setUrl(jooqPOJO.getUrl());
+                    listLink.setLastUpdated(jooqPOJO.getLastUpdated().atOffset(ZoneOffset.of("Z")));
+                    listLink.setLastChecked(jooqPOJO.getLastChecked().atOffset(ZoneOffset.of("Z")));
+                    listLink.setZoneOffset(jooqPOJO.getZoneOffset());
+                    return listLink;
+                })
+                .toList()
+                .getFirst();
         } catch (Exception e) {
             log.error("Link " + url + " is not found!");
         }
@@ -95,7 +121,18 @@ public class JooqLinksRepository implements LinksRepository {
     public List<Link> getAllLinks() {
         return dslContext
             .selectFrom(LINKS)
-            .fetchInto(Link.class);
+            .fetchInto(Links.class)
+            .stream()
+            .map(jooqPOJO -> {
+                Link listLink = new Link();
+                listLink.setLinkId(jooqPOJO.getLinkId());
+                listLink.setUrl(jooqPOJO.getUrl());
+                listLink.setLastUpdated(jooqPOJO.getLastUpdated().atOffset(ZoneOffset.of("Z")));
+                listLink.setLastChecked(jooqPOJO.getLastChecked().atOffset(ZoneOffset.of("Z")));
+                listLink.setZoneOffset(jooqPOJO.getZoneOffset());
+                return listLink;
+            })
+            .toList();
     }
 
     @Override
@@ -106,7 +143,18 @@ public class JooqLinksRepository implements LinksRepository {
             + "< now() - interval '" + interval + "')";
         return dslContext
             .fetch(sql)
-            .into(Link.class);
+            .into(Links.class)
+            .stream()
+            .map(jooqPOJO -> {
+                Link listLink = new Link();
+                listLink.setLinkId(jooqPOJO.getLinkId());
+                listLink.setUrl(jooqPOJO.getUrl());
+                listLink.setLastUpdated(jooqPOJO.getLastUpdated().atOffset(ZoneOffset.of("Z")));
+                listLink.setLastChecked(jooqPOJO.getLastChecked().atOffset(ZoneOffset.of("Z")));
+                listLink.setZoneOffset(jooqPOJO.getZoneOffset());
+                return listLink;
+            })
+            .toList();
     }
 
     @Override
@@ -114,14 +162,9 @@ public class JooqLinksRepository implements LinksRepository {
     public boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time) {
         boolean result = false;
         try {
-            OffsetDateTime correctedTime = getCorrectedTime(time, link.getZoneOffset());
-            log.warn("last corrected");
-            log.warn(time + "");
-            log.warn(correctedTime + "");
-            log.warn(correctedTime.toLocalDateTime() + "");
             result = (dslContext
                 .update(LINKS)
-                .set(LINKS.LAST_CHECKED, correctedTime.toLocalDateTime())
+                .set(LINKS.LAST_CHECKED, jooqCorrectedTime(time, link.getZoneOffset()))
                 .where(LINKS.LINK_ID.eq(link.getLinkId()))
                 .execute()) != 0;
         } catch (Exception e) {
@@ -135,19 +178,18 @@ public class JooqLinksRepository implements LinksRepository {
     public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
         boolean result = false;
         try {
-            OffsetDateTime correctedTime = getCorrectedTime(time, link.getZoneOffset());
-            log.warn("last updated");
-            log.warn(time + "");
-            log.warn(correctedTime + "");
-            log.warn(correctedTime.toLocalDateTime() + "");
             result = (dslContext
                 .update(LINKS)
-                .set(LINKS.LAST_UPDATED, correctedTime.toLocalDateTime())
+                .set(LINKS.LAST_UPDATED, time.toLocalDateTime())
                 .where(LINKS.LINK_ID.eq(link.getLinkId()))
                 .execute()) != 0;
         } catch (Exception e) {
             log.error("Link's last_checked field update error!");
         }
         return result;
+    }
+
+    private @NotNull LocalDateTime jooqCorrectedTime(@NotNull OffsetDateTime time, int offset) {
+        return time.toLocalDateTime().minusSeconds(offset);
     }
 }

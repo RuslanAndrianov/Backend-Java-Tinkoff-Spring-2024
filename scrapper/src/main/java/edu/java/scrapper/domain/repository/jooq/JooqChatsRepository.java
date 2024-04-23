@@ -1,6 +1,7 @@
 package edu.java.scrapper.domain.repository.jooq;
 
 import edu.java.scrapper.domain.dto.Chat;
+import edu.java.scrapper.domain.jooq.tables.pojos.Chats;
 import edu.java.scrapper.domain.repository.ChatsRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -59,13 +60,15 @@ public class JooqChatsRepository implements ChatsRepository {
             chat = dslContext
                 .selectFrom(CHATS)
                 .where(CHATS.CHAT_ID.eq(chatId))
-                .fetchSingleInto(Chat.class);
-
-            // TODO : почему-то выдает 0
-
-            log.warn("jooqchatsrepository");
-            log.warn(chatId + "");
-            log.warn(chat.getChatId() + "");
+                .fetchInto(Chats.class)
+                .stream()
+                .map(jooqPOJO -> {
+                    Chat listChat = new Chat();
+                    listChat.setChatId(jooqPOJO.getChatId());
+                    return listChat;
+                })
+                .toList()
+                .getFirst();
         } catch (Exception e) {
             log.error("Chat with id " + chatId + " is not found!");
         }
@@ -77,6 +80,13 @@ public class JooqChatsRepository implements ChatsRepository {
     public List<Chat> getAllChats() {
         return dslContext
             .selectFrom(CHATS)
-            .fetchInto(Chat.class);
+            .fetchInto(Chats.class)
+            .stream()
+            .map(jooqPOJO -> {
+                Chat listChat = new Chat();
+                listChat.setChatId(jooqPOJO.getChatId());
+                return listChat;
+            })
+            .toList();
     }
 }

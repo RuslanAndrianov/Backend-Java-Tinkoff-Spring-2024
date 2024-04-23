@@ -11,13 +11,10 @@ import lombok.SneakyThrows;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.RenderNameCase;
-import org.jooq.conf.RenderQuotedNames;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
-import org.jooq.impl.DefaultConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jooq.DefaultConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,14 +36,6 @@ public class JooqConfig {
         Class.forName("org.postgresql.Driver");
         Connection connection = DriverManager.getConnection(url, username, password);
         return DSL.using(connection, SQLDialect.POSTGRES, settings);
-    }
-
-    @Bean
-    public DefaultConfigurationCustomizer postgresJooqCustomizer() {
-        return (DefaultConfiguration c) -> c.settings()
-            .withRenderSchema(false)
-            .withRenderFormatted(true)
-            .withRenderQuotedNames(RenderQuotedNames.NEVER);
     }
 
     @Bean
