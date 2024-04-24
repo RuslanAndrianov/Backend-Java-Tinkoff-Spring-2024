@@ -14,6 +14,8 @@ import edu.java.bot.repository.in_memory.ChatState;
 import edu.java.bot.repository.in_memory.DBChatStates;
 import edu.shared_dto.request_dto.AddLinkRequest;
 import edu.shared_dto.request_dto.RemoveLinkRequest;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +41,15 @@ public class MessageService {
 
     private final TelegramBot telegramBot;
     private final ScrapperClient scrapperClient;
+    Counter messagesCounter = Metrics.counter("messages_counter");
 
     // Если лень разбираться в коде:
+    // 0. Повышаем счетчик обработанных сообщений (для метрик).
     // 1. Ищем индексы команд в commands (чтобы не привязываться к MagicNumber
     //    и можно было добавлять новые команды в commands в любом порядке).
     // 2. До обработки сообщения загружаем состояние чата из кэш-файла.
     // 3. Если пользователь пытается зарегистрироваться, то регистрируем его.
-    // 4. Если пользователь незарегистрирован, то выдаем пользователю сообщение об ошибке.
+    // 4. Если пользователь не зарегистрирован, то выдаем пользователю сообщение об ошибке.
     // 5. Проверяем сообщение на совпадение с остальными командами.
     // 6. Проверяем, является ли сообщение валидным URL.
     //    Если невалидный URL, то пишем, что не смогли распознать команду.
@@ -59,6 +63,9 @@ public class MessageService {
         long chatId = update.message().chat().id();
         String chatMessage = update.message().text();
         Object scrapperResponse;
+
+        // 0.
+        messagesCounter.increment();
 
         // 1.
         int helpCmdIndex = getCommandIndex(HelpCommand.class);

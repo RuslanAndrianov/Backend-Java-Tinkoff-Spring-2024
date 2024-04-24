@@ -1,10 +1,10 @@
 package edu.java.scrapper.repositoryTest.jdbc;
 
-import edu.java.domain.dto.Chat;
-import edu.java.domain.dto.Link;
-import edu.java.domain.repository.jdbc.JdbcChatsRepository;
-import edu.java.domain.repository.jdbc.JdbcChatsToLinksRepository;
-import edu.java.domain.repository.jdbc.JdbcLinksRepository;
+import edu.java.scrapper.domain.dto.Chat;
+import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.repository.jdbc.JdbcChatsRepository;
+import edu.java.scrapper.domain.repository.jdbc.JdbcChatsToLinksRepository;
+import edu.java.scrapper.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -181,7 +181,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcLinksRepository.addLink(link);
         jdbcChatsToLinksRepository.addLinkToChat(chat, link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jdbcChatsToLinksRepository.isChatHasLinks(chat);
 
         assertTrue(isChatExist);
 
@@ -189,7 +189,7 @@ public class JdbcChatsToLinksRepositoryTest extends IntegrationEnvironment {
         jdbcChatsRepository.deleteChat(chat);
         jdbcLinksRepository.deleteLink(link);
 
-        isChatExist = jdbcChatsToLinksRepository.isChatExist(chat);
+        isChatExist = jdbcChatsToLinksRepository.isChatHasLinks(chat);
 
         assertFalse(isChatExist);
     }

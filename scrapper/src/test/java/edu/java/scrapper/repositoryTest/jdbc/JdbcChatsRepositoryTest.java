@@ -1,7 +1,7 @@
 package edu.java.scrapper.repositoryTest.jdbc;
 
-import edu.java.domain.dto.Chat;
-import edu.java.domain.repository.jdbc.JdbcChatsRepository;
+import edu.java.scrapper.domain.dto.Chat;
+import edu.java.scrapper.domain.repository.jdbc.JdbcChatsRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.util.List;
 import org.junit.jupiter.api.Test;

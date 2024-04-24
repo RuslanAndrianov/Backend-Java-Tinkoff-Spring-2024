@@ -7,7 +7,7 @@ api:
     defaultUrl: https://api.stackexchange.com/2.3/
 
 app:
-  database-access-type: jpa # jdbc / jpa / jooq
+  database-access-type: jooq # jdbc / jpa / jooq
   scheduler:
     enable: true
     interval: 10000 # Задержка в миллисекундах
@@ -39,6 +39,37 @@ bucket4j:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+management:
+  server:
+    port: 8081
+
+  endpoints:
+    web:
+      path-mapping:
+        prometheus: /metrics
+      base-path: /
+      exposure:
+        include: info, health, prometheus
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
+    prometheus:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 1m
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
 
 rate-limiter:
   whitelist: 127.0.0.1

@@ -1,7 +1,7 @@
 package edu.java.scrapper.repositoryTest.jdbc;
 
-import edu.java.domain.dto.Link;
-import edu.java.domain.repository.jdbc.JdbcLinksRepository;
+import edu.java.scrapper.domain.dto.Link;
+import edu.java.scrapper.domain.repository.jdbc.JdbcLinksRepository;
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
