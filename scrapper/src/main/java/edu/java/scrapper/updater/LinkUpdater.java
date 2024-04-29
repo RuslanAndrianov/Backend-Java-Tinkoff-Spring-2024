@@ -35,8 +35,6 @@ public class LinkUpdater {
         String[] partsOfUrl = url.split("/");
         String domain = partsOfUrl[2];
 
-        // TODO : возможно стоит переписать с использованием валидаторов URLValidator
-
         switch (domain) {
             case "github.com":
                 String owner = partsOfUrl[3];
