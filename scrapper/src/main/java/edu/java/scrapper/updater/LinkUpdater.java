@@ -1,8 +1,9 @@
 package edu.java.scrapper.updater;
 
 import edu.java.scrapper.clients.BotClient;
+import edu.java.scrapper.clients.GitHub.GitHubBranchResponse;
 import edu.java.scrapper.clients.GitHub.GitHubClient;
-import edu.java.scrapper.clients.GitHub.GitHubResponse;
+import edu.java.scrapper.clients.GitHub.GitHubCommitResponse;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowClient;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowItemsResponse;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowResponse;
@@ -51,21 +52,35 @@ public class LinkUpdater {
     }
 
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
-        GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
-        OffsetDateTime updatedAt = response.updatedAt();
         OffsetDateTime lastUpdated = link.getLastUpdated();
+        GitHubBranchResponse[] branchResponses = gitHubClient.getBranches(owner, repo);
 
-        if (updatedAt.isAfter(lastUpdated)) {
-            linkService.setLastUpdatedTimeToLink(link, updatedAt);
-            try {
-                botClient.updateLink(new LinkUpdateRequest(
-                    link.getLinkId(),
-                    new URI(link.getUrl()),
-                    "Repository: " + repo + "\n" + "Owner: " + owner,
-                    chatsToLinksRepository.getAllChatIdsByLink(link)
-                ));
-            } catch (URISyntaxException e) {
-                log.error("Error updateGitHubLink");
+        // Коммиты приходят в порядке от недавних к давним => обходим массив в обратном порядке
+        for (int i = branchResponses.length - 1; i >= 0; i--) {
+            String branchName = branchResponses[i].branchName;
+            GitHubCommitResponse[] commitResponses = gitHubClient
+                .getCommitsFromBranch(owner, repo, branchName);
+
+            for (GitHubCommitResponse commitResponse : commitResponses) {
+                OffsetDateTime updatedAt = commitResponse.commit.author.date;
+                String message = commitResponse.commit.message;
+
+                if (updatedAt.isAfter(lastUpdated)) {
+                    linkService.setLastUpdatedTimeToLink(link, updatedAt);
+                    try {
+                        botClient.updateLink(new LinkUpdateRequest(
+                            link.getLinkId(),
+                            new URI(link.getUrl()),
+                            "Новый коммит в репозитории: " + repo + "\n"
+                                + "Ветка: " + branchName + "\n"
+                                + "Коммит: " + message + "\n"
+                                + "Владелец репозитория: " + owner,
+                            chatsToLinksRepository.getAllChatIdsByLink(link)
+                        ));
+                    } catch (URISyntaxException e) {
+                        log.error("Error updateGitHubLink");
+                    }
+                }
             }
         }
     }

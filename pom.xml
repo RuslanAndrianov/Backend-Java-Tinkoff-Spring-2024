@@ -46,6 +46,9 @@
 
         <!-- Docs -->
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0</springdoc-openapi-starter-webmvc-ui.version>
+
+        <!-- JSON Parser -->
+        <jackson.version>2.17.0</jackson.version>
     </properties>
 
     <modules>

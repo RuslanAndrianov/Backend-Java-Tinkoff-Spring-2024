@@ -38,4 +38,25 @@ public class GitHubClientImpl implements GitHubClient {
             .bodyToMono(GitHubResponse.class)
             .block();
     }
+
+    @Override
+    public GitHubBranchResponse[] getBranches(String owner, String repo) {
+        return this.webClient
+            .get()
+            .uri(defaultUrl + "/repos/{owner}/{repo}/branches", owner, repo)
+            .retrieve()
+            .bodyToMono(GitHubBranchResponse[].class)
+            .block();
+    }
+
+    @Override
+    public GitHubCommitResponse[] getCommitsFromBranch(String owner, String repo, String branch) {
+        return this.webClient
+            .get()
+            .uri(defaultUrl + "/repos/{owner}/{repo}/commits?sha={branch}",
+                owner, repo, branch)
+            .retrieve()
+            .bodyToMono(GitHubCommitResponse[].class)
+            .block();
+    }
 }
