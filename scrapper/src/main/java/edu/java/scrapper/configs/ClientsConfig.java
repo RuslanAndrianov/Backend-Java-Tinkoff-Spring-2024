@@ -1,7 +1,7 @@
 package edu.java.scrapper.configs;
 
 import edu.java.scrapper.clients.BotClient;
-import edu.java.scrapper.clients.GitHub.GitHubClientImpl;
+import edu.java.scrapper.clients.GitHub.GitHubClient;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowClientImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,8 @@ public class ClientsConfig {
     }
 
     @Bean
-    public GitHubClientImpl gitHubClient(RetryPolicyConfig retryPolicyConfig) {
-        return new GitHubClientImpl(retryPolicyConfig);
+    public GitHubClient gitHubClient(RetryPolicyConfig retryPolicyConfig) {
+        return new GitHubClient(retryPolicyConfig);
     }
 
     @Bean

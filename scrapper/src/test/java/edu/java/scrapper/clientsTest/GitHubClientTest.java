@@ -1,7 +1,7 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.scrapper.clients.GitHub.GitHubClientImpl;
+import edu.java.scrapper.clients.GitHub.GitHubClient;
 import edu.java.scrapper.clients.GitHub.GitHubResponse;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -57,7 +57,7 @@ public class GitHubClientTest extends IntegrationEnvironment {
                 )
             )
         );
-        GitHubClientImpl gitHubClient = new GitHubClientImpl(
+        GitHubClient gitHubClient = new GitHubClient(
             config,
             "http://localhost:8080"
         );
