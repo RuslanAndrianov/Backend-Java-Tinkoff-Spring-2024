@@ -113,7 +113,7 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
         // Arrange
         long link_id = 4L;
-        String url = "https://github.com/RuslanAndrianov/Backend-Java-Tinkoff-Spring-2024";
+        String url = "https://github.com/";
 
         Link link = new Link();
         link.setLinkId(link_id);
