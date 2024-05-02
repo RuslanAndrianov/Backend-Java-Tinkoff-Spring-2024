@@ -50,12 +50,12 @@ public class LinkUpdater {
         }
     }
 
+    // TODO : пофиксить, чтобы коммиты приходили в хронологическом порядке
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
         OffsetDateTime lastUpdated = link.getLastUpdated();
         GitHubBranchResponse[] branchResponses = gitHubClient.getBranches(owner, repo);
 
-        // Коммиты приходят в порядке от недавних к давним => обходим массив в обратном порядке
-        for (int i = branchResponses.length - 1; i >= 0; i--) {
+        for (int i = 0; i < branchResponses.length; i++) {
             String branchName = branchResponses[i].branchName;
             GitHubCommitResponse[] commitResponses = gitHubClient
                 .getCommitsFromBranch(owner, repo, branchName);
@@ -84,6 +84,7 @@ public class LinkUpdater {
         }
     }
 
+    // TODO : как только ссылка добавляется в БД, нужно, чтобы сразу появлялась инфа про answer_count
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
         StackOverflowQuestionResponse response = stackOverflowClient.getQuestion(questionId);
 
@@ -91,16 +92,16 @@ public class LinkUpdater {
         String title = response.items[0].title;
 
         response.items[0].createLastActivityDateFromSeconds();
-        OffsetDateTime lastActivityDate1 = response.items[0].lastActivityDate;
+        OffsetDateTime lastActivityDate = response.items[0].lastActivityDate;
 
         if (link.getAdditionalInfo() == null) {
-            String initialAnswerCountInfo = "0";
+            String initialAnswerCountInfo = String.valueOf(answerCount);
             linkService.addAdditionalInfoToLink(link, initialAnswerCountInfo);
             link.setAdditionalInfo(initialAnswerCountInfo);
         }
 
         if (answerCount > Integer.parseInt(link.getAdditionalInfo())) {
-            linkService.setLastUpdatedTimeToLink(link, lastActivityDate1);
+            linkService.setLastUpdatedTimeToLink(link, lastActivityDate);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
                     link.getLinkId(),
