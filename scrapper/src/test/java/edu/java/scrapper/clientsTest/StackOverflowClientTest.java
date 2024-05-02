@@ -1,11 +1,11 @@
 package edu.java.scrapper.clientsTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowClientImpl;
+import edu.java.scrapper.IntegrationEnvironment;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowClient;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowItemsResponse;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowResponse;
 import edu.java.scrapper.configs.RetryPolicyConfig;
-import edu.java.scrapper.IntegrationEnvironment;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -60,7 +60,7 @@ public class StackOverflowClientTest extends IntegrationEnvironment {
                 )
             )
         );
-        StackOverflowClientImpl stackOverflowClient = new StackOverflowClientImpl(
+        StackOverflowClient stackOverflowClient = new StackOverflowClient(
             config,
             "http://localhost:8080");
 

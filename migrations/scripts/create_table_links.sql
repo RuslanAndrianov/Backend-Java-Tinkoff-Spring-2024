@@ -6,6 +6,7 @@ CREATE TABLE links (
     last_updated    TIMESTAMP        NOT NULL,
     last_checked    TIMESTAMP        NOT NULL,
     zone_offset     INTEGER          NOT NULL,
+    additional_info VARCHAR(2048),
 
     PRIMARY KEY(link_id)
 );

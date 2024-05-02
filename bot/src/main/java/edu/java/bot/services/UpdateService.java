@@ -16,7 +16,8 @@ public class UpdateService {
 
     public void sendNotificationToChats(@NotNull LinkUpdateRequest request) {
         List<Long> tgChatIds = request.tgChatIds();
-        String messageText = "Новое обновление по ссылке: " + request.url();
+        String messageText = "Новое обновление по ссылке: " + request.url() + "\n\n"
+            + request.description();
         for (Long tgChatId : tgChatIds) {
             telegramBot.execute(new SendMessage(tgChatId, messageText));
         }

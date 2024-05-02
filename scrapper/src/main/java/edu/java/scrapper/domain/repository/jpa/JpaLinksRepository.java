@@ -170,4 +170,24 @@ public class JpaLinksRepository implements LinksRepository {
         entityManager.close();
         return result;
     }
+
+    @Override
+    public boolean addAdditionalInfoToLink(Link link, String info) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        String hql = "UPDATE Link SET additionalInfo = :additionalInfo WHERE linkId = :linkId";
+        entityManager.getTransaction().begin();
+        Query query = entityManager.createQuery(hql);
+        boolean result = false;
+        try {
+            result = query
+                .setParameter("additionalInfo", info)
+                .setParameter("linkId", link.getLinkId())
+                .executeUpdate() != 0;
+        } catch (NullPointerException e) {
+            log.error("Link's additional_info field update error!");
+        }
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        return result;
+    }
 }

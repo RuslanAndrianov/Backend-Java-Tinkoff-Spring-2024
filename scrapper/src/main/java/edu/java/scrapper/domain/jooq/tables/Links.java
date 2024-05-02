@@ -14,11 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function5;
+import org.jooq.Function6;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row5;
+import org.jooq.Row6;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -83,6 +83,11 @@ public class Links extends TableImpl<LinksRecord> {
      * The column <code>LINKS.ZONE_OFFSET</code>.
      */
     public final TableField<LinksRecord, Integer> ZONE_OFFSET = createField(DSL.name("ZONE_OFFSET"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>LINKS.ADDITIONAL_INFO</code>.
+     */
+    public final TableField<LinksRecord, String> ADDITIONAL_INFO = createField(DSL.name("ADDITIONAL_INFO"), SQLDataType.VARCHAR(2048), this, "");
 
     private Links(Name alias, Table<LinksRecord> aliased) {
         this(alias, aliased, null);
@@ -175,19 +180,19 @@ public class Links extends TableImpl<LinksRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row6 type methods
     // -------------------------------------------------------------------------
 
     @Override
     @NotNull
-    public Row5<Long, String, LocalDateTime, LocalDateTime, Integer> fieldsRow() {
-        return (Row5) super.fieldsRow();
+    public Row6<Long, String, LocalDateTime, LocalDateTime, Integer, String> fieldsRow() {
+        return (Row6) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function5<? super Long, ? super String, ? super LocalDateTime, ? super LocalDateTime, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function6<? super Long, ? super String, ? super LocalDateTime, ? super LocalDateTime, ? super Integer, ? super String, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -195,7 +200,7 @@ public class Links extends TableImpl<LinksRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function5<? super Long, ? super String, ? super LocalDateTime, ? super LocalDateTime, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super Long, ? super String, ? super LocalDateTime, ? super LocalDateTime, ? super Integer, ? super String, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

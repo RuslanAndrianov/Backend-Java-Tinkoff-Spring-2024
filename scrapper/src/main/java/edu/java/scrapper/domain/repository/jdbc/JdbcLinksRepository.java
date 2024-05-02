@@ -157,4 +157,20 @@ public class JdbcLinksRepository implements LinksRepository {
         }
         return result;
     }
+
+    @Override
+    public boolean addAdditionalInfoToLink(Link link, String info) {
+        String sql = "UPDATE links SET additional_info = ? WHERE link_id = ?";
+        boolean result = false;
+        try {
+            result = (jdbcClient
+                .sql(sql)
+                .param(info)
+                .param(link.getLinkId())
+                .update() != 0);
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Link's additional_info field update error!");
+        }
+        return result;
+    }
 }

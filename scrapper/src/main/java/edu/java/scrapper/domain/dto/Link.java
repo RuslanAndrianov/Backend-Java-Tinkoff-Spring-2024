@@ -30,4 +30,7 @@ public class Link {
 
     @Column(name = "zone_offset")
     int zoneOffset;
+
+    @Column(name = "additional_info")
+    String additionalInfo;
 }

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import javax.annotation.processing.Generated;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -32,6 +33,7 @@ public class Links implements Serializable {
     private LocalDateTime lastUpdated;
     private LocalDateTime lastChecked;
     private Integer zoneOffset;
+    private String additionalInfo;
 
     public Links() {}
 
@@ -41,21 +43,24 @@ public class Links implements Serializable {
         this.lastUpdated = value.lastUpdated;
         this.lastChecked = value.lastChecked;
         this.zoneOffset = value.zoneOffset;
+        this.additionalInfo = value.additionalInfo;
     }
 
-    @ConstructorProperties({ "linkId", "url", "lastUpdated", "lastChecked", "zoneOffset" })
+    @ConstructorProperties({ "linkId", "url", "lastUpdated", "lastChecked", "zoneOffset", "additionalInfo" })
     public Links(
         @NotNull Long linkId,
         @NotNull String url,
         @NotNull LocalDateTime lastUpdated,
         @NotNull LocalDateTime lastChecked,
-        @NotNull Integer zoneOffset
+        @NotNull Integer zoneOffset,
+        @Nullable String additionalInfo
     ) {
         this.linkId = linkId;
         this.url = url;
         this.lastUpdated = lastUpdated;
         this.lastChecked = lastChecked;
         this.zoneOffset = zoneOffset;
+        this.additionalInfo = additionalInfo;
     }
 
     /**
@@ -139,6 +144,22 @@ public class Links implements Serializable {
         this.zoneOffset = zoneOffset;
     }
 
+    /**
+     * Getter for <code>LINKS.ADDITIONAL_INFO</code>.
+     */
+    @Size(max = 2048)
+    @Nullable
+    public String getAdditionalInfo() {
+        return this.additionalInfo;
+    }
+
+    /**
+     * Setter for <code>LINKS.ADDITIONAL_INFO</code>.
+     */
+    public void setAdditionalInfo(@Nullable String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -178,6 +199,12 @@ public class Links implements Serializable {
         }
         else if (!this.zoneOffset.equals(other.zoneOffset))
             return false;
+        if (this.additionalInfo == null) {
+            if (other.additionalInfo != null)
+                return false;
+        }
+        else if (!this.additionalInfo.equals(other.additionalInfo))
+            return false;
         return true;
     }
 
@@ -190,6 +217,7 @@ public class Links implements Serializable {
         result = prime * result + ((this.lastUpdated == null) ? 0 : this.lastUpdated.hashCode());
         result = prime * result + ((this.lastChecked == null) ? 0 : this.lastChecked.hashCode());
         result = prime * result + ((this.zoneOffset == null) ? 0 : this.zoneOffset.hashCode());
+        result = prime * result + ((this.additionalInfo == null) ? 0 : this.additionalInfo.hashCode());
         return result;
     }
 
@@ -202,6 +230,7 @@ public class Links implements Serializable {
         sb.append(", ").append(lastUpdated);
         sb.append(", ").append(lastChecked);
         sb.append(", ").append(zoneOffset);
+        sb.append(", ").append(additionalInfo);
 
         sb.append(")");
         return sb.toString();

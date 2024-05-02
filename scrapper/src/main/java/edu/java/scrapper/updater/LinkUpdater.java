@@ -1,11 +1,11 @@
 package edu.java.scrapper.updater;
 
 import edu.java.scrapper.clients.BotClient;
+import edu.java.scrapper.clients.GitHub.GitHubBranchResponse;
 import edu.java.scrapper.clients.GitHub.GitHubClient;
-import edu.java.scrapper.clients.GitHub.GitHubResponse;
+import edu.java.scrapper.clients.GitHub.GitHubCommitResponse;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowClient;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowItemsResponse;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowResponse;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowQuestionResponse;
 import edu.java.scrapper.domain.dto.Link;
 import edu.java.scrapper.domain.repository.ChatsToLinksRepository;
 import edu.java.scrapper.services.LinkService;
@@ -35,8 +35,6 @@ public class LinkUpdater {
         String[] partsOfUrl = url.split("/");
         String domain = partsOfUrl[2];
 
-        // TODO : возможно стоит переписать с использованием валидаторов URLValidator
-
         switch (domain) {
             case "github.com":
                 String owner = partsOfUrl[3];
@@ -52,39 +50,64 @@ public class LinkUpdater {
         }
     }
 
+    // TODO : пофиксить, чтобы коммиты приходили в хронологическом порядке
     private void updateGitHubLink(@NotNull Link link, String owner, String repo) {
-        GitHubResponse response = gitHubClient.fetchRepository(owner, repo);
-        OffsetDateTime updatedAt = response.updatedAt();
         OffsetDateTime lastUpdated = link.getLastUpdated();
+        GitHubBranchResponse[] branchResponses = gitHubClient.getBranches(owner, repo);
 
-        if (updatedAt.isAfter(lastUpdated)) {
-            linkService.setLastUpdatedTimeToLink(link, updatedAt);
-            try {
-                botClient.updateLink(new LinkUpdateRequest(
-                    link.getLinkId(),
-                    new URI(link.getUrl()),
-                    "Repository: " + repo + "\n" + "Owner: " + owner,
-                    chatsToLinksRepository.getAllChatIdsByLink(link)
-                ));
-            } catch (URISyntaxException e) {
-                log.error("Error updateGitHubLink");
+        for (int i = 0; i < branchResponses.length; i++) {
+            String branchName = branchResponses[i].branchName;
+            GitHubCommitResponse[] commitResponses = gitHubClient
+                .getCommitsFromBranch(owner, repo, branchName);
+
+            for (GitHubCommitResponse commitResponse : commitResponses) {
+                OffsetDateTime updatedAt = commitResponse.commit.author.date;
+                String message = commitResponse.commit.message;
+
+                if (updatedAt.isAfter(lastUpdated)) {
+                    linkService.setLastUpdatedTimeToLink(link, updatedAt);
+                    try {
+                        botClient.updateLink(new LinkUpdateRequest(
+                            link.getLinkId(),
+                            new URI(link.getUrl()),
+                            "Новый коммит в репозитории: " + repo + "\n"
+                                + "Ветка: " + branchName + "\n"
+                                + "Коммит: " + message + "\n"
+                                + "Владелец репозитория: " + owner,
+                            chatsToLinksRepository.getAllChatIdsByLink(link)
+                        ));
+                    } catch (URISyntaxException e) {
+                        log.error("Error updateGitHubLink");
+                    }
+                }
             }
         }
     }
 
+    // TODO : как только ссылка добавляется в БД, нужно, чтобы сразу появлялась инфа про answer_count
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
-        StackOverflowItemsResponse response = stackOverflowClient.fetchQuestion(questionId);
-        StackOverflowResponse properties = response.deserialize();
-        OffsetDateTime lastActivityDate = properties.lastActivityDate();
-        OffsetDateTime lastUpdated = link.getLastUpdated();
+        StackOverflowQuestionResponse response = stackOverflowClient.getQuestion(questionId);
 
-        if (lastActivityDate.isAfter(lastUpdated)) {
+        int answerCount = response.items[0].answerCount;
+        String title = response.items[0].title;
+
+        response.items[0].createLastActivityDateFromSeconds();
+        OffsetDateTime lastActivityDate = response.items[0].lastActivityDate;
+
+        if (link.getAdditionalInfo() == null) {
+            String initialAnswerCountInfo = String.valueOf(answerCount);
+            linkService.addAdditionalInfoToLink(link, initialAnswerCountInfo);
+            link.setAdditionalInfo(initialAnswerCountInfo);
+        }
+
+        if (answerCount > Integer.parseInt(link.getAdditionalInfo())) {
             linkService.setLastUpdatedTimeToLink(link, lastActivityDate);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
                     link.getLinkId(),
                     new URI(link.getUrl()),
-                    "Question id: " + questionId,
+                    "Новый ответ в вопросе " + questionId + "\n"
+                    + "Вопрос: " + title,
                     chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {

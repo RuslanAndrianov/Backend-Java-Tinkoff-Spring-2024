@@ -10,3 +10,5 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ['host.docker.internal:8081']
+
+# TODO : отключить логирование каждые 10 с в консоль (как?)

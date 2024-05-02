@@ -35,8 +35,7 @@ import static edu.utils.URLValidator.isValidURL;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-@SuppressWarnings({"ReturnCount", "AvoidStarImport",
-    "MissingSwitchDefault", "MultipleStringLiterals"})
+@SuppressWarnings({"ReturnCount", "MissingSwitchDefault", "MultipleStringLiterals"})
 public class MessageService {
 
     private final TelegramBot telegramBot;
