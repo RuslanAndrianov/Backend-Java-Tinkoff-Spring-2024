@@ -5,8 +5,7 @@ import edu.java.scrapper.clients.GitHub.GitHubBranchResponse;
 import edu.java.scrapper.clients.GitHub.GitHubClient;
 import edu.java.scrapper.clients.GitHub.GitHubCommitResponse;
 import edu.java.scrapper.clients.StackOverflow.StackOverflowClient;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowItemsResponse;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowResponse;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowQuestionResponse;
 import edu.java.scrapper.domain.dto.Link;
 import edu.java.scrapper.domain.repository.ChatsToLinksRepository;
 import edu.java.scrapper.services.LinkService;
@@ -86,18 +85,28 @@ public class LinkUpdater {
     }
 
     private void updateStackOverflowLink(@NotNull Link link, Long questionId) {
-        StackOverflowItemsResponse response = stackOverflowClient.fetchQuestion(questionId);
-        StackOverflowResponse properties = response.deserialize();
-        OffsetDateTime lastActivityDate = properties.lastActivityDate();
-        OffsetDateTime lastUpdated = link.getLastUpdated();
+        StackOverflowQuestionResponse response = stackOverflowClient.getQuestion(questionId);
 
-        if (lastActivityDate.isAfter(lastUpdated)) {
-            linkService.setLastUpdatedTimeToLink(link, lastActivityDate);
+        int answerCount = response.items[0].answerCount;
+        String title = response.items[0].title;
+
+        response.items[0].createLastActivityDateFromSeconds();
+        OffsetDateTime lastActivityDate1 = response.items[0].lastActivityDate;
+
+        if (link.getAdditionalInfo() == null) {
+            String initialAnswerCountInfo = "0";
+            linkService.addAdditionalInfoToLink(link, initialAnswerCountInfo);
+            link.setAdditionalInfo(initialAnswerCountInfo);
+        }
+
+        if (answerCount > Integer.parseInt(link.getAdditionalInfo())) {
+            linkService.setLastUpdatedTimeToLink(link, lastActivityDate1);
             try {
                 botClient.updateLink(new LinkUpdateRequest(
                     link.getLinkId(),
                     new URI(link.getUrl()),
-                    "Question id: " + questionId,
+                    "Новый ответ в вопросе " + questionId + "\n"
+                    + "Вопрос: " + title,
                     chatsToLinksRepository.getAllChatIdsByLink(link)
                 ));
             } catch (URISyntaxException e) {

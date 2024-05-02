@@ -39,7 +39,8 @@ public class JooqLinksRepository implements LinksRepository {
                     link.getUrl(),
                     link.getLastUpdated().minusSeconds(link.getZoneOffset()),
                     link.getLastChecked().minusSeconds(link.getZoneOffset()),
-                    link.getZoneOffset())
+                    link.getZoneOffset(),
+                    null)
                 .execute() != 0);
         } catch (Exception e) {
             log.error("Link addition error!");
@@ -185,6 +186,21 @@ public class JooqLinksRepository implements LinksRepository {
                 .execute()) != 0;
         } catch (Exception e) {
             log.error("Link's last_checked field update error!");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean addAdditionalInfoToLink(Link link, String info) {
+        boolean result = false;
+        try {
+            result = (dslContext
+                .update(LINKS)
+                .set(LINKS.ADDITIONAL_INFO, info)
+                .where(LINKS.LINK_ID.eq(link.getLinkId()))
+                .execute()) != 0;
+        } catch (Exception e) {
+            log.error("Link's additional_info field update error!");
         }
         return result;
     }

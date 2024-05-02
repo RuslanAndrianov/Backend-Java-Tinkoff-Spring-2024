@@ -20,4 +20,6 @@ public interface LinksRepository {
     boolean setLastCheckedTimeToLink(Link link, OffsetDateTime time);
 
     boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time);
+
+    boolean addAdditionalInfoToLink(Link link, String info);
 }

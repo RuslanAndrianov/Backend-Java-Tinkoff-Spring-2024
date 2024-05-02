@@ -2,7 +2,7 @@ package edu.java.scrapper.configs;
 
 import edu.java.scrapper.clients.BotClient;
 import edu.java.scrapper.clients.GitHub.GitHubClient;
-import edu.java.scrapper.clients.StackOverflow.StackOverflowClientImpl;
+import edu.java.scrapper.clients.StackOverflow.StackOverflowClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,7 +20,7 @@ public class ClientsConfig {
     }
 
     @Bean
-    public StackOverflowClientImpl stackOverflowClient(RetryPolicyConfig retryPolicyConfig) {
-        return new StackOverflowClientImpl(retryPolicyConfig);
+    public StackOverflowClient stackOverflowClient(RetryPolicyConfig retryPolicyConfig) {
+        return new StackOverflowClient(retryPolicyConfig);
     }
 }

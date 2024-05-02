@@ -119,4 +119,8 @@ public class LinkService {
     public boolean setLastUpdatedTimeToLink(Link link, OffsetDateTime time) {
         return linksRepository.setLastUpdatedTimeToLink(link, time);
     }
+
+    public boolean addAdditionalInfoToLink(Link link, String info) {
+        return linksRepository.addAdditionalInfoToLink(link, info);
+    }
 }
